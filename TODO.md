@@ -15,12 +15,13 @@ This document outlines planned enhancements and features for the LTecDeco backen
 ## Authentication & Authorization
 
 - [ ] Implement JWT-based authentication
-- [ ] Add user roles (admin, customer)
+- [x] Add user roles (owner, admin, customer)
 - [ ] Protect relevant routes with guards
 
 ## User Management Module
 
 - [ ] Create User entity with registration and profile management
+- [x] Support for OAuth providers (Google, Facebook)
 - [ ] Implement password reset functionality
 - [ ] Add email verification
 
