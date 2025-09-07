@@ -1,0 +1,61 @@
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+
+@Entity('products')
+export class Product {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column({ type: 'text' })
+  name: string;
+
+  @Column({ type: 'int' })
+  price: number;
+
+  @Column({ type: 'text', nullable: true })
+  description: string;
+
+  @Column({ type: 'text', nullable: true })
+  image: string;
+
+  @Column({ type: 'text', nullable: true })
+  category: string;
+
+  @Column({ type: 'text', nullable: true })
+  material: string;
+
+  @Column({ type: 'text', nullable: true })
+  style: string;
+
+  @Column({ type: 'text', nullable: true })
+  color: string;
+
+  @Column({ type: 'text', nullable: true })
+  dimensions: string;
+
+  @Column({ type: 'int', nullable: true })
+  weight: number;
+
+  @Column({ type: 'boolean', nullable: true })
+  inStock: boolean;
+
+  @Column({ type: 'numeric', nullable: true })
+  rating: number;
+
+  @Column({ type: 'int', nullable: true })
+  reviewCount: number;
+
+  @Column({ type: 'boolean', nullable: true })
+  featured: boolean;
+
+  @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
+  created_at: Date;
+
+  @UpdateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
+  updated_at: Date;
+}

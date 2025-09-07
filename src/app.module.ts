@@ -4,6 +4,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { HealthModule } from './health/health.module';
+import { ProductsModule } from './products/products.module';
 import { THROTTLE_LIMIT, THROTTLE_TTL } from './utils/environments';
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { THROTTLE_LIMIT, THROTTLE_TTL } from './utils/environments';
       errorMessage: 'Too many requests. Please try again later.',
     }),
     HealthModule,
+    ProductsModule,
   ],
   controllers: [],
   providers: [

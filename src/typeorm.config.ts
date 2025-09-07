@@ -15,6 +15,6 @@ export default new DataSource({
   username: DB_USERNAME,
   password: DB_PASSWORD,
   database: DB_NAME,
-  entities: [],
+  entities: ['src/**/*.entity.ts'],
   migrations: ['src/database/migrations/*.ts'],
 });
