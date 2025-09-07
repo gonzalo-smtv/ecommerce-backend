@@ -4,8 +4,8 @@ import { CartController } from './cart.controller';
 import { CartService } from './cart.service';
 import { Cart } from './entities/cart.entity';
 import { CartItem } from './entities/cart-item.entity';
-import { ProductsModule } from '../products/products.module';
-import { UsersModule } from '../users/users.module';
+import { ProductsModule } from '@app/products/products.module';
+import { UsersModule } from '@app/users/users.module';
 import { CartSessionMiddleware } from './middleware/cart-session.middleware';
 
 /**

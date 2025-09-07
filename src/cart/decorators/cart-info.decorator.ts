@@ -1,5 +1,5 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { UsersService } from '../../users/users.service';
+import { UsersService } from '@app/users/users.service';
 import { v4 as uuidv4 } from 'uuid';
 
 /**

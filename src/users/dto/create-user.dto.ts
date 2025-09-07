@@ -8,7 +8,7 @@ import {
   MaxLength,
   IsNotEmpty,
 } from 'class-validator';
-import { AuthProvider, UserRole } from '../entities/user.entity';
+import { AuthProvider, UserRole } from '@app/users/entities/user.entity';
 
 export class CreateUserDto {
   @ApiProperty({ example: 'user@example.com' })

@@ -3,12 +3,12 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { HealthModule } from './health/health.module';
-import { ProductsModule } from './products/products.module';
-import { StorageModule } from './storage/storage.module';
-import { UsersModule } from './users/users.module';
-import { CartModule } from './cart/cart.module';
-import { THROTTLE_LIMIT, THROTTLE_TTL } from './utils/environments';
+import { HealthModule } from '@app/health/health.module';
+import { ProductsModule } from '@app/products/products.module';
+import { StorageModule } from '@app/storage/storage.module';
+import { UsersModule } from '@app/users/users.module';
+import { CartModule } from '@app/cart/cart.module';
+import { THROTTLE_LIMIT, THROTTLE_TTL } from '@app/utils/environments';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),

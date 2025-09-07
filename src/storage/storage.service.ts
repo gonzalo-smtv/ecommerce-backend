@@ -4,7 +4,7 @@ import {
   SUPABASE_KEY,
   SUPABASE_URL,
   SUPABASE_STORAGE_BUCKET,
-} from '../utils/environments';
+} from '@app/utils/environments';
 
 @Injectable()
 export class StorageService {

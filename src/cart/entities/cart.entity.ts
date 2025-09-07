@@ -8,7 +8,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { User } from '../../users/entities/user.entity';
+import { User } from '@app/users/entities/user.entity';
 import { CartItem } from './cart-item.entity';
 
 /**

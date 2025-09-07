@@ -6,7 +6,7 @@ import {
   DB_PORT,
   DB_TYPE,
   DB_USERNAME,
-} from './utils/environments';
+} from '@app/utils/environments';
 
 export default new DataSource({
   type: DB_TYPE as any,

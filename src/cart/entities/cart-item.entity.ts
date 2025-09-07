@@ -6,7 +6,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Cart } from './cart.entity';
-import { Product } from '../../products/entities/product.entity';
+import { Product } from '@app/products/entities/product.entity';
 
 /**
  * CartItem entity to store individual products in a shopping cart

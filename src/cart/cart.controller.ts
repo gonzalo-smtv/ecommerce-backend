@@ -22,7 +22,7 @@ import {
 } from '@nestjs/swagger';
 import { Cart } from './entities/cart.entity';
 import { CartInfo } from './decorators/cart-info.decorator';
-import { UsersService } from '../users/users.service';
+import { UsersService } from '@app/users/users.service';
 import type { CartInfoType } from './types/cart-info.type';
 // Express types for request handling
 
