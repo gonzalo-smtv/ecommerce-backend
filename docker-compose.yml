@@ -1,0 +1,23 @@
+services:
+  postgres:
+    container_name: nexera-dashboard-db
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: nexera_dashboard
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      PGDATA: /data/postgres
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres
+    restart: unless-stopped
+
+networks:
+  postgres:
+    driver: bridge
+
+volumes:
+  postgres:
