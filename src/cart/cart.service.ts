@@ -218,7 +218,7 @@ export class CartService {
     // Remove all items
     await this.cartItemRepository.delete({ cartId });
 
-    // Actualizar carrito
+    // Update cart
     cart.items = [];
     cart.totalItems = 0;
     cart.totalPrice = 0;

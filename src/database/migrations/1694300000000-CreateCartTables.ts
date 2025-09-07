@@ -126,7 +126,7 @@ export class CreateCartTables1694300000000 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    // Eliminar foreign keys
+    // Delete foreign keys
     const cartItemsTable = await queryRunner.getTable('cart_items');
     const cartsTable = await queryRunner.getTable('carts');
 
@@ -158,7 +158,7 @@ export class CreateCartTables1694300000000 implements MigrationInterface {
       }
     }
 
-    // Eliminar tablas
+    // Delete tables
     await queryRunner.dropTable('cart_items');
     await queryRunner.dropTable('carts');
   }
