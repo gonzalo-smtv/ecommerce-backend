@@ -53,8 +53,8 @@ This document outlines planned enhancements and features for the LTecDeco backen
 
 ## Cart System
 
-- [ ] Create Cart entity to store temporary orders
-- [ ] Add endpoints for cart management
+- [x] Create Cart entity to store temporary orders
+- [x] Add endpoints for cart management
 
 ## Inventory Management
 
