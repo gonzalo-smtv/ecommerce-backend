@@ -13,7 +13,6 @@ export class CreateUsersTable1694200000000 implements MigrationInterface {
         "lastName" VARCHAR(100) NOT NULL,
         "password" VARCHAR NULL,
         "authProvider" auth_provider_enum NOT NULL DEFAULT 'local',
-        "providerId" VARCHAR NULL,
         "role" user_role_enum NOT NULL DEFAULT 'customer',
         "isEmailVerified" BOOLEAN NOT NULL DEFAULT false,
         "verificationToken" VARCHAR NULL,
