@@ -21,19 +21,6 @@ import { User } from './entities/user.entity';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  @ApiOperation({ summary: 'Create a new user' })
-  @ApiResponse({
-    status: 201,
-    description: 'The user has been successfully created.',
-    type: User,
-  })
-  @ApiResponse({ status: 400, description: 'Bad request.' })
-  @ApiResponse({ status: 409, description: 'User already exists.' })
-  async create(@Body() createUserDto: CreateUserDto): Promise<User> {
-    return this.usersService.create(createUserDto);
-  }
-
   @Get()
   @ApiOperation({ summary: 'Get all users' })
   @ApiResponse({
@@ -45,42 +32,16 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Get a user by id' })
+  @Get(':email')
+  @ApiOperation({ summary: 'Get a user by email' })
   @ApiResponse({
     status: 200,
-    description: 'Return a user by id',
+    description: 'Return a user by email',
     type: User,
   })
   @ApiResponse({ status: 404, description: 'User not found.' })
-  async findOne(@Param('id', ParseIntPipe) id: number): Promise<User> {
-    return this.usersService.findById(id);
-  }
-
-  @Patch(':id')
-  @ApiOperation({ summary: 'Update a user' })
-  @ApiResponse({
-    status: 200,
-    description: 'The user has been successfully updated.',
-    type: User,
-  })
-  @ApiResponse({ status: 404, description: 'User not found.' })
-  async update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateUserDto: UpdateUserDto,
-  ): Promise<User> {
-    return this.usersService.update(id, updateUserDto);
-  }
-
-  @Delete(':id')
-  @ApiOperation({ summary: 'Delete a user' })
-  @ApiResponse({ status: 204, description: 'The user has been deleted.' })
-  @ApiResponse({ status: 404, description: 'User not found.' })
-  async remove(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<{ message: string }> {
-    await this.usersService.remove(id);
-    return { message: 'User deleted successfully' };
+  async findOne(@Param('email') email: string): Promise<User | object> {
+    return (await this.usersService.findByEmail(email)) || {};
   }
 
   @Get('verify-email')
@@ -96,6 +57,19 @@ export class UsersController {
 
     await this.usersService.verifyEmail(token);
     return { message: 'Email verified successfully' };
+  }
+
+  @Post()
+  @ApiOperation({ summary: 'Create a new user' })
+  @ApiResponse({
+    status: 201,
+    description: 'The user has been successfully created.',
+    type: User,
+  })
+  @ApiResponse({ status: 400, description: 'Bad request.' })
+  @ApiResponse({ status: 409, description: 'User already exists.' })
+  async create(@Body() createUserDto: CreateUserDto): Promise<User> {
+    return this.usersService.create(createUserDto);
   }
 
   @Post('reset-password-request')
@@ -141,5 +115,31 @@ export class UsersController {
     }
 
     return { message: 'Password reset successfully' };
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Update a user' })
+  @ApiResponse({
+    status: 200,
+    description: 'The user has been successfully updated.',
+    type: User,
+  })
+  @ApiResponse({ status: 404, description: 'User not found.' })
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<User> {
+    return this.usersService.update(id, updateUserDto);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete a user' })
+  @ApiResponse({ status: 204, description: 'The user has been deleted.' })
+  @ApiResponse({ status: 404, description: 'User not found.' })
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<{ success: boolean; message: string }> {
+    await this.usersService.remove(id);
+    return { success: true, message: 'User deleted successfully' };
   }
 }

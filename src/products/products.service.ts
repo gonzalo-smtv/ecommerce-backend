@@ -36,6 +36,7 @@ export class ProductsService {
       product.image = url;
     }
 
+    console.log(`Product created successfully`);
     return this.productsRepository.save(product);
   }
 
@@ -86,6 +87,8 @@ export class ProductsService {
     }
 
     await this.productsRepository.remove(product);
+
+    console.log(`Product with ID ${id} deleted successfully`);
   }
 
   // Helper method to extract the path from a Supabase URL

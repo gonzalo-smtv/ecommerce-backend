@@ -102,8 +102,8 @@ export class ProductsController {
   @Delete(':id')
   async delete(
     @Param('id', ParseIntPipe) id: number,
-  ): Promise<{ message: string }> {
+  ): Promise<{ success: boolean; message: string }> {
     await this.productsService.delete(id);
-    return { message: 'Product deleted successfully' };
+    return { success: true, message: 'Product deleted successfully' };
   }
 }
