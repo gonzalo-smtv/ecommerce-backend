@@ -12,6 +12,14 @@ This document outlines planned enhancements and features for the LTecDeco backen
 - [x] Health check endpoint
 - [x] Docker setup for development
 
+## Next Steps
+
+- [ ] Implement MercadoPago 👷🏻‍♂️ S
+- [ ] Improve database schema 👷🏻‍♂️ S
+- [ ] Cart full implementation 👷🏻‍♂️ G
+- [ ] Proxy images
+- [ ] Support multiple images per product and zoom feature
+
 ## Authentication & Authorization
 
 - [ ] Implement JWT-based authentication
