@@ -1,3 +1,4 @@
+import { getVersionFromPackageJson } from '@app/utils';
 import { Controller, Get } from '@nestjs/common';
 import {
   HealthCheck,
@@ -14,7 +15,11 @@ export class HealthController {
 
   @Get()
   @HealthCheck()
-  check() {
-    return this.health.check([() => this.db.pingCheck('database')]);
+  async check() {
+    return {
+      status: 'ok',
+      version: getVersionFromPackageJson(),
+      checks: await this.health.check([() => this.db.pingCheck('database')]),
+    };
   }
 }
