@@ -8,6 +8,7 @@ import { ProductsModule } from '@app/products/products.module';
 import { StorageModule } from '@app/storage/storage.module';
 import { UsersModule } from '@app/users/users.module';
 import { CartModule } from '@app/cart/cart.module';
+import { PaymentsModule } from '@app/payments/payments.module';
 import { THROTTLE_LIMIT, THROTTLE_TTL } from '@app/utils/environments';
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { THROTTLE_LIMIT, THROTTLE_TTL } from '@app/utils/environments';
     StorageModule,
     UsersModule,
     CartModule,
+    PaymentsModule,
   ],
   controllers: [],
   providers: [
