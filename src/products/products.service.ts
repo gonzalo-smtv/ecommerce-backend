@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { StorageService } from '@app/storage/storage.service';
+import { CacheService } from '@app/cache/cache.service';
 
 @Injectable()
 export class ProductsService {
@@ -10,6 +11,7 @@ export class ProductsService {
     @InjectRepository(Product)
     private productsRepository: Repository<Product>,
     private readonly storageService: StorageService,
+    private readonly cacheService: CacheService,
   ) {}
 
   findAll(): Promise<Product[]> {
@@ -50,6 +52,9 @@ export class ProductsService {
     if (file) {
       // Delete previous image if exists
       if (product.image) {
+        // Invalidate cache for the old image
+        this.cacheService.invalidateCache(product.image);
+
         const imagePath = this.extractImagePath(product.image);
         if (imagePath) {
           try {
@@ -89,6 +94,22 @@ export class ProductsService {
     await this.productsRepository.remove(product);
 
     console.log(`Product with ID ${id} deleted successfully`);
+  }
+
+  /**
+   * Get an image by product ID, using the cache system
+   * @param productId - The ID of the product
+   * @returns Buffer with the image data or null if not found
+   */
+  async getProductImage(productId: number): Promise<Buffer | null> {
+    const product = await this.findById(productId);
+
+    if (!product.image) {
+      return null;
+    }
+
+    // Get the image from cache (or download it if not in cache)
+    return this.cacheService.getImage(product.image);
   }
 
   // Helper method to extract the path from a Supabase URL

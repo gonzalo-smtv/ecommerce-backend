@@ -9,6 +9,8 @@ import {
   UseInterceptors,
   UploadedFile,
   ParseIntPipe,
+  Res,
+  NotFoundException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ProductsService } from './products.service';
@@ -19,6 +21,22 @@ import { ApiTags, ApiConsumes, ApiBody } from '@nestjs/swagger';
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
+
+  @Get(':id/image')
+  async getProductImage(
+    @Param('id', ParseIntPipe) id: number,
+    @Res() res: any,
+  ): Promise<any> {
+    const imageBuffer = await this.productsService.getProductImage(id);
+    if (!imageBuffer) {
+      throw new NotFoundException('Image not found');
+    }
+    res.set({
+      'Content-Type': 'image/jpeg',
+      'Cache-Control': 'public, max-age=3600',
+    });
+    return res.send(imageBuffer);
+  }
 
   @Get()
   findAll(): Promise<Product[]> {

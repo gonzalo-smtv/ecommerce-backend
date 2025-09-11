@@ -4,9 +4,10 @@ import { ProductsController } from './products.controller';
 import { ProductsService } from './products.service';
 import { Product } from './entities/product.entity';
 import { StorageModule } from '@app/storage/storage.module';
+import { CacheModule } from '@app/cache/cache.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Product]), StorageModule],
+  imports: [TypeOrmModule.forFeature([Product]), StorageModule, CacheModule],
   controllers: [ProductsController],
   providers: [ProductsService],
   exports: [ProductsService],
