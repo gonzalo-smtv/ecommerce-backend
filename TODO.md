@@ -17,7 +17,7 @@ This document outlines planned enhancements and features for the LTecDeco backen
 - [ ] Implement MercadoPago 👷🏻‍♂️ S
 - [ ] Improve database schema 👷🏻‍♂️ S
 - [ ] Cart full implementation 👷🏻‍♂️ G
-- [ ] Proxy images
+- [x] Proxy images
 - [ ] Support multiple images per product and zoom feature
 
 ## Authentication & Authorization
