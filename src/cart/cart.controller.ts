@@ -6,9 +6,6 @@ import {
   Param,
   Delete,
   Patch,
-  Req,
-  BadRequestException,
-  NotFoundException,
 } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { AddToCartDto } from './dto/add-to-cart.dto';
@@ -22,7 +19,6 @@ import {
 } from '@nestjs/swagger';
 import { Cart } from './entities/cart.entity';
 import { CartInfo } from './decorators/cart-info.decorator';
-import { UsersService } from '@app/users/users.service';
 import type { CartInfoType } from './types/cart-info.type';
 // Express types for request handling
 
@@ -33,10 +29,7 @@ import type { CartInfoType } from './types/cart-info.type';
 @ApiTags('cart')
 @Controller('cart')
 export class CartController {
-  constructor(
-    private readonly cartService: CartService,
-    private readonly usersService: UsersService,
-  ) {}
+  constructor(private readonly cartService: CartService) {}
 
   @Get()
   @ApiOperation({ summary: 'Get current cart' })
@@ -101,34 +94,5 @@ export class CartController {
     const { userId, sessionId } = cartInfo;
     const cart = await this.cartService.getOrCreateCart(userId, sessionId);
     return this.cartService.clearCart(cart.id);
-  }
-
-  @Post('merge')
-  @ApiOperation({
-    summary: 'Merge guest cart with user cart when logging in',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Carts merged successfully',
-    type: Cart,
-  })
-  async mergeGuestCart(@Req() request: any) {
-    const email = request.headers['x-user-email'];
-
-    const sessionId =
-      request.cookies?.sessionId || request.headers['x-session-id'];
-
-    if (!email || !sessionId) {
-      throw new BadRequestException(
-        'User email and sessionId are required to merge carts',
-      );
-    }
-
-    const user = await this.usersService.findByEmail(email);
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    return this.cartService.mergeGuestCart(user.id, sessionId);
   }
 }

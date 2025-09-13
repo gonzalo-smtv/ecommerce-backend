@@ -31,18 +31,6 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @Get(':email')
-  @ApiOperation({ summary: 'Get a user by email' })
-  @ApiResponse({
-    status: 200,
-    description: 'Return a user by email',
-    type: User,
-  })
-  @ApiResponse({ status: 404, description: 'User not found.' })
-  async findOne(@Param('email') email: string): Promise<User | object> {
-    return (await this.usersService.findByEmail(email)) || {};
-  }
-
   @Get('verify-email')
   @ApiOperation({ summary: 'Verify a user email' })
   @ApiResponse({ status: 200, description: 'Email verified successfully.' })
@@ -56,6 +44,18 @@ export class UsersController {
 
     await this.usersService.verifyEmail(token);
     return { message: 'Email verified successfully' };
+  }
+
+  @Get(':email')
+  @ApiOperation({ summary: 'Get a user by email' })
+  @ApiResponse({
+    status: 200,
+    description: 'Return a user by email',
+    type: User,
+  })
+  @ApiResponse({ status: 404, description: 'User not found.' })
+  async findOne(@Param('email') email: string): Promise<User | object> {
+    return (await this.usersService.findByEmail(email)) || {};
   }
 
   @Post()

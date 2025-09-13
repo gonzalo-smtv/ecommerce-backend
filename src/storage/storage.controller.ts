@@ -27,6 +27,38 @@ export class StorageController {
 
   constructor(private readonly storageService: StorageService) {}
 
+  @Get('list')
+  @ApiQuery({
+    name: 'path',
+    required: false,
+    description: 'Directory path to list',
+  })
+  async listFiles(@Query('path') path?: string) {
+    return await this.storageService.listFiles(path);
+  }
+
+  @Get('url/:path')
+  @ApiParam({
+    name: 'path',
+    required: true,
+    description: 'Path of the file to get URL for',
+  })
+  @ApiQuery({
+    name: 'expiresIn',
+    required: false,
+    description: 'Expiration time in seconds (default: 60)',
+  })
+  async getSignedUrl(
+    @Param('path') path: string,
+    @Query('expiresIn') expiresIn?: number,
+  ) {
+    const expiration = expiresIn
+      ? parseInt(expiresIn as unknown as string, 10)
+      : 60;
+    const url = await this.storageService.getSignedUrl(path, expiration);
+    return { url };
+  }
+
   @Post('upload')
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -61,16 +93,6 @@ export class StorageController {
     }
   }
 
-  @Get('list')
-  @ApiQuery({
-    name: 'path',
-    required: false,
-    description: 'Directory path to list',
-  })
-  async listFiles(@Query('path') path?: string) {
-    return await this.storageService.listFiles(path);
-  }
-
   @Delete('files/:path')
   @ApiParam({
     name: 'path',
@@ -80,27 +102,5 @@ export class StorageController {
   async deleteFile(@Param('path') path: string) {
     await this.storageService.deleteFile(path);
     return { message: 'File deleted successfully' };
-  }
-
-  @Get('url/:path')
-  @ApiParam({
-    name: 'path',
-    required: true,
-    description: 'Path of the file to get URL for',
-  })
-  @ApiQuery({
-    name: 'expiresIn',
-    required: false,
-    description: 'Expiration time in seconds (default: 60)',
-  })
-  async getSignedUrl(
-    @Param('path') path: string,
-    @Query('expiresIn') expiresIn?: number,
-  ) {
-    const expiration = expiresIn
-      ? parseInt(expiresIn as unknown as string, 10)
-      : 60;
-    const url = await this.storageService.getSignedUrl(path, expiration);
-    return { url };
   }
 }

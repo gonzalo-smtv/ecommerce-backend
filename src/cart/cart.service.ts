@@ -225,34 +225,4 @@ export class CartService {
 
     return this.cartRepository.save(cart);
   }
-
-  // Merge carts (e.g., when an anonymous user authenticates)
-  async mergeGuestCart(userId: string, sessionId: string): Promise<Cart> {
-    // Find session cart
-    const guestCart = await this.cartRepository.findOne({
-      where: { sessionId },
-      relations: ['items', 'items.product'],
-    });
-
-    if (!guestCart || guestCart.items.length === 0) {
-      return this.getOrCreateCart(userId);
-    }
-
-    // Find or create user cart - no need to store in variable since we're not using it directly
-    await this.getOrCreateCart(userId);
-
-    // Add items from guest cart to user cart
-    for (const item of guestCart.items) {
-      await this.addToCart(userId, undefined, {
-        productId: item.productId,
-        quantity: item.quantity,
-      });
-    }
-
-    // Delete guest cart
-    await this.cartRepository.delete(guestCart.id);
-
-    // Return updated user cart
-    return this.getOrCreateCart(userId);
-  }
 }
