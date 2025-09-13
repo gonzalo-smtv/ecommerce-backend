@@ -68,17 +68,13 @@ export class CartController {
   @ApiParam({ name: 'id', description: 'Cart item ID' })
   @ApiBody({ type: UpdateCartItemDto })
   async updateCartItem(
-    @Param('id') id: number,
+    @Param('id') id: string,
     @Body() updateCartItemDto: UpdateCartItemDto,
     @CartInfo() cartInfo: CartInfoType,
   ) {
     const { userId, sessionId } = cartInfo;
     const cart = await this.cartService.getOrCreateCart(userId, sessionId);
-    const itemId = Number(id);
-    if (isNaN(itemId)) {
-      throw new BadRequestException('Invalid item ID format');
-    }
-    return this.cartService.updateCartItem(cart.id, itemId, updateCartItemDto);
+    return this.cartService.updateCartItem(cart.id, id, updateCartItemDto);
   }
 
   @Delete('items/:id')
@@ -90,16 +86,12 @@ export class CartController {
   })
   @ApiParam({ name: 'id', description: 'Cart item ID' })
   async removeFromCart(
-    @Param('id') id: number,
+    @Param('id') id: string,
     @CartInfo() cartInfo: CartInfoType,
   ) {
     const { userId, sessionId } = cartInfo;
     const cart = await this.cartService.getOrCreateCart(userId, sessionId);
-    const itemId = Number(id);
-    if (isNaN(itemId)) {
-      throw new BadRequestException('Invalid item ID format');
-    }
-    return this.cartService.removeFromCart(cart.id, itemId);
+    return this.cartService.removeFromCart(cart.id, id);
   }
 
   @Delete('clear')

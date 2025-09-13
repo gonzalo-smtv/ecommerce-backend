@@ -10,8 +10,8 @@ import { Order } from './order.entity';
 
 @Entity('order_payment_details')
 export class OrderPaymentDetail {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
   method: string;

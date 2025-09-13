@@ -126,7 +126,7 @@ export class UsersController {
   })
   @ApiResponse({ status: 404, description: 'User not found.' })
   async update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<User> {
     return this.usersService.update(id, updateUserDto);
@@ -137,7 +137,7 @@ export class UsersController {
   @ApiResponse({ status: 204, description: 'The user has been deleted.' })
   @ApiResponse({ status: 404, description: 'User not found.' })
   async remove(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
   ): Promise<{ success: boolean; message: string }> {
     await this.usersService.remove(id);
     return { success: true, message: 'User deleted successfully' };

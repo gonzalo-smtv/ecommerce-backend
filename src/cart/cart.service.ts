@@ -32,7 +32,7 @@ export class CartService {
    * @param sessionId - Optional session ID for anonymous users
    * @returns The cart instance
    */
-  async getOrCreateCart(userId?: number, sessionId?: string): Promise<Cart> {
+  async getOrCreateCart(userId?: string, sessionId?: string): Promise<Cart> {
     let cart: Cart | null = null;
 
     if (userId) {
@@ -74,7 +74,7 @@ export class CartService {
    * @returns Updated cart
    */
   async addToCart(
-    userId: number | undefined,
+    userId: string | undefined,
     sessionId: string | undefined,
     addToCartDto: AddToCartDto,
   ): Promise<Cart> {
@@ -135,8 +135,8 @@ export class CartService {
    * @returns Updated cart
    */
   async updateCartItem(
-    cartId: number,
-    itemId: number,
+    cartId: string,
+    itemId: string,
     updateCartItemDto: UpdateCartItemDto,
   ): Promise<Cart> {
     const { quantity } = updateCartItemDto;
@@ -173,7 +173,7 @@ export class CartService {
   }
 
   // Remove a product from the cart
-  async removeFromCart(cartId: number, itemId: number): Promise<Cart> {
+  async removeFromCart(cartId: string, itemId: string): Promise<Cart> {
     const cart = await this.cartRepository.findOne({
       where: { id: cartId },
       relations: ['items', 'items.product'],
@@ -206,7 +206,7 @@ export class CartService {
   }
 
   // Empty cart
-  async clearCart(cartId: number): Promise<Cart> {
+  async clearCart(cartId: string): Promise<Cart> {
     const cart = await this.cartRepository.findOne({
       where: { id: cartId },
     });
@@ -227,7 +227,7 @@ export class CartService {
   }
 
   // Merge carts (e.g., when an anonymous user authenticates)
-  async mergeGuestCart(userId: number, sessionId: string): Promise<Cart> {
+  async mergeGuestCart(userId: string, sessionId: string): Promise<Cart> {
     // Find session cart
     const guestCart = await this.cartRepository.findOne({
       where: { sessionId },

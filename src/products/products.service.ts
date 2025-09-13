@@ -18,7 +18,7 @@ export class ProductsService {
     return this.productsRepository.find();
   }
 
-  async findById(id: number): Promise<Product> {
+  async findById(id: string): Promise<Product> {
     const product = await this.productsRepository.findOne({ where: { id } });
     if (!product) {
       throw new NotFoundException(`Product with ID ${id} not found`);
@@ -43,7 +43,7 @@ export class ProductsService {
   }
 
   async update(
-    id: number,
+    id: string,
     productData: Partial<Product>,
     file?: Express.Multer.File,
   ): Promise<Product> {
@@ -75,7 +75,7 @@ export class ProductsService {
     return this.productsRepository.save(product);
   }
 
-  async delete(id: number): Promise<void> {
+  async delete(id: string): Promise<void> {
     const product = await this.findById(id);
 
     // Delete associated image if exists
@@ -101,7 +101,7 @@ export class ProductsService {
    * @param productId - The ID of the product
    * @returns Buffer with the image data or null if not found
    */
-  async getProductImage(productId: number): Promise<Buffer | null> {
+  async getProductImage(productId: string): Promise<Buffer | null> {
     const product = await this.findById(productId);
 
     if (!product.image) {

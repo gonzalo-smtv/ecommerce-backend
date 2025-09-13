@@ -17,11 +17,11 @@ import { CartItem } from './cart-item.entity';
  */
 @Entity('carts')
 export class Cart {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column({ nullable: true })
-  userId: number;
+  userId: string;
 
   @Column({ nullable: true })
   sessionId: string;

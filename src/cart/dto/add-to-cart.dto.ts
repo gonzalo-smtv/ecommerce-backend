@@ -6,9 +6,8 @@ import { ApiProperty } from '@nestjs/swagger';
  */
 export class AddToCartDto {
   @IsNotEmpty()
-  @IsInt()
   @ApiProperty({ description: 'Product ID to add to cart' })
-  productId: number;
+  productId: string;
 
   @IsNotEmpty()
   @IsInt()

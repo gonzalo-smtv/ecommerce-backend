@@ -24,7 +24,7 @@ export class ProductsController {
 
   @Get(':id/image')
   async getProductImage(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Res() res: any,
   ): Promise<any> {
     const imageBuffer = await this.productsService.getProductImage(id);
@@ -44,7 +44,7 @@ export class ProductsController {
   }
 
   @Get(':id')
-  findById(@Param('id', ParseIntPipe) id: number): Promise<Product> {
+  findById(@Param('id') id: string): Promise<Product> {
     return this.productsService.findById(id);
   }
 
@@ -110,7 +110,7 @@ export class ProductsController {
   })
   @UseInterceptors(FileInterceptor('file'))
   update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body() productData: Partial<Product>,
     @UploadedFile() file?: Express.Multer.File,
   ): Promise<Product> {
@@ -119,7 +119,7 @@ export class ProductsController {
 
   @Delete(':id')
   async delete(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
   ): Promise<{ success: boolean; message: string }> {
     await this.productsService.delete(id);
     return { success: true, message: 'Product deleted successfully' };

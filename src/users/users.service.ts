@@ -21,7 +21,7 @@ export class UsersService {
     return this.usersRepository.find();
   }
 
-  async findById(id: number): Promise<User> {
+  async findById(id: string): Promise<User> {
     const user = await this.usersRepository.findOne({ where: { id } });
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
@@ -71,7 +71,7 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
     const user = await this.findById(id);
 
     // Handle email change: check if new email already exists
@@ -90,7 +90,7 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: string): Promise<void> {
     const user = await this.findById(id);
     await this.usersRepository.remove(user);
   }
@@ -189,7 +189,7 @@ export class UsersService {
     return this.usersRepository.save(newUser);
   }
 
-  async updateLastLogin(id: number): Promise<void> {
+  async updateLastLogin(id: string): Promise<void> {
     await this.usersRepository.update(id, {
       lastLogin: new Date(),
     });
