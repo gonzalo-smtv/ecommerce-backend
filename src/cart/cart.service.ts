@@ -191,9 +191,11 @@ export class CartService {
       );
     }
 
-    // Remove the item
-    await this.cartItemRepository.delete(itemId);
+    // Remove the item from the array first to avoid relationship issues
     cart.items.splice(itemIndex, 1);
+
+    // Then delete from database
+    await this.cartItemRepository.delete(itemId);
 
     // Update cart totals
     cart.totalItems = cart.items.reduce((sum, item) => sum + item.quantity, 0);
