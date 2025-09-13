@@ -3,7 +3,7 @@ import { Type } from 'class-transformer';
 
 export class CheckoutItemDto {
   @IsNumber()
-  id: number;
+  id: string;
 
   @IsNumber()
   quantity: number;

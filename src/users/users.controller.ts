@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   Query,
-  ParseIntPipe,
   BadRequestException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';

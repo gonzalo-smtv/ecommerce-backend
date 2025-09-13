@@ -8,7 +8,6 @@ import {
   Param,
   UseInterceptors,
   UploadedFile,
-  ParseIntPipe,
   Res,
   NotFoundException,
 } from '@nestjs/common';
