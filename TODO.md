@@ -14,20 +14,20 @@ This document outlines planned enhancements and features for the LTecDeco backen
 
 ## Next Steps
 
-- [ ] Implement MercadoPago 👷🏻‍♂️ S
-  . When preference is created, the order should be created and the payment should be created with it and status should be pending.
-  . If user goes to the checkout page, try to get the order and payment by the external reference. If not found, create a new one.
-- [ ] Improve database schema 👷🏻‍♂️ S
-- [ ] Cart full implementation 👷🏻‍♂️ G
-- [ ] Implement certificate authentication between the backend and the frontend. Header signature with the certificate.
-- [ ] Support multiple images per product and zoom feature
+- [x] Cart full implementation
 - [x] Proxy images
+- [ ] Implement MercadoPago 👷🏻‍♂️ S
+      . When preference is created, the order should be created and the payment should be created with it and status should be pending.
+      . If user goes to the checkout page, try to get the order and payment by the external reference. If not found, create a new one.
+- [ ] Improve database schema 👷🏻‍♂️ S
+- [ ] Implement certificate authentication between the backend and the frontend. Header signature with the certificate.
+- [ ] Support multiple images per product and zoom feature 👷🏻‍♂️ G
 
 ## Authentication & Authorization
 
-- [ ] Implement JWT-based authentication
 - [x] Add user roles (owner, admin, customer)
 - [ ] Protect relevant routes with guards
+- [ ] Implement JWT-based authentication
 
 ## User Management Module
 
