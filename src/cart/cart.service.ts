@@ -53,7 +53,7 @@ export class CartService {
     if (!cart) {
       const newCart = new Cart();
       // @ts-expect-error TODO: check this
-      newCart.userId = userId;
+      newCart.userId = userId || null;
       // @ts-expect-error TODO: check this
       newCart.sessionId = sessionId || (userId ? null : uuidv4()); // Generate new sessionId if needed
       newCart.items = [];
