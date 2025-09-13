@@ -24,4 +24,4 @@ export class PaymentsModule implements NestModule {
       .apply(WebhookValidatorMiddleware)
       .forRoutes('payments/mercadopago/webhook');
   }
-} 
+}

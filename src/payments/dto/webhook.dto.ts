@@ -1,4 +1,10 @@
-import { IsString, IsNumber, IsBoolean, IsObject, IsDateString } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsBoolean,
+  IsObject,
+  IsDateString,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class WebhookNotificationDto {
@@ -6,11 +12,15 @@ export class WebhookNotificationDto {
   @IsNumber()
   id: number;
 
-  @ApiProperty({ description: 'Whether the notification is from live mode or test mode' })
+  @ApiProperty({
+    description: 'Whether the notification is from live mode or test mode',
+  })
   @IsBoolean()
   live_mode: boolean;
 
-  @ApiProperty({ description: 'The type of notification (e.g., payment, subscription, etc.)' })
+  @ApiProperty({
+    description: 'The type of notification (e.g., payment, subscription, etc.)',
+  })
   @IsString()
   type: string;
 
@@ -39,4 +49,4 @@ export class WebhookNotificationDto {
   data: {
     id: string | number;
   };
-} 
+}

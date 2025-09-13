@@ -36,4 +36,4 @@ export class CreateOrdersTable1694488000000 implements MigrationInterface {
     // Drop enum type
     await queryRunner.query(`DROP TYPE "public"."order_status_enum"`);
   }
-} 
+}

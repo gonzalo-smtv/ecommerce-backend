@@ -43,7 +43,7 @@ export class OrderService {
         if (!product) {
           throw new Error(`Product with id ${item.id} not found`);
         }
-        
+
         const orderItem = this.orderItemRepository.create({
           order: savedOrder,
           title: product.name,
@@ -52,7 +52,7 @@ export class OrderService {
         });
 
         return this.orderItemRepository.save(orderItem);
-      })
+      }),
     );
 
     // Attach the items to the order
@@ -68,7 +68,10 @@ export class OrderService {
     });
   }
 
-  async updateOrderPayment(order: Order, paymentData: PaymentData): Promise<void> {
+  async updateOrderPayment(
+    order: Order,
+    paymentData: PaymentData,
+  ): Promise<void> {
     // Map Mercado Pago payment status to order status
     const orderStatus = this.mapPaymentStatusToOrderStatus(paymentData.status);
 
@@ -85,11 +88,14 @@ export class OrderService {
     console.log('paymentDetail', paymentDetail);
 
     // Save payment detail
-    const savedPaymentDetail = await this.orderPaymentDetailRepository.save(paymentDetail);
+    const savedPaymentDetail =
+      await this.orderPaymentDetailRepository.save(paymentDetail);
 
     console.log('savedPaymentDetail', savedPaymentDetail);
 
-    const updatedOrder = await this.orderRepository.update(order.id, { status: orderStatus });
+    const updatedOrder = await this.orderRepository.update(order.id, {
+      status: orderStatus,
+    });
     this.logger.log('updatedOrder', updatedOrder);
   }
 
@@ -112,4 +118,4 @@ export class OrderService {
         return OrderStatus.PENDING;
     }
   }
-} 
+}

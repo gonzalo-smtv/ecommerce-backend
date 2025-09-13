@@ -1,4 +1,9 @@
-import { MigrationInterface, QueryRunner, Table, TableForeignKey } from 'typeorm';
+import {
+  MigrationInterface,
+  QueryRunner,
+  Table,
+  TableForeignKey,
+} from 'typeorm';
 
 export class CreateOrderItemsTable1694534400000 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -44,7 +49,7 @@ export class CreateOrderItemsTable1694534400000 implements MigrationInterface {
           },
         ],
       }),
-      true
+      true,
     );
 
     // Add foreign key constraint
@@ -55,7 +60,7 @@ export class CreateOrderItemsTable1694534400000 implements MigrationInterface {
         referencedColumnNames: ['id'],
         referencedTableName: 'orders',
         onDelete: 'CASCADE',
-      })
+      }),
     );
   }
 
@@ -66,7 +71,9 @@ export class CreateOrderItemsTable1694534400000 implements MigrationInterface {
       throw new Error('Table "order_items" not found');
     }
 
-    const foreignKey = table.foreignKeys.find(fk => fk.columnNames.indexOf('orderId') !== -1);
+    const foreignKey = table.foreignKeys.find(
+      (fk) => fk.columnNames.indexOf('orderId') !== -1,
+    );
     if (!foreignKey) {
       throw new Error('Foreign key on "orderId" not found');
     }
@@ -76,4 +83,4 @@ export class CreateOrderItemsTable1694534400000 implements MigrationInterface {
     // Drop the order_items table
     await queryRunner.dropTable('order_items');
   }
-} 
+}

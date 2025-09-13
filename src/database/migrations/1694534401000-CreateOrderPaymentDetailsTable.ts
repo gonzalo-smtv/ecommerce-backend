@@ -1,6 +1,13 @@
-import { MigrationInterface, QueryRunner, Table, TableForeignKey } from 'typeorm';
+import {
+  MigrationInterface,
+  QueryRunner,
+  Table,
+  TableForeignKey,
+} from 'typeorm';
 
-export class CreateOrderPaymentDetailTable1694534401000 implements MigrationInterface {
+export class CreateOrderPaymentDetailTable1694534401000
+  implements MigrationInterface
+{
   public async up(queryRunner: QueryRunner): Promise<void> {
     // First create the order_payment_details table
     await queryRunner.createTable(
@@ -46,7 +53,7 @@ export class CreateOrderPaymentDetailTable1694534401000 implements MigrationInte
           },
         ],
       }),
-      true
+      true,
     );
 
     // Add foreign key constraint
@@ -57,7 +64,7 @@ export class CreateOrderPaymentDetailTable1694534401000 implements MigrationInte
         referencedColumnNames: ['id'],
         referencedTableName: 'orders',
         onDelete: 'CASCADE',
-      })
+      }),
     );
   }
 
@@ -68,7 +75,9 @@ export class CreateOrderPaymentDetailTable1694534401000 implements MigrationInte
       throw new Error('Table "order_payment_details" not found');
     }
 
-    const foreignKey = table.foreignKeys.find(fk => fk.columnNames.indexOf('orderId') !== -1);
+    const foreignKey = table.foreignKeys.find(
+      (fk) => fk.columnNames.indexOf('orderId') !== -1,
+    );
     if (!foreignKey) {
       throw new Error('Foreign key on "orderId" not found');
     }
@@ -78,4 +87,4 @@ export class CreateOrderPaymentDetailTable1694534401000 implements MigrationInte
     // Drop the order_payment_details table
     await queryRunner.dropTable('order_payment_details');
   }
-} 
+}

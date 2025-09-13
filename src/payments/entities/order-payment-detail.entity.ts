@@ -1,4 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Order } from './order.entity';
 
 @Entity('order_payment_details')
@@ -18,7 +25,9 @@ export class OrderPaymentDetail {
   @Column()
   transactionId: string;
 
-  @ManyToOne(() => Order, order => order.paymentDetails, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Order, (order) => order.paymentDetails, {
+    onDelete: 'CASCADE',
+  })
   order: Order;
 
   @Column()
@@ -29,4 +38,4 @@ export class OrderPaymentDetail {
 
   @UpdateDateColumn()
   updatedAt: Date;
-} 
+}

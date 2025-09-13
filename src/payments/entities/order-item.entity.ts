@@ -1,4 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Order } from './order.entity';
 
 @Entity('order_items')
@@ -18,7 +25,7 @@ export class OrderItem {
   @Column('decimal', { precision: 10, scale: 2 })
   unitPrice: number;
 
-  @ManyToOne(() => Order, order => order.items, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Order, (order) => order.items, { onDelete: 'CASCADE' })
   order: Order;
 
   @CreateDateColumn()
@@ -26,4 +33,4 @@ export class OrderItem {
 
   @UpdateDateColumn()
   updatedAt: Date;
-} 
+}

@@ -1,4 +1,8 @@
-import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NestMiddleware,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
@@ -13,7 +17,9 @@ export class WebhookValidatorMiddleware implements NestMiddleware {
     const dataId = req.query['data.id'] as string;
 
     if (!xSignature || !xRequestId || !dataId) {
-      throw new UnauthorizedException('Missing required webhook headers or query parameters');
+      throw new UnauthorizedException(
+        'Missing required webhook headers or query parameters',
+      );
     }
 
     const parts = xSignature.split(',');
@@ -21,8 +27,8 @@ export class WebhookValidatorMiddleware implements NestMiddleware {
     let hash: string | null = null;
 
     // Extract timestamp and hash from x-signature header
-    parts.forEach(part => {
-      const [key, value] = part.split('=').map(s => s.trim());
+    parts.forEach((part) => {
+      const [key, value] = part.split('=').map((s) => s.trim());
       if (key === 'ts') ts = value;
       if (key === 'v1') hash = value;
     });
@@ -38,6 +44,7 @@ export class WebhookValidatorMiddleware implements NestMiddleware {
     }
 
     // Create the manifest string
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     const manifest = `id:${dataId};request-id:${xRequestId};ts:${ts};`;
 
     // Calculate HMAC
@@ -53,4 +60,4 @@ export class WebhookValidatorMiddleware implements NestMiddleware {
 
     next();
   }
-} 
+}

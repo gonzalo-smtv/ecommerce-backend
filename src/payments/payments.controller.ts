@@ -16,7 +16,9 @@ export class PaymentsController {
     description: 'The checkout preference has been successfully created',
   })
   async createCheckout(@Body() createCheckoutDto: CreateCheckoutDto) {
-    return this.paymentsService.createCheckoutPreference(createCheckoutDto.items);
+    return this.paymentsService.createCheckoutPreference(
+      createCheckoutDto.items,
+    );
   }
 
   @Post('/mercadopago/webhook')
@@ -29,4 +31,4 @@ export class PaymentsController {
   async handleWebhook(@Body() webhookData: WebhookNotificationDto) {
     return this.paymentsService.handleWebhookNotification(webhookData);
   }
-} 
+}

@@ -28,17 +28,22 @@ export class PaymentsService {
   ) {
     // Initialize MercadoPago client with the new SDK format
     this.client = new MercadoPagoConfig({
-      accessToken: this.configService.getOrThrow<string>('MERCADO_PAGO_ACCESS_TOKEN'),
+      accessToken: this.configService.getOrThrow<string>(
+        'MERCADO_PAGO_ACCESS_TOKEN',
+      ),
     });
   }
 
   async createCheckoutPreference(checkoutItems: CheckoutItemDto[]) {
-    const items = await Promise.all(checkoutItems.map(
-      this.mapCheckoutItemDtoToItemPreference.bind(this)
-    ));
+    const items = await Promise.all(
+      checkoutItems.map(this.mapCheckoutItemDtoToItemPreference.bind(this)),
+    );
 
     // Calculate total amount
-    const totalAmount = items.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0);
+    const totalAmount = items.reduce(
+      (sum, item) => sum + item.unit_price * item.quantity,
+      0,
+    );
 
     // Create order in pending state
     const order = await this.orderService.createOrder({
@@ -50,14 +55,22 @@ export class PaymentsService {
     const preferenceData: PreferenceRequest = {
       items,
       back_urls: {
-        success: this.configService.getOrThrow<string>('MERCADO_PAGO_SUCCESS_URL'),
-        failure: this.configService.getOrThrow<string>('MERCADO_PAGO_FAILURE_URL'),
-        pending: this.configService.getOrThrow<string>('MERCADO_PAGO_PENDING_URL'),
+        success: this.configService.getOrThrow<string>(
+          'MERCADO_PAGO_SUCCESS_URL',
+        ),
+        failure: this.configService.getOrThrow<string>(
+          'MERCADO_PAGO_FAILURE_URL',
+        ),
+        pending: this.configService.getOrThrow<string>(
+          'MERCADO_PAGO_PENDING_URL',
+        ),
       },
       auto_return: 'approved',
       statement_descriptor: 'LTecDeco',
       external_reference: order.id,
-      notification_url: this.configService.getOrThrow<string>('MERCADO_PAGO_WEBHOOK_URL'),
+      notification_url: this.configService.getOrThrow<string>(
+        'MERCADO_PAGO_WEBHOOK_URL',
+      ),
     };
 
     try {
@@ -65,11 +78,15 @@ export class PaymentsService {
       const response = await preference.create({ body: preferenceData });
       return response;
     } catch (error: any) {
-      throw new Error(`Failed to create Mercado Pago preference: ${error.message}`);
+      throw new Error(
+        `Failed to create Mercado Pago preference: ${error.message}`,
+      );
     }
   }
 
-  private async mapCheckoutItemDtoToItemPreference(item: CheckoutItemDto): Promise<PreferenceItem> {
+  private async mapCheckoutItemDtoToItemPreference(
+    item: CheckoutItemDto,
+  ): Promise<PreferenceItem> {
     const product = await this.productsService.findById(item.id);
 
     if (!product) {
@@ -86,7 +103,9 @@ export class PaymentsService {
   }
 
   async handleWebhookNotification(webhookData: WebhookNotificationDto) {
-    this.logger.log(`Received webhook notification: ${JSON.stringify(webhookData)}`);
+    this.logger.log(
+      `Received webhook notification: ${JSON.stringify(webhookData)}`,
+    );
 
     try {
       switch (webhookData.type) {
@@ -95,12 +114,17 @@ export class PaymentsService {
           break;
         // Add more cases for other notification types as needed
         default:
-          this.logger.warn(`Unhandled webhook notification type: ${webhookData.type}`);
+          this.logger.warn(
+            `Unhandled webhook notification type: ${webhookData.type}`,
+          );
       }
 
       return { status: 'success' };
     } catch (error: any) {
-      this.logger.error(`Error processing webhook: ${error.message}`, error.stack);
+      this.logger.error(
+        `Error processing webhook: ${error.message}`,
+        error.stack,
+      );
       throw new Error(`Failed to process webhook: ${error.message}`);
     }
   }
@@ -109,8 +133,13 @@ export class PaymentsService {
     try {
       const payment = new Payment(this.client);
       const response = await payment.get({ id: paymentId.toString() });
-      
-      if (!response.id || !response.status || !response.status_detail || !response.payment_method_id) {
+
+      if (
+        !response.id ||
+        !response.status ||
+        !response.status_detail ||
+        !response.payment_method_id
+      ) {
         throw new Error(`Invalid payment response for payment ${paymentId}`);
       }
 
@@ -123,10 +152,13 @@ export class PaymentsService {
         external_reference: response.external_reference,
       };
 
+      // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions
       this.logger.log(`Payment ${paymentId} paymentData: ${paymentData}`);
 
       // Find the order by external reference
-      const order = await this.orderService.findById(paymentData.external_reference || '');
+      const order = await this.orderService.findById(
+        paymentData.external_reference || '',
+      );
       if (!order) {
         throw new Error(`Order not found for payment ${paymentId}`);
       }
@@ -151,7 +183,9 @@ export class PaymentsService {
           this.logger.warn(`Unhandled payment status: ${paymentData.status}`);
       }
     } catch (error: any) {
-      this.logger.error(`Error fetching payment ${paymentId}: ${error.message}`);
+      this.logger.error(
+        `Error fetching payment ${paymentId}: ${error.message}`,
+      );
       throw error;
     }
   }

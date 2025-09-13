@@ -1,4 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+} from 'typeorm';
 import { OrderItem } from './order-item.entity';
 import { OrderPaymentDetail } from './order-payment-detail.entity';
 
@@ -21,17 +28,19 @@ export class Order {
   @Column({
     type: 'enum',
     enum: OrderStatus,
-    default: OrderStatus.PENDING
+    default: OrderStatus.PENDING,
   })
   status: OrderStatus;
 
   @Column('decimal', { precision: 10, scale: 2 })
   totalAmount: number;
 
-  @OneToMany(() => OrderItem, item => item.order, { cascade: true })
+  @OneToMany(() => OrderItem, (item) => item.order, { cascade: true })
   items: OrderItem[];
 
-  @OneToMany(() => OrderPaymentDetail, paymentDetail => paymentDetail.order, { cascade: true })
+  @OneToMany(() => OrderPaymentDetail, (paymentDetail) => paymentDetail.order, {
+    cascade: true,
+  })
   paymentDetails: OrderPaymentDetail[];
 
   @CreateDateColumn()
@@ -39,4 +48,4 @@ export class Order {
 
   @UpdateDateColumn()
   updatedAt: Date;
-} 
+}
