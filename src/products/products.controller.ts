@@ -21,6 +21,16 @@ import { ApiTags, ApiConsumes, ApiBody } from '@nestjs/swagger';
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
+  @Get()
+  findAll(): Promise<Product[]> {
+    return this.productsService.findAll();
+  }
+
+  @Get(':id')
+  findById(@Param('id') id: string): Promise<Product> {
+    return this.productsService.findById(id);
+  }
+
   @Get(':id/image')
   async getProductImage(
     @Param('id') id: string,
@@ -35,16 +45,6 @@ export class ProductsController {
       'Cache-Control': 'public, max-age=3600',
     });
     return res.send(imageBuffer);
-  }
-
-  @Get()
-  findAll(): Promise<Product[]> {
-    return this.productsService.findAll();
-  }
-
-  @Get(':id')
-  findById(@Param('id') id: string): Promise<Product> {
-    return this.productsService.findById(id);
   }
 
   @Post()

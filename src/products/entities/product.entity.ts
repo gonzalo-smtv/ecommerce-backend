@@ -54,8 +54,8 @@ export class Product {
   featured: boolean;
 
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
-  created_at: Date;
+  createdAt: Date;
 
   @UpdateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
-  updated_at: Date;
+  updatedAt: Date;
 }
