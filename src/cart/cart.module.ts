@@ -26,6 +26,6 @@ export class CartModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(CartSessionMiddleware)
-      .forRoutes({ path: 'cart/*path', method: RequestMethod.ALL });
+      .forRoutes({ path: 'cart', method: RequestMethod.ALL });
   }
 }

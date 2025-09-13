@@ -10,7 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 export class CartSessionMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction): void {
     // Check if there's already a sessionId in cookies or an identified user
-    if (!req.cookies?.sessionId && !req.headers['x-user-email']) {
+    if (!req.cookies?.sessionId && !req.headers['x-user-id']) {
       // If no sessionId or user, create a new sessionId
       const sessionId = uuidv4();
       res.cookie('sessionId', sessionId, {
