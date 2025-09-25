@@ -143,7 +143,6 @@ export class PaymentsService {
         throw new Error(`Invalid payment response for payment ${paymentId}`);
       }
 
-      console.log('payment response', response);
       const paymentData: PaymentData = {
         id: response.id.toString(),
         status: response.status,
@@ -163,7 +162,6 @@ export class PaymentsService {
         throw new Error(`Order not found for payment ${paymentId}`);
       }
 
-      console.log('order found', order);
       // Update order with payment information
       await this.orderService.updateOrderPayment(order, paymentData);
 

@@ -75,7 +75,6 @@ export class OrderService {
     // Map Mercado Pago payment status to order status
     const orderStatus = this.mapPaymentStatusToOrderStatus(paymentData.status);
 
-    console.log('orderStatus', orderStatus);
     // Create payment detail
     const paymentDetail = this.orderPaymentDetailRepository.create({
       order,
@@ -85,13 +84,11 @@ export class OrderService {
       transactionId: paymentData.id,
     });
 
-    console.log('paymentDetail', paymentDetail);
-
     // Save payment detail
     const savedPaymentDetail =
       await this.orderPaymentDetailRepository.save(paymentDetail);
 
-    console.log('savedPaymentDetail', savedPaymentDetail);
+    this.logger.log('savedPaymentDetail', savedPaymentDetail);
 
     const updatedOrder = await this.orderRepository.update(order.id, {
       status: orderStatus,
