@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
+import { ProductImage } from './entities/product-image.entity';
 import { StorageService } from '@app/storage/storage.service';
 import { CacheService } from '@app/cache/cache.service';
 
@@ -10,6 +11,8 @@ export class ProductsService {
   constructor(
     @InjectRepository(Product)
     private productsRepository: Repository<Product>,
+    @InjectRepository(ProductImage)
+    private productImagesRepository: Repository<ProductImage>,
     private readonly storageService: StorageService,
     private readonly cacheService: CacheService,
   ) {}
@@ -26,51 +29,22 @@ export class ProductsService {
     return product;
   }
 
-  async create(
-    productData: Partial<Product>,
-    file?: Express.Multer.File,
-  ): Promise<Product> {
+  async create(productData: Partial<Product>): Promise<Product> {
     const product = this.productsRepository.create(productData);
 
-    if (file) {
-      // Upload the image to Supabase Storage
-      const { url } = await this.storageService.uploadFile(file, 'products');
-      product.image = url;
-    }
+    // Save the product to get an ID
+    const savedProduct = await this.productsRepository.save(product);
 
-    console.log(`Product created successfully`);
-    return this.productsRepository.save(product);
+    // Images will be handled separately through ProductImagesService
+
+    console.log(`Product created successfully with ID: ${savedProduct.id}`);
+    return this.findById(savedProduct.id);
   }
 
-  async update(
-    id: string,
-    productData: Partial<Product>,
-    file?: Express.Multer.File,
-  ): Promise<Product> {
+  async update(id: string, productData: Partial<Product>): Promise<Product> {
     const product = await this.findById(id);
 
-    if (file) {
-      // Delete previous image if exists
-      if (product.image) {
-        // Invalidate cache for the old image
-        this.cacheService.invalidateCache(product.image);
-
-        const imagePath = this.extractImagePath(product.image);
-        if (imagePath) {
-          try {
-            await this.storageService.deleteFile(imagePath);
-          } catch (error: any) {
-            // Log but continue if delete fails
-            console.error(`Failed to delete old image: ${error.message}`);
-          }
-        }
-      }
-
-      // Upload the new image
-      const { url } = await this.storageService.uploadFile(file, 'products');
-      productData.image = url;
-    }
-
+    // We only update the basic product data, images are handled separately
     Object.assign(product, productData);
     return this.productsRepository.save(product);
   }
@@ -78,22 +52,32 @@ export class ProductsService {
   async delete(id: string): Promise<void> {
     const product = await this.findById(id);
 
-    // Delete associated image if exists
-    if (product.image) {
-      const imagePath = this.extractImagePath(product.image);
-      if (imagePath) {
+    // Find all images associated with the product
+    const productImages = await this.productImagesRepository.find({
+      where: { productId: id },
+    });
+
+    // Delete each image from Supabase and database
+    for (const image of productImages) {
+      if (image.path) {
         try {
-          await this.storageService.deleteFile(imagePath);
+          await this.storageService.deleteFile(image.path);
         } catch (error: any) {
           // Log but continue if delete fails
           console.error(`Failed to delete image: ${error.message}`);
         }
       }
+
+      // Invalidate cache
+      if (image.url) {
+        this.cacheService.invalidateCache(image.url);
+      }
     }
 
+    // TypeORM will take care of deleting the associated images thanks to onDelete: 'CASCADE'
     await this.productsRepository.remove(product);
 
-    console.log(`Product with ID ${id} deleted successfully`);
+    console.log(`Product with ID ${id} and its images deleted successfully`);
   }
 
   /**
@@ -102,34 +86,16 @@ export class ProductsService {
    * @returns Buffer with the image data or null if not found
    */
   async getProductImage(productId: string): Promise<Buffer | null> {
-    const product = await this.findById(productId);
+    // Find the main product image
+    const mainImage = await this.productImagesRepository.findOne({
+      where: { productId, isMain: true },
+    });
 
-    if (!product.image) {
+    if (!mainImage || !mainImage.url) {
       return null;
     }
 
     // Get the image from cache (or download it if not in cache)
-    return this.cacheService.getImage(product.image);
-  }
-
-  // Helper method to extract the path from a Supabase URL
-  private extractImagePath(imageUrl: string): string | null {
-    try {
-      if (!imageUrl) return null;
-
-      // Extract the path from the URL
-      // Example URL: https://your-project.supabase.co/storage/v1/object/public/images/products/image.jpg
-      const urlParts = imageUrl.split('/');
-      // Find the bucket name index
-      const bucketIndex = urlParts.findIndex((part) => part === 'public') + 1;
-      if (bucketIndex > 0) {
-        // Join all parts after the bucket name
-        return urlParts.slice(bucketIndex).join('/');
-      }
-      return null;
-    } catch (error) {
-      console.error('Error extracting image path:', error);
-      return null;
-    }
+    return this.cacheService.getImage(mainImage.url);
   }
 }

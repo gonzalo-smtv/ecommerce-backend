@@ -4,7 +4,9 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
+import { ProductImage } from './product-image.entity';
 
 @Entity('products')
 export class Product {
@@ -19,9 +21,6 @@ export class Product {
 
   @Column({ type: 'text', nullable: true })
   description: string;
-
-  @Column({ type: 'text', nullable: true })
-  image: string;
 
   @Column({ type: 'text', nullable: true })
   category: string;
@@ -53,9 +52,23 @@ export class Product {
   @Column({ type: 'boolean', nullable: true })
   featured: boolean;
 
-  @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
+  @OneToMany(() => ProductImage, (productImage) => productImage.product, {
+    cascade: true,
+    eager: true,
+  })
+  images: ProductImage[];
+
+  @CreateDateColumn({
+    name: 'createdAt',
+    type: 'timestamptz',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   createdAt: Date;
 
-  @UpdateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
+  @UpdateDateColumn({
+    name: 'updatedAt',
+    type: 'timestamptz',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   updatedAt: Date;
 }
