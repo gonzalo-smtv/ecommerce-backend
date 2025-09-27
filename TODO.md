@@ -4,6 +4,7 @@ This document outlines planned enhancements and features for the LTecDeco backen
 
 ## Completed Features
 
+- [x] Basic Swagger documentation setup
 - [x] Basic Products CRUD operations
 - [x] File storage with Supabase integration
 - [x] API documentation with Swagger
@@ -11,30 +12,24 @@ This document outlines planned enhancements and features for the LTecDeco backen
 - [x] Rate limiting protection
 - [x] Health check endpoint
 - [x] Docker setup for development
+- [x] Support multiple images per product and zoom feature
+- [x] Cart full implementation
+- [x] Proxy images
+- [x] Add user roles (owner, admin, customer)
+- [x] Support for OAuth providers (Google, Facebook)
 
 ## Next Steps
 
-- [x] Cart full implementation
-- [x] Proxy images
 - [ ] Implement MercadoPago 👷🏻‍♂️ S
       . When preference is created, the order should be created and the payment should be created with it and status should be pending.
       . If user goes to the checkout page, try to get the order and payment by the external reference. If not found, create a new one.
 - [ ] Improve database schema 👷🏻‍♂️ S
 - [ ] Implement certificate authentication between the backend and the frontend. Header signature with the certificate.
-- [ ] Support multiple images per product and zoom feature 👷🏻‍♂️ G
 
 ## Authentication & Authorization
 
-- [x] Add user roles (owner, admin, customer)
 - [ ] Protect relevant routes with guards
 - [ ] Implement JWT-based authentication
-
-## User Management Module
-
-- [ ] Create User entity with registration and profile management
-- [x] Support for OAuth providers (Google, Facebook)
-- [ ] Implement password reset functionality
-- [ ] Add email verification
 
 ## Orders Module
 
@@ -100,7 +95,6 @@ This document outlines planned enhancements and features for the LTecDeco backen
 
 ## Improved Documentation
 
-- [x] Basic Swagger documentation setup
 - [ ] Enhance Swagger documentation with more details
 - [ ] Add example requests and responses
 
@@ -108,3 +102,9 @@ This document outlines planned enhancements and features for the LTecDeco backen
 
 - [ ] Implement webhooks for third-party integrations
 - [ ] Add notification system (email, push) for order updates
+
+## User Management Module
+
+- [ ] Create User entity with registration and profile management
+- [ ] Implement password reset functionality
+- [ ] Add email verification
