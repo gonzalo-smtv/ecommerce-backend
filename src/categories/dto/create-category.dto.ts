@@ -11,21 +11,22 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 export class CreateCategoryDto {
   @ApiProperty({
     description: 'Category name',
-    example: 'Electronics',
+    example: 'Mesas y Escritorios',
   })
   @IsString()
   name: string;
 
   @ApiProperty({
     description: 'URL-friendly identifier for the category',
-    example: 'electronics',
+    example: 'mesas-y-escritorios',
   })
   @IsString()
   slug: string;
 
   @ApiPropertyOptional({
     description: 'Category description',
-    example: 'Electronic devices and accessories',
+    example:
+      'Mesas de comedor, escritorio, de centro y auxiliares fabricadas en madera maciza',
   })
   @IsOptional()
   @IsString()
@@ -51,7 +52,7 @@ export class CreateCategoryDto {
 
   @ApiPropertyOptional({
     description: 'Category image URL',
-    example: 'https://example.com/images/electronics.jpg',
+    example: 'https://example.com/images/mesas-escritorios.jpg',
   })
   @IsOptional()
   @IsString()
@@ -59,7 +60,7 @@ export class CreateCategoryDto {
 
   @ApiPropertyOptional({
     description: 'Category icon identifier',
-    example: 'fas fa-laptop',
+    example: 'fas fa-table',
   })
   @IsOptional()
   @IsString()
@@ -86,7 +87,7 @@ export class CreateCategoryDto {
 
   @ApiPropertyOptional({
     description: 'Meta title for SEO',
-    example: 'Electronics - Best Prices and Selection',
+    example: 'Mesas y Escritorios de Madera - Ltec-Deco',
   })
   @IsOptional()
   @IsString()
@@ -94,7 +95,8 @@ export class CreateCategoryDto {
 
   @ApiPropertyOptional({
     description: 'Meta description for SEO',
-    example: 'Find the best electronic devices and accessories at great prices',
+    example:
+      'Descubre nuestra colección de mesas y escritorios de madera maciza con diseños únicos y acabados artesanales',
   })
   @IsOptional()
   @IsString()

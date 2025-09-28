@@ -13,7 +13,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 export class CreateProductDto {
   @ApiProperty({
     description: 'Product name',
-    example: 'Wireless Bluetooth Headphones',
+    example: 'Mesa de Comedor Rústica',
   })
   @IsString()
   name: string;
@@ -30,7 +30,7 @@ export class CreateProductDto {
   @ApiPropertyOptional({
     description: 'Product description',
     example:
-      'High-quality wireless headphones with noise cancellation and 30-hour battery life',
+      'Hermosa mesa de comedor fabricada en madera maciza de roble con acabado rústico natural',
   })
   @IsOptional()
   @IsString()
@@ -50,7 +50,7 @@ export class CreateProductDto {
 
   @ApiPropertyOptional({
     description: 'Product dimensions',
-    example: '20cm x 15cm x 10cm',
+    example: '200cm x 90cm x 75cm',
   })
   @IsOptional()
   @IsString()
@@ -58,7 +58,7 @@ export class CreateProductDto {
 
   @ApiPropertyOptional({
     description: 'Product weight in grams',
-    example: 250,
+    example: 45000,
     minimum: 0,
   })
   @IsOptional()
