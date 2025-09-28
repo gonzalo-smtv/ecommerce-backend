@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Put,
+  Patch,
   Delete,
   Body,
   Param,
@@ -192,6 +193,19 @@ export class ProductsController {
 
     // Return the updated product with its images
     return this.productsService.findById(id);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Update product data (JSON only)' })
+  @ApiBody({
+    type: UpdateProductDto,
+    description: 'Product data to update',
+  })
+  async updateJson(
+    @Param('id') id: string,
+    @Body() productData: UpdateProductDto,
+  ): Promise<Product> {
+    return this.productsService.update(id, productData);
   }
 
   @Delete(':id')

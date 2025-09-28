@@ -108,12 +108,57 @@ export class ProductsService {
     return this.findById(savedProduct.id);
   }
 
-  async update(id: string, productData: Partial<Product>): Promise<Product> {
+  async update(id: string, productData: any): Promise<Product> {
     const product = await this.findById(id);
 
-    // We only update the basic product data, images are handled separately
-    Object.assign(product, productData);
-    return this.productsRepository.save(product);
+    // Extract categoryIds and attributeValueIds from productData
+    const { categoryIds, attributeValueIds, ...basicProductData } = productData;
+
+    // Update basic product data
+    Object.assign(product, basicProductData);
+    await this.productsRepository.save(product);
+
+    // Update category connections if categoryIds provided
+    if (categoryIds !== undefined) {
+      // Remove existing category connections
+      await this.productCategoryRepository.delete({ product_id: id });
+
+      // Create new category connections
+      if (categoryIds && categoryIds.length > 0) {
+        const productCategories = categoryIds.map(
+          (categoryId: string, index: number) => {
+            return this.productCategoryRepository.create({
+              product_id: id,
+              category_id: categoryId,
+              is_primary: index === 0, // First category is primary
+            });
+          },
+        );
+        await this.productCategoryRepository.save(productCategories);
+      }
+    }
+
+    // Update attribute connections if attributeValueIds provided
+    if (attributeValueIds !== undefined) {
+      // Remove existing attribute connections
+      await this.productAttributeRepository.delete({ product_id: id });
+
+      // Create new attribute connections
+      if (attributeValueIds && attributeValueIds.length > 0) {
+        const productAttributes = attributeValueIds.map(
+          (attributeValueId: string) => {
+            return this.productAttributeRepository.create({
+              product_id: id,
+              attribute_value_id: attributeValueId,
+            });
+          },
+        );
+        await this.productAttributeRepository.save(productAttributes);
+      }
+    }
+
+    // Return the updated product with all relations
+    return this.findByIdWithDetails(id);
   }
 
   async delete(id: string): Promise<void> {
