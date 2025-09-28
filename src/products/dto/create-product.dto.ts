@@ -20,7 +20,7 @@ export class CreateProductDto {
 
   @ApiProperty({
     description: 'Product price',
-    example: 99.99,
+    example: 99,
     minimum: 0,
   })
   @IsNumber()

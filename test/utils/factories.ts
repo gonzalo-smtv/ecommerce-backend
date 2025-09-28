@@ -11,7 +11,7 @@ export function createTestProduct(
   return {
     id: 'test-product-id',
     name: 'Test Product',
-    price: 99.99,
+    price: 99,
     description: 'This is a test product description',
     dimensions: '10x10x10',
     weight: 1.5,
@@ -81,7 +81,7 @@ export function createTestCartItem(
     cartId: 'test-cart-id',
     productId: 'test-product-id',
     quantity: 2,
-    price: 99.99,
+    price: 99,
     ...overrides,
   };
 }
