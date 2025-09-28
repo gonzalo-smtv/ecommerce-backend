@@ -4,6 +4,8 @@ import { Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { ProductImage } from './entities/product-image.entity';
 import { ProductAttribute } from '../attributes/entities/product-attribute.entity';
+import { ProductCategory } from '../categories/entities/product-category.entity';
+import { CreateProductDto } from './dto/create-product.dto';
 import { StorageService } from '@app/storage/storage.service';
 import { CacheService } from '@app/cache/cache.service';
 
@@ -18,6 +20,8 @@ export class ProductsService {
     private productImagesRepository: Repository<ProductImage>,
     @InjectRepository(ProductAttribute)
     private productAttributeRepository: Repository<ProductAttribute>,
+    @InjectRepository(ProductCategory)
+    private productCategoryRepository: Repository<ProductCategory>,
     private readonly storageService: StorageService,
     private readonly cacheService: CacheService,
   ) {}
@@ -34,11 +38,45 @@ export class ProductsService {
     return product;
   }
 
-  async create(productData: Partial<Product>): Promise<Product> {
-    const product = this.productsRepository.create(productData);
+  async create(productData: CreateProductDto): Promise<Product> {
+    this.logger.log('Creating a new product...');
+    console.log('productData: ', productData);
+
+    // Extract categoryIds and remove from productData
+    const { categoryIds, ...productFields } = productData as any;
+
+    const product = this.productsRepository.create(productFields);
+    this.logger.log('Product data prepared, saving to database...');
+    console.log('Product entity: ', product);
 
     // Save the product to get an ID
-    const savedProduct = await this.productsRepository.save(product);
+    const savedProduct = (await this.productsRepository.save(
+      product,
+    )) as unknown as Product;
+
+    // Create category connections if categoryIds provided
+    if (categoryIds) {
+      let categoryIdArray: string[];
+      if (typeof categoryIds === 'string') {
+        categoryIdArray = categoryIds
+          .split(',')
+          .map((id) => id.trim())
+          .filter((id) => id);
+      } else {
+        categoryIdArray = categoryIds;
+      }
+
+      if (categoryIdArray.length > 0) {
+        const productCategories = categoryIdArray.map((categoryId, index) => {
+          return this.productCategoryRepository.create({
+            product_id: savedProduct.id,
+            category_id: categoryId,
+            is_primary: index === 0, // First category is primary
+          });
+        });
+        await this.productCategoryRepository.save(productCategories);
+      }
+    }
 
     this.logger.log(`Product created successfully with ID: ${savedProduct.id}`);
     return this.findById(savedProduct.id);

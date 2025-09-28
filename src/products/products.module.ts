@@ -7,12 +7,18 @@ import { ProductImagesService } from './product-images.service';
 import { Product } from './entities/product.entity';
 import { ProductImage } from './entities/product-image.entity';
 import { ProductAttribute } from '../attributes/entities/product-attribute.entity';
+import { ProductCategory } from '../categories/entities/product-category.entity';
 import { StorageModule } from '@app/storage/storage.module';
 import { CacheModule } from '@app/cache/cache.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Product, ProductImage, ProductAttribute]),
+    TypeOrmModule.forFeature([
+      Product,
+      ProductImage,
+      ProductAttribute,
+      ProductCategory,
+    ]),
     StorageModule,
     CacheModule,
   ],
