@@ -7,6 +7,8 @@ import {
   OneToMany,
 } from 'typeorm';
 import { ProductImage } from './product-image.entity';
+import { ProductCategory } from '../../categories/entities/product-category.entity';
+import { Category } from '../../categories/entities/category.entity';
 
 @Entity('products')
 export class Product {
@@ -22,17 +24,29 @@ export class Product {
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @Column({ type: 'text', nullable: true })
-  category: string;
+  // Relationship with categories (replaces simple category field)
+  @OneToMany(
+    () => ProductCategory,
+    (productCategory) => productCategory.product,
+    {
+      cascade: true,
+      eager: true,
+    },
+  )
+  categoryConnections: ProductCategory[];
 
-  @Column({ type: 'text', nullable: true })
-  material: string;
+  // Main categories of the product (computed property)
+  get categories(): Category[] {
+    return this.categoryConnections?.map((pc) => pc.category) || [];
+  }
 
-  @Column({ type: 'text', nullable: true })
-  style: string;
-
-  @Column({ type: 'text', nullable: true })
-  color: string;
+  // Primary category (computed property)
+  get primaryCategory(): Category | null {
+    const primaryConnection = this.categoryConnections?.find(
+      (pc) => pc.is_primary,
+    );
+    return primaryConnection?.category || null;
+  }
 
   @Column({ type: 'text', nullable: true })
   dimensions: string;

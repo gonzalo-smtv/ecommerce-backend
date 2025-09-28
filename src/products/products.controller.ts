@@ -6,6 +6,7 @@ import {
   Delete,
   Body,
   Param,
+  Query,
   UseInterceptors,
   UploadedFiles,
   Res,
@@ -28,6 +29,34 @@ export class ProductsController {
   @Get()
   findAll(): Promise<Product[]> {
     return this.productsService.findAll();
+  }
+
+  @Get('with-details')
+  findAllWithDetails(): Promise<Product[]> {
+    return this.productsService.findAllWithDetails();
+  }
+
+  @Get('with-attributes')
+  findAllWithAttributes(): Promise<Product[]> {
+    return this.productsService.findAllWithAttributes();
+  }
+
+  @Get('filter-by-attributes')
+  findByAttributes(
+    @Query('attributes') attributes: string,
+  ): Promise<Product[]> {
+    const attributeIds = attributes.split(',').filter((id) => id.trim());
+    return this.productsService.findByAttributes(attributeIds);
+  }
+
+  @Get('category/:categoryId')
+  findByCategory(@Param('categoryId') categoryId: string): Promise<Product[]> {
+    return this.productsService.findByCategory(categoryId);
+  }
+
+  @Get('category-slug/:slug')
+  findByCategorySlug(@Param('slug') slug: string): Promise<Product[]> {
+    return this.productsService.findByCategorySlug(slug);
   }
 
   @Get(':id')

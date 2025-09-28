@@ -2,12 +2,12 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class AddProductImagesTable1694700000000 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    // Eliminar la columna de imagen redundante de la tabla products
+    // Remove redundant image column from products table
     await queryRunner.query(`
       ALTER TABLE "products" DROP COLUMN IF EXISTS "image"
     `);
 
-    // Crear la nueva tabla de imágenes de productos
+    // Create the new product images table
     await queryRunner.query(`
       CREATE TABLE "product_images" (
         "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
@@ -24,7 +24,7 @@ export class AddProductImagesTable1694700000000 implements MigrationInterface {
       )
     `);
 
-    // Crear índices para mejorar rendimiento
+    // Create indexes to improve performance
     await queryRunner.query(
       `CREATE INDEX "idx_product_images_product_id" ON "product_images" ("product_id")`,
     );
@@ -34,14 +34,14 @@ export class AddProductImagesTable1694700000000 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    // Eliminar índices
+    // Drop indexes
     await queryRunner.query(`DROP INDEX "idx_product_images_is_main"`);
     await queryRunner.query(`DROP INDEX "idx_product_images_product_id"`);
 
-    // Eliminar tabla
+    // Drop table
     await queryRunner.query(`DROP TABLE "product_images"`);
 
-    // Restaurar columna image en la tabla products
+    // Restore image column in products table
     await queryRunner.query(`
       ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "image" text NULL
     `);

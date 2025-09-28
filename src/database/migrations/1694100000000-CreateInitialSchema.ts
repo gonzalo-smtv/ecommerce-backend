@@ -2,17 +2,17 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class CreateInitialSchema1694100000000 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    // Asegurar que tenemos la extensión uuid-ossp
+    // Ensure we have the uuid-ossp extension
     await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
 
-    // Primero, creamos los tipos ENUM necesarios
+    // First, create the necessary ENUM types
     await queryRunner.query(`
       CREATE TYPE user_role_enum AS ENUM ('owner', 'admin', 'customer');
       CREATE TYPE auth_provider_enum AS ENUM ('local', 'google', 'facebook', 'instagram', 'apple');
       CREATE TYPE order_status_enum AS ENUM ('pending', 'processing', 'completed', 'cancelled', 'refunded');
     `);
 
-    // Crear la tabla de productos
+    // Create the products table
     await queryRunner.query(`
       CREATE TABLE "products" (
         "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -35,7 +35,7 @@ export class CreateInitialSchema1694100000000 implements MigrationInterface {
       )
     `);
 
-    // Crear la tabla de usuarios
+    // Create the users table
     await queryRunner.query(`
       CREATE TABLE "users" (
         "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -61,7 +61,7 @@ export class CreateInitialSchema1694100000000 implements MigrationInterface {
       )
     `);
 
-    // Crear la tabla de carritos
+    // Create the carts table
     await queryRunner.query(`
       CREATE TABLE "carts" (
         "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -75,7 +75,7 @@ export class CreateInitialSchema1694100000000 implements MigrationInterface {
       )
     `);
 
-    // Crear la tabla de elementos del carrito
+    // Create the cart items table
     await queryRunner.query(`
       CREATE TABLE "cart_items" (
         "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -88,7 +88,7 @@ export class CreateInitialSchema1694100000000 implements MigrationInterface {
       )
     `);
 
-    // Crear la tabla de órdenes
+    // Create the orders table
     await queryRunner.query(`
       CREATE TABLE "orders" (
         "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -101,7 +101,7 @@ export class CreateInitialSchema1694100000000 implements MigrationInterface {
       )
     `);
 
-    // Crear la tabla de elementos de la orden
+    // Create the order items table
     await queryRunner.query(`
       CREATE TABLE "order_items" (
         "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -117,7 +117,7 @@ export class CreateInitialSchema1694100000000 implements MigrationInterface {
       )
     `);
 
-    // Crear la tabla de detalles de pago
+    // Create the order payment details table
     await queryRunner.query(`
       CREATE TABLE "order_payment_details" (
         "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -134,7 +134,7 @@ export class CreateInitialSchema1694100000000 implements MigrationInterface {
       )
     `);
 
-    // Índices para mejorar el rendimiento de consultas comunes
+    // Indexes to improve performance of common queries
     await queryRunner.query(`
       CREATE INDEX "IDX_orders_userId" ON "orders" ("userId");
       CREATE INDEX "IDX_order_items_orderId" ON "order_items" ("orderId");
@@ -147,7 +147,7 @@ export class CreateInitialSchema1694100000000 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    // Eliminar índices
+    // Drop indexes
     await queryRunner.query(`
       DROP INDEX IF EXISTS "IDX_orders_userId";
       DROP INDEX IF EXISTS "IDX_order_items_orderId";
@@ -158,7 +158,7 @@ export class CreateInitialSchema1694100000000 implements MigrationInterface {
       DROP INDEX IF EXISTS "IDX_carts_sessionId";
     `);
 
-    // Eliminar tablas en orden inverso para evitar problemas con claves foráneas
+    // Drop tables in reverse order to avoid foreign key issues
     await queryRunner.query(`DROP TABLE IF EXISTS "order_payment_details"`);
     await queryRunner.query(`DROP TABLE IF EXISTS "order_items"`);
     await queryRunner.query(`DROP TABLE IF EXISTS "orders"`);
@@ -167,7 +167,7 @@ export class CreateInitialSchema1694100000000 implements MigrationInterface {
     await queryRunner.query(`DROP TABLE IF EXISTS "users"`);
     await queryRunner.query(`DROP TABLE IF EXISTS "products"`);
 
-    // Eliminar tipos ENUM
+    // Drop ENUM types
     await queryRunner.query(`
       DROP TYPE IF EXISTS order_status_enum;
       DROP TYPE IF EXISTS auth_provider_enum;

@@ -1,18 +1,23 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { ProductImage } from './entities/product-image.entity';
+import { ProductAttribute } from '../attributes/entities/product-attribute.entity';
 import { StorageService } from '@app/storage/storage.service';
 import { CacheService } from '@app/cache/cache.service';
 
 @Injectable()
 export class ProductsService {
+  private readonly logger = new Logger(ProductsService.name);
+
   constructor(
     @InjectRepository(Product)
     private productsRepository: Repository<Product>,
     @InjectRepository(ProductImage)
     private productImagesRepository: Repository<ProductImage>,
+    @InjectRepository(ProductAttribute)
+    private productAttributeRepository: Repository<ProductAttribute>,
     private readonly storageService: StorageService,
     private readonly cacheService: CacheService,
   ) {}
@@ -35,9 +40,7 @@ export class ProductsService {
     // Save the product to get an ID
     const savedProduct = await this.productsRepository.save(product);
 
-    // Images will be handled separately through ProductImagesService
-
-    console.log(`Product created successfully with ID: ${savedProduct.id}`);
+    this.logger.log(`Product created successfully with ID: ${savedProduct.id}`);
     return this.findById(savedProduct.id);
   }
 
@@ -74,10 +77,11 @@ export class ProductsService {
       }
     }
 
-    // TypeORM will take care of deleting the associated images thanks to onDelete: 'CASCADE'
     await this.productsRepository.remove(product);
 
-    console.log(`Product with ID ${id} and its images deleted successfully`);
+    this.logger.log(
+      `Product with ID ${id} and its images deleted successfully`,
+    );
   }
 
   /**
@@ -97,5 +101,150 @@ export class ProductsService {
 
     // Get the image from cache (or download it if not in cache)
     return this.cacheService.getImage(mainImage.url);
+  }
+
+  /**
+   * Find products by category ID
+   */
+  async findByCategory(categoryId: string): Promise<Product[]> {
+    const products = await this.productsRepository
+      .createQueryBuilder('product')
+      .innerJoin('product.categoryConnections', 'pc')
+      .where('pc.category_id = :categoryId', { categoryId })
+      .leftJoinAndSelect('product.images', 'images')
+      .getMany();
+
+    return products;
+  }
+
+  /**
+   * Find products by category slug
+   */
+  async findByCategorySlug(slug: string): Promise<Product[]> {
+    const products = await this.productsRepository
+      .createQueryBuilder('product')
+      .innerJoin('product.categoryConnections', 'pc')
+      .innerJoin('pc.category', 'category')
+      .where('category.slug = :slug', { slug })
+      .leftJoinAndSelect('product.images', 'images')
+      .getMany();
+
+    return products;
+  }
+
+  /**
+   * Get products with their categories
+   */
+  async findAllWithCategories(): Promise<Product[]> {
+    return this.productsRepository.find({
+      relations: ['categoryConnections', 'categoryConnections.category'],
+    });
+  }
+
+  /**
+   * Get all products with full details (categories + attributes)
+   */
+  async findAllWithDetails(): Promise<Product[]> {
+    return this.productsRepository.find({
+      relations: [
+        'categoryConnections',
+        'categoryConnections.category',
+        'productAttributes',
+        'productAttributes.attributeValue',
+        'productAttributes.attributeValue.attribute',
+        'images',
+      ],
+    });
+  }
+
+  /**
+   * Find products by multiple attribute values
+   */
+  async findByAttributes(attributeValues: string[]): Promise<Product[]> {
+    if (attributeValues.length === 0) {
+      return this.findAll();
+    }
+
+    const products = await this.productsRepository
+      .createQueryBuilder('product')
+      .innerJoin('product.productAttributes', 'pa')
+      .where('pa.attribute_value_id IN (:...attributeValues)', {
+        attributeValues,
+      })
+      .leftJoinAndSelect('product.images', 'images')
+      .getMany();
+
+    return products;
+  }
+
+  /**
+   * Get products with their attributes
+   */
+  async findAllWithAttributes(): Promise<Product[]> {
+    return this.productsRepository.find({
+      relations: [
+        'categoryConnections',
+        'categoryConnections.category',
+        'productAttributes',
+        'productAttributes.attributeValue',
+        'productAttributes.attributeValue.attribute',
+      ],
+    });
+  }
+
+  /**
+   * Get product with full details (categories + attributes)
+   */
+  async findByIdWithDetails(id: string): Promise<Product> {
+    const product = await this.productsRepository.findOne({
+      where: { id },
+      relations: [
+        'categoryConnections',
+        'categoryConnections.category',
+        'productAttributes',
+        'productAttributes.attributeValue',
+        'productAttributes.attributeValue.attribute',
+        'images',
+      ],
+    });
+
+    if (!product) {
+      throw new NotFoundException(`Product with ID ${id} not found`);
+    }
+
+    return product;
+  }
+
+  /**
+   * Add attribute to product
+   */
+  async addAttributeToProduct(
+    productId: string,
+    attributeValueId: string,
+  ): Promise<ProductAttribute> {
+    const productAttribute = this.productAttributeRepository.create({
+      product_id: productId,
+      attribute_value_id: attributeValueId,
+    });
+
+    return this.productAttributeRepository.save(productAttribute);
+  }
+
+  /**
+   * Remove attribute from product
+   */
+  async removeAttributeFromProduct(
+    productId: string,
+    attributeValueId: string,
+  ): Promise<void> {
+    const productAttribute = await this.productAttributeRepository.findOne({
+      where: { product_id: productId, attribute_value_id: attributeValueId },
+    });
+
+    if (!productAttribute) {
+      throw new NotFoundException('Attribute assignment not found');
+    }
+
+    await this.productAttributeRepository.remove(productAttribute);
   }
 }
