@@ -96,10 +96,49 @@ export class ProductsController {
 
   @Post()
   @ApiConsumes('multipart/form-data')
-  @ApiOperation({ summary: 'Create a new product with multiple images' })
+  @ApiOperation({
+    summary: 'Create a new product with multiple images',
+    description: `
+    Creates a new product with the ability to upload multiple images.
+
+    How to use:
+    - Set Content-Type to "multipart/form-data"
+    - Add all product fields as form fields (name, price, description, etc.)
+    - Add images in a field named "files" (you can select multiple image files)
+    - Maximum 10 images per request
+    - Images will be automatically uploaded to Supabase storage
+    `,
+  })
   @ApiBody({
-    type: CreateProductDto,
-    description: 'Product data with file uploads',
+    schema: {
+      type: 'object',
+      properties: {
+        name: { type: 'string', example: 'Mesa de Comedor Rústica' },
+        price: { type: 'number', example: 45000 },
+        description: {
+          type: 'string',
+          example:
+            'Hermosa mesa de comedor fabricada en madera maciza de roble con acabado rústico natural',
+        },
+        categoryIds: {
+          type: 'array',
+          items: { type: 'string' },
+          example: ['123e4567-e89b-12d3-a456-426614174000'],
+        },
+        dimensions: { type: 'string', example: '200cm x 90cm x 75cm' },
+        weight: { type: 'number', example: 45000 },
+        inStock: { type: 'boolean', example: true },
+        rating: { type: 'number', example: 4.5 },
+        reviewCount: { type: 'number', example: 25 },
+        featured: { type: 'boolean', example: false },
+        files: {
+          type: 'array',
+          items: { type: 'string', format: 'binary' },
+          description: 'Product images (select multiple files)',
+        },
+      },
+      required: ['name', 'price', 'categoryIds'],
+    },
   })
   @UseInterceptors(FilesInterceptor('files', 10))
   async create(
