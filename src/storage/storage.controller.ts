@@ -20,7 +20,7 @@ import {
 } from '@nestjs/swagger';
 import { StorageService } from './storage.service';
 
-@ApiTags('storage')
+@ApiTags('05 - Storage')
 @Controller('storage')
 export class StorageController {
   private readonly logger = new Logger(StorageController.name);

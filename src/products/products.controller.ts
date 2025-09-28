@@ -20,7 +20,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ApiTags, ApiConsumes, ApiBody, ApiOperation } from '@nestjs/swagger';
 
-@ApiTags('products')
+@ApiTags('03 - Products')
 @Controller('products')
 export class ProductsController {
   constructor(

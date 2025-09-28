@@ -4,7 +4,7 @@ import { PaymentsService } from './payments.service';
 import { CreateCheckoutDto } from './dto/checkout.dto';
 import { WebhookNotificationDto } from './dto/webhook.dto';
 
-@ApiTags('payments')
+@ApiTags('07 - Payments')
 @Controller('payments')
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}

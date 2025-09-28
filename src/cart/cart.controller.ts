@@ -26,7 +26,7 @@ import type { CartInfoType } from './types/cart-info.type';
  * Controller for cart operations
  * Handles both authenticated and anonymous shopping carts
  */
-@ApiTags('cart')
+@ApiTags('06 - Cart')
 @Controller('cart')
 export class CartController {
   constructor(private readonly cartService: CartService) {}

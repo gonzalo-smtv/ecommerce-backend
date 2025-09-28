@@ -4,7 +4,8 @@ import {
   CreateAttributeDto,
   CreateAttributeValueDto,
 } from './dto/create-attribute.dto';
-
+import { ApiTags } from '@nestjs/swagger';
+@ApiTags('02 - Attributes')
 @Controller('attributes')
 export class AttributesController {
   constructor(private readonly attributesService: AttributesService) {}

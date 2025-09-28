@@ -27,7 +27,7 @@ import {
   AddProductImagesDto,
 } from './dto/product-image.dto';
 
-@ApiTags('product-images')
+@ApiTags('04 - Product-Images')
 @Controller('products/:productId/images')
 export class ProductImagesController {
   constructor(private readonly productImagesService: ProductImagesService) {}
