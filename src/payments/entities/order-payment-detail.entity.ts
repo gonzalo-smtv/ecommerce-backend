@@ -3,6 +3,7 @@ import {
   Column,
   PrimaryGeneratedColumn,
   ManyToOne,
+  JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -28,6 +29,7 @@ export class OrderPaymentDetail {
   @ManyToOne(() => Order, (order) => order.paymentDetails, {
     onDelete: 'CASCADE',
   })
+  @JoinColumn({ name: 'orderId' })
   order: Order;
 
   @Column()

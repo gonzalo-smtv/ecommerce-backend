@@ -9,6 +9,7 @@ import {
 import { ProductImage } from './product-image.entity';
 import { ProductCategory } from '../../categories/entities/product-category.entity';
 import { Category } from '../../categories/entities/category.entity';
+import { ProductAttribute } from '../../attributes/entities/product-attribute.entity';
 
 @Entity('products')
 export class Product {
@@ -71,6 +72,16 @@ export class Product {
     eager: true,
   })
   images: ProductImage[];
+
+  @OneToMany(
+    () => ProductAttribute,
+    (productAttribute) => productAttribute.product,
+    {
+      cascade: true,
+      eager: true,
+    },
+  )
+  productAttributes: ProductAttribute[];
 
   @CreateDateColumn({
     name: 'createdAt',

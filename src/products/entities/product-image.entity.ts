@@ -20,33 +20,33 @@ export class ProductImage {
   @Column({ type: 'text', nullable: true })
   path: string;
 
-  @Column({ type: 'boolean', name: 'is_main', default: false })
+  @Column({ type: 'boolean', name: 'isMain', default: false })
   isMain: boolean;
 
-  @Column({ type: 'int', name: 'sort_order', default: 0 })
+  @Column({ type: 'int', name: 'sortOrder', default: 0 })
   sortOrder: number;
 
-  @Column({ type: 'text', name: 'alt_text', nullable: true })
+  @Column({ type: 'text', name: 'altText', nullable: true })
   altText: string;
 
   @ManyToOne(() => Product, (product) => product.images, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'product_id' })
+  @JoinColumn({ name: 'productId' })
   product: Product;
 
-  @Column({ type: 'uuid', name: 'product_id' })
+  @Column({ type: 'uuid', name: 'productId' })
   productId: string;
 
   @CreateDateColumn({
-    name: 'created_at',
+    name: 'createdAt',
     type: 'timestamptz',
     default: () => 'CURRENT_TIMESTAMP',
   })
   createdAt: Date;
 
   @UpdateDateColumn({
-    name: 'updated_at',
+    name: 'updatedAt',
     type: 'timestamptz',
     default: () => 'CURRENT_TIMESTAMP',
   })

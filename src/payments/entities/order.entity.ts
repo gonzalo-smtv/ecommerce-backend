@@ -5,9 +5,12 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { OrderItem } from './order-item.entity';
 import { OrderPaymentDetail } from './order-payment-detail.entity';
+import { User } from '@app/users/entities/user.entity';
 
 export enum OrderStatus {
   PENDING = 'pending',
@@ -22,8 +25,12 @@ export class Order {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ nullable: true })
   userId: string;
+
+  @ManyToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'userId' })
+  user: User;
 
   @Column({
     type: 'enum',

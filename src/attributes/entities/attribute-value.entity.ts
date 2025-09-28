@@ -5,7 +5,10 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
+import { Attribute } from './attribute.entity';
 
 @Entity('attribute_values')
 @Index(['attribute_id'])
@@ -18,6 +21,10 @@ export class AttributeValue {
 
   @Column({ type: 'uuid' })
   attribute_id: string;
+
+  @ManyToOne(() => Attribute, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'attribute_id' })
+  attribute: Attribute;
 
   @Column({ type: 'varchar', length: 255 })
   value: string;
