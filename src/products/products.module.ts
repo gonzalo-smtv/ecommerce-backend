@@ -6,12 +6,13 @@ import { ProductImagesController } from './product-images.controller';
 import { ProductImagesService } from './product-images.service';
 import { Product } from './entities/product.entity';
 import { ProductImage } from './entities/product-image.entity';
+import { ProductAttribute } from '../attributes/entities/product-attribute.entity';
 import { StorageModule } from '@app/storage/storage.module';
 import { CacheModule } from '@app/cache/cache.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Product, ProductImage]),
+    TypeOrmModule.forFeature([Product, ProductImage, ProductAttribute]),
     StorageModule,
     CacheModule,
   ],
