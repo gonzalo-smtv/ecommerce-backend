@@ -8,6 +8,10 @@ export class UpdateCartItemDto {
   @IsNotEmpty()
   @IsInt()
   @Min(1)
-  @ApiProperty({ description: 'New product quantity', minimum: 1 })
+  @ApiProperty({
+    description: 'New product quantity',
+    minimum: 1,
+    example: 3,
+  })
   quantity: number;
 }

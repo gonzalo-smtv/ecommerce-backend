@@ -9,11 +9,6 @@ import {
 export class AttributesController {
   constructor(private readonly attributesService: AttributesService) {}
 
-  @Post()
-  createAttribute(@Body() createAttributeDto: CreateAttributeDto) {
-    return this.attributesService.createAttribute(createAttributeDto);
-  }
-
   @Get()
   findAllAttributes() {
     return this.attributesService.findAllAttributes();
@@ -34,6 +29,21 @@ export class AttributesController {
     return this.attributesService.findAttributeById(id);
   }
 
+  @Post()
+  createAttribute(@Body() createAttributeDto: CreateAttributeDto) {
+    return this.attributesService.createAttribute(createAttributeDto);
+  }
+
+  @Get(':id/values')
+  getAttributeValues(@Param('id') attributeId: string) {
+    return this.attributesService.getAttributeValues(attributeId);
+  }
+
+  @Get('products/:productId/attributes')
+  getProductAttributes(@Param('productId') productId: string) {
+    return this.attributesService.getProductAttributes(productId);
+  }
+
   @Post(':id/values')
   createAttributeValue(
     @Param('id') attributeId: string,
@@ -45,11 +55,6 @@ export class AttributesController {
     );
   }
 
-  @Get(':id/values')
-  getAttributeValues(@Param('id') attributeId: string) {
-    return this.attributesService.getAttributeValues(attributeId);
-  }
-
   @Post('products/:productId/attributes/:attributeValueId')
   assignAttributeToProduct(
     @Param('productId') productId: string,
@@ -59,11 +64,6 @@ export class AttributesController {
       productId,
       attributeValueId,
     );
-  }
-
-  @Get('products/:productId/attributes')
-  getProductAttributes(@Param('productId') productId: string) {
-    return this.attributesService.getProductAttributes(productId);
   }
 
   @Delete('products/:productId/attributes/:attributeValueId')

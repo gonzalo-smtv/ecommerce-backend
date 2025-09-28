@@ -16,6 +16,8 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { ProductsService } from './products.service';
 import { ProductImagesService } from './product-images.service';
 import { Product } from './entities/product.entity';
+import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 import { ApiTags, ApiConsumes, ApiBody, ApiOperation } from '@nestjs/swagger';
 
 @ApiTags('products')
@@ -96,35 +98,12 @@ export class ProductsController {
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Create a new product with multiple images' })
   @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        name: { type: 'string' },
-        price: { type: 'number' },
-        description: { type: 'string' },
-        category: { type: 'string' },
-        material: { type: 'string' },
-        style: { type: 'string' },
-        color: { type: 'string' },
-        dimensions: { type: 'string' },
-        weight: { type: 'number' },
-        inStock: { type: 'boolean' },
-        rating: { type: 'number' },
-        reviewCount: { type: 'number' },
-        featured: { type: 'boolean' },
-        files: {
-          type: 'array',
-          items: {
-            type: 'string',
-            format: 'binary',
-          },
-        },
-      },
-    },
+    type: CreateProductDto,
+    description: 'Product data with file uploads',
   })
   @UseInterceptors(FilesInterceptor('files', 10))
   async create(
-    @Body() productData: Partial<Product>,
+    @Body() productData: CreateProductDto,
     @UploadedFiles() files?: Express.Multer.File[],
   ): Promise<Product> {
     const product = await this.productsService.create(productData);
@@ -140,42 +119,13 @@ export class ProductsController {
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Update a product with optional new images' })
   @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        name: { type: 'string' },
-        price: { type: 'number' },
-        description: { type: 'string' },
-        category: { type: 'string' },
-        material: { type: 'string' },
-        style: { type: 'string' },
-        color: { type: 'string' },
-        dimensions: { type: 'string' },
-        weight: { type: 'number' },
-        inStock: { type: 'boolean' },
-        rating: { type: 'number' },
-        reviewCount: { type: 'number' },
-        featured: { type: 'boolean' },
-        files: {
-          type: 'array',
-          items: {
-            type: 'string',
-            format: 'binary',
-          },
-        },
-        replaceImages: {
-          type: 'boolean',
-          description:
-            'If true, it deletes existing images and replaces them with new ones',
-        },
-      },
-    },
+    type: UpdateProductDto,
+    description: 'Product data with optional file uploads',
   })
   @UseInterceptors(FilesInterceptor('files', 10))
   async update(
     @Param('id') id: string,
-    @Body()
-    productData: Partial<Product> & { replaceImages?: string | boolean },
+    @Body() productData: UpdateProductDto,
     @UploadedFiles() files?: Express.Multer.File[],
   ): Promise<Product> {
     // First update the basic product data
@@ -183,9 +133,7 @@ export class ProductsController {
 
     // If there are new images to add
     if (files && files.length > 0) {
-      const replaceImages =
-        productData.replaceImages === 'true' ||
-        productData.replaceImages === true;
+      const replaceImages = productData.replaceImages === true;
 
       // If replacing images is specified, delete existing ones
       if (replaceImages) {
