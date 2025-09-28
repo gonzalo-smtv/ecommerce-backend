@@ -12,6 +12,10 @@ import {
   CreateAttributeDto,
   CreateAttributeValueDto,
 } from './dto/create-attribute.dto';
+import {
+  UpdateAttributeDto,
+  UpdateAttributeValueDto,
+} from './dto/update-attribute.dto';
 
 @Injectable()
 export class AttributesService {
@@ -206,5 +210,129 @@ export class AttributesService {
       },
       order: { sort_order: 'ASC', value: 'ASC' },
     });
+  }
+
+  /**
+   * Update an attribute
+   */
+  async updateAttribute(
+    id: string,
+    updateAttributeDto: UpdateAttributeDto,
+  ): Promise<Attribute> {
+    const attribute = await this.findAttributeById(id);
+
+    // Check if name is being changed and if it conflicts
+    if (updateAttributeDto.name && updateAttributeDto.name !== attribute.name) {
+      const existingAttribute = await this.attributeRepository.findOne({
+        where: { name: updateAttributeDto.name },
+      });
+
+      if (existingAttribute) {
+        throw new BadRequestException(
+          `Attribute with name "${updateAttributeDto.name}" already exists`,
+        );
+      }
+    }
+
+    Object.assign(attribute, updateAttributeDto);
+    return this.attributeRepository.save(attribute);
+  }
+
+  /**
+   * Delete an attribute
+   */
+  async deleteAttribute(id: string): Promise<void> {
+    const attribute = await this.findAttributeById(id);
+
+    // Check if attribute is being used by any products
+    const productAttributes = await this.productAttributeRepository.find({
+      where: { attribute_value_id: id },
+    });
+
+    if (productAttributes.length > 0) {
+      throw new BadRequestException(
+        'Cannot delete attribute that is being used by products',
+      );
+    }
+
+    await this.attributeRepository.remove(attribute);
+  }
+
+  /**
+   * Update an attribute value
+   */
+  async updateAttributeValue(
+    attributeId: string,
+    valueId: string,
+    updateAttributeValueDto: UpdateAttributeValueDto,
+  ): Promise<AttributeValue> {
+    // Verify attribute exists
+    await this.findAttributeById(attributeId);
+
+    const attributeValue = await this.attributeValueRepository.findOne({
+      where: { id: valueId, attribute_id: attributeId },
+    });
+
+    if (!attributeValue) {
+      throw new NotFoundException(
+        `Attribute value with ID "${valueId}" not found for attribute "${attributeId}"`,
+      );
+    }
+
+    // Check if value is being changed and if it conflicts
+    if (
+      updateAttributeValueDto.value &&
+      updateAttributeValueDto.value !== attributeValue.value
+    ) {
+      const existingValue = await this.attributeValueRepository.findOne({
+        where: {
+          attribute_id: attributeId,
+          value: updateAttributeValueDto.value,
+        },
+      });
+
+      if (existingValue) {
+        throw new BadRequestException(
+          `Attribute value "${updateAttributeValueDto.value}" already exists for this attribute`,
+        );
+      }
+    }
+
+    Object.assign(attributeValue, updateAttributeValueDto);
+    return this.attributeValueRepository.save(attributeValue);
+  }
+
+  /**
+   * Delete an attribute value
+   */
+  async deleteAttributeValue(
+    attributeId: string,
+    valueId: string,
+  ): Promise<void> {
+    // Verify attribute exists
+    await this.findAttributeById(attributeId);
+
+    const attributeValue = await this.attributeValueRepository.findOne({
+      where: { id: valueId, attribute_id: attributeId },
+    });
+
+    if (!attributeValue) {
+      throw new NotFoundException(
+        `Attribute value with ID "${valueId}" not found for attribute "${attributeId}"`,
+      );
+    }
+
+    // Check if attribute value is being used by any products
+    const productAttributes = await this.productAttributeRepository.find({
+      where: { attribute_value_id: valueId },
+    });
+
+    if (productAttributes.length > 0) {
+      throw new BadRequestException(
+        'Cannot delete attribute value that is being used by products',
+      );
+    }
+
+    await this.attributeValueRepository.remove(attributeValue);
   }
 }

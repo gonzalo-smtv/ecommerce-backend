@@ -1,9 +1,21 @@
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Body,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { AttributesService } from './attributes.service';
 import {
   CreateAttributeDto,
   CreateAttributeValueDto,
 } from './dto/create-attribute.dto';
+import {
+  UpdateAttributeDto,
+  UpdateAttributeValueDto,
+} from './dto/update-attribute.dto';
 import { ApiTags } from '@nestjs/swagger';
 @ApiTags('02 - Attributes')
 @Controller('attributes')
@@ -35,6 +47,19 @@ export class AttributesController {
     return this.attributesService.createAttribute(createAttributeDto);
   }
 
+  @Put(':id')
+  updateAttribute(
+    @Param('id') id: string,
+    @Body() updateAttributeDto: UpdateAttributeDto,
+  ) {
+    return this.attributesService.updateAttribute(id, updateAttributeDto);
+  }
+
+  @Delete(':id')
+  deleteAttribute(@Param('id') id: string) {
+    return this.attributesService.deleteAttribute(id);
+  }
+
   @Get(':id/values')
   getAttributeValues(@Param('id') attributeId: string) {
     return this.attributesService.getAttributeValues(attributeId);
@@ -54,6 +79,27 @@ export class AttributesController {
       attributeId,
       createAttributeValueDto,
     );
+  }
+
+  @Put(':id/values/:valueId')
+  updateAttributeValue(
+    @Param('id') attributeId: string,
+    @Param('valueId') valueId: string,
+    @Body() updateAttributeValueDto: UpdateAttributeValueDto,
+  ) {
+    return this.attributesService.updateAttributeValue(
+      attributeId,
+      valueId,
+      updateAttributeValueDto,
+    );
+  }
+
+  @Delete(':id/values/:valueId')
+  deleteAttributeValue(
+    @Param('id') attributeId: string,
+    @Param('valueId') valueId: string,
+  ) {
+    return this.attributesService.deleteAttributeValue(attributeId, valueId);
   }
 
   @Post('products/:productId/attributes/:attributeValueId')
