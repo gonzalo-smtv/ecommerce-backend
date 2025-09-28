@@ -4,6 +4,7 @@ import {
   IsOptional,
   IsBoolean,
   IsUUID,
+  IsArray,
   Min,
   Max,
 } from 'class-validator';
@@ -36,35 +37,16 @@ export class CreateProductDto {
   description?: string;
 
   @ApiProperty({
-    description: 'Product category ID',
-    example: '123e4567-e89b-12d3-a456-426614174000',
+    description: 'Product category IDs (can be multiple)',
+    example: [
+      '123e4567-e89b-12d3-a456-426614174000',
+      '987e6543-e21c-12d3-a456-426614174001',
+    ],
+    type: [String],
   })
-  @IsUUID()
-  category: string;
-
-  @ApiPropertyOptional({
-    description: 'Product material',
-    example: 'Plastic and metal',
-  })
-  @IsOptional()
-  @IsString()
-  material?: string;
-
-  @ApiPropertyOptional({
-    description: 'Product style',
-    example: 'Modern minimalist',
-  })
-  @IsOptional()
-  @IsString()
-  style?: string;
-
-  @ApiPropertyOptional({
-    description: 'Product color',
-    example: 'Black',
-  })
-  @IsOptional()
-  @IsString()
-  color?: string;
+  @IsArray()
+  @IsUUID('all', { each: true })
+  categoryIds: string[];
 
   @ApiPropertyOptional({
     description: 'Product dimensions',

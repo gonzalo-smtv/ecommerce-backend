@@ -10,6 +10,13 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class ProductImageDto {
   @ApiProperty({
+    description: 'Product ID',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @IsUUID()
+  productId: string;
+
+  @ApiProperty({
     description: 'Image URL',
     example: 'https://example.com/images/products/product-123-main.jpg',
   })
