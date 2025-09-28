@@ -146,6 +146,20 @@ export class CreateProductWithImagesDto {
   categoryIds: string[];
 
   @ApiPropertyOptional({
+    description: 'Product attribute value IDs (can be multiple)',
+    example: [
+      '123e4567-e89b-12d3-a456-426614174000',
+      '987e6543-e21c-12d3-a456-426614174001',
+      '456e7890-e12c-34d5-a678-426614174002',
+    ],
+    type: [String],
+  })
+  @IsOptional()
+  @IsArray()
+  @IsUUID('all', { each: true })
+  attributeValueIds?: string[];
+
+  @ApiPropertyOptional({
     description: 'Product dimensions',
     example: '200cm x 90cm x 75cm',
   })

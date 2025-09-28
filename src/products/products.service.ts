@@ -42,8 +42,9 @@ export class ProductsService {
     this.logger.log('Creating a new product...');
     console.log('productData: ', productData);
 
-    // Extract categoryIds and remove from productData
-    const { categoryIds, ...productFields } = productData as any;
+    // Extract categoryIds and attributeValueIds and remove from productData
+    const { categoryIds, attributeValueIds, ...productFields } =
+      productData as any;
 
     const product = this.productsRepository.create(productFields);
     this.logger.log('Product data prepared, saving to database...');
@@ -75,6 +76,31 @@ export class ProductsService {
           });
         });
         await this.productCategoryRepository.save(productCategories);
+      }
+    }
+
+    // Create attribute connections if attributeValueIds provided
+    if (attributeValueIds) {
+      let attributeValueIdArray: string[];
+      if (typeof attributeValueIds === 'string') {
+        attributeValueIdArray = attributeValueIds
+          .split(',')
+          .map((id) => id.trim())
+          .filter((id) => id);
+      } else {
+        attributeValueIdArray = attributeValueIds;
+      }
+
+      if (attributeValueIdArray.length > 0) {
+        const productAttributes = attributeValueIdArray.map(
+          (attributeValueId) => {
+            return this.productAttributeRepository.create({
+              product_id: savedProduct.id,
+              attribute_value_id: attributeValueId,
+            });
+          },
+        );
+        await this.productAttributeRepository.save(productAttributes);
       }
     }
 
