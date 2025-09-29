@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PaymentsController } from './payments.controller';
 import { PaymentsService } from './payments.service';
 import { ProductsModule } from '@app/products/products.module';
+import { UsersModule } from '@app/users/users.module';
 import { WebhookValidatorMiddleware } from './middleware/webhook-validator.middleware';
 import { OrderService } from './services/order.service';
 import { Order } from './entities/order.entity';
@@ -13,6 +14,7 @@ import { OrderPaymentDetail } from './entities/order-payment-detail.entity';
   imports: [
     TypeOrmModule.forFeature([Order, OrderItem, OrderPaymentDetail]),
     ProductsModule,
+    UsersModule,
   ],
   controllers: [PaymentsController],
   providers: [PaymentsService, OrderService],

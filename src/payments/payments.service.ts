@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
 import { ProductsService } from '@app/products/products.service';
+import { UsersService } from '@app/users/users.service';
 import { CheckoutItemDto } from './dto/checkout.dto';
 import { PreferenceRequest } from 'mercadopago/dist/clients/preference/commonTypes';
 import { PaymentData } from './types/payment.types';
@@ -24,6 +25,7 @@ export class PaymentsService {
   constructor(
     private configService: ConfigService,
     private productsService: ProductsService,
+    private usersService: UsersService,
     private orderService: OrderService,
   ) {
     // Initialize MercadoPago client with the new SDK format
@@ -34,7 +36,13 @@ export class PaymentsService {
     });
   }
 
-  async createCheckoutPreference(checkoutItems: CheckoutItemDto[]) {
+  async createCheckoutPreference(
+    checkoutItems: CheckoutItemDto[],
+    userId: string,
+  ) {
+    // Validate that user exists
+    await this.usersService.findById(userId);
+
     const items = await Promise.all(
       checkoutItems.map(this.mapCheckoutItemDtoToItemPreference.bind(this)),
     );
@@ -47,7 +55,7 @@ export class PaymentsService {
 
     // Create order in pending state
     const order = await this.orderService.createOrder({
-      userId: 'TODO', // TODO: Get from authenticated user
+      userId,
       items: checkoutItems,
       totalAmount,
     });
@@ -168,13 +176,16 @@ export class PaymentsService {
       // Handle different payment statuses
       switch (paymentData.status) {
         case 'approved':
+          this.logger.log(`Payment ${paymentId} approved.`);
           // TODO: Send order confirmation email
           // TODO: Update inventory
           break;
         case 'pending':
+          this.logger.log(`Payment ${paymentId} is pending.`);
           // TODO: Send payment pending notification
           break;
         case 'rejected':
+          this.logger.log(`Payment ${paymentId} was rejected.`);
           // TODO: Send payment failed notification
           break;
         default:
