@@ -8,7 +8,9 @@ import {
   Tree,
   TreeChildren,
   TreeParent,
+  ManyToMany,
 } from 'typeorm';
+import { ProductVariation } from '../../products/entities/product-variation.entity';
 
 @Entity('categories')
 @Index(['parent_id'])
@@ -60,6 +62,9 @@ export class Category {
 
   @TreeChildren()
   children: Category[];
+
+  @ManyToMany(() => ProductVariation, (productVariation) => productVariation.categories)
+  productVariations: ProductVariation[];
 
   @CreateDateColumn({
     name: 'created_at',

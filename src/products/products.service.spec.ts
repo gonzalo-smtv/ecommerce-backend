@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { ProductVariationsService } from './products.service';
 import { ProductVariation } from './entities/product-variation.entity';
 import { ProductImage } from './entities/product-image.entity';
+import { Category } from '../categories/entities/category.entity';
 import { StorageService } from '@app/storage/storage.service';
 import { CacheService } from '@app/cache/cache.service';
 import { NotFoundException } from '@nestjs/common';
@@ -14,6 +15,7 @@ describe('ProductVariationsService', () => {
   let service: ProductVariationsService;
   let productRepository: Partial<Repository<ProductVariation>>;
   let productImageRepository: Partial<Repository<ProductImage>>;
+  let categoryRepository: Partial<Repository<Category>>;
   let storageService: Partial<StorageService>;
   let cacheService: Partial<CacheService>;
 
@@ -21,6 +23,7 @@ describe('ProductVariationsService', () => {
     // Create mock repositories
     productRepository = createMockRepository<ProductVariation>();
     productImageRepository = createMockRepository<ProductImage>();
+    categoryRepository = createMockRepository<Category>();
 
     // Create mock services
     storageService = {
@@ -42,6 +45,10 @@ describe('ProductVariationsService', () => {
         {
           provide: getRepositoryToken(ProductImage),
           useValue: productImageRepository,
+        },
+        {
+          provide: getRepositoryToken(Category),
+          useValue: categoryRepository,
         },
         {
           provide: StorageService,
@@ -109,10 +116,11 @@ describe('ProductVariationsService', () => {
 
   describe('create', () => {
     it('should create and return a new product', async () => {
-      const productData = createTestProductVariation({
+      const productData = {
         name: 'New ProductVariation',
-      });
-      const savedProductVariation = { ...productData, id: 'generated-id' };
+        price: 100,
+      };
+      const savedProductVariation = { ...productData, id: 'generated-id', sku: 'sku', stock: 0, is_active: true, sort_order: 0, attributes: {}, created_at: new Date(), updated_at: new Date() };
 
       (productRepository.create as jest.Mock).mockReturnValue(productData);
       (productRepository.save as jest.Mock).mockResolvedValue(
@@ -179,7 +187,7 @@ describe('ProductVariationsService', () => {
         where: { id: '1' },
       });
       expect(productImageRepository.find).toHaveBeenCalledWith({
-        where: { productId: '1' },
+        where: { variation_id: '1' },
       });
       expect(storageService.deleteFile).toHaveBeenCalledWith('path1');
       expect(storageService.deleteFile).toHaveBeenCalledWith('path2');

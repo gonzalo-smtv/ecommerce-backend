@@ -6,11 +6,14 @@ import {
   UpdateDateColumn,
   ManyToOne,
   OneToMany,
+  ManyToMany,
   JoinColumn,
+  JoinTable,
   Index,
 } from 'typeorm';
 import { ProductTemplate } from './product-template.entity';
 import { ProductImage } from './product-image.entity';
+import { Category } from '../../categories/entities/category.entity';
 
 @Entity('product_variations')
 @Index(['template_id'])
@@ -57,6 +60,14 @@ export class ProductVariation {
     eager: true,
   })
   images: ProductImage[];
+
+  @ManyToMany(() => Category, (category) => category.productVariations)
+  @JoinTable({
+    name: 'product_variations_categories',
+    joinColumn: { name: 'product_variation_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'category_id', referencedColumnName: 'id' },
+  })
+  categories: Category[];
 
   @CreateDateColumn({
     name: 'created_at',

@@ -9,7 +9,7 @@ import { Cart } from './entities/cart.entity';
 import { CartItem } from './entities/cart-item.entity';
 import { AddToCartDto } from './dto/add-to-cart.dto';
 import { UpdateCartItemDto } from './dto/update-cart-item.dto';
-import { ProductVariationsService } from '@app/products/services/product-variations.service';
+import { ProductVariationsService } from '@app/products/products.service';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
