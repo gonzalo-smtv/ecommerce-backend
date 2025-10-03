@@ -52,16 +52,6 @@ export class ProductsController {
     return this.productsService.findByAttributes(attributeIds);
   }
 
-  @Get('category/:categoryId')
-  findByCategory(@Param('categoryId') categoryId: string): Promise<Product[]> {
-    return this.productsService.findByCategory(categoryId);
-  }
-
-  @Get('category-slug/:slug')
-  findByCategorySlug(@Param('slug') slug: string): Promise<Product[]> {
-    return this.productsService.findByCategorySlug(slug);
-  }
-
   @Get(':id')
   findById(@Param('id') id: string): Promise<Product> {
     return this.productsService.findById(id);
@@ -104,7 +94,7 @@ export class ProductsController {
 
     How to use:
     - Set Content-Type to "multipart/form-data"
-    - Add all product fields as form fields (name, price, description, etc.)
+    - Add all product fields as form fields (name, price, etc.)
     - Add images in a field named "files" (you can select multiple image files)
     - Maximum 10 images per request
     - Images will be automatically uploaded to Supabase storage
@@ -116,29 +106,14 @@ export class ProductsController {
       properties: {
         name: { type: 'string', example: 'Mesa de Comedor Rústica' },
         price: { type: 'number', example: 45000 },
-        description: {
-          type: 'string',
-          example:
-            'Hermosa mesa de comedor fabricada en madera maciza de roble con acabado rústico natural',
-        },
-        categoryIds: {
-          type: 'array',
-          items: { type: 'string' },
-          example: ['123e4567-e89b-12d3-a456-426614174000'],
-        },
-        dimensions: { type: 'string', example: '200cm x 90cm x 75cm' },
-        weight: { type: 'number', example: 45000 },
         inStock: { type: 'boolean', example: true },
-        rating: { type: 'number', example: 4.5 },
-        reviewCount: { type: 'number', example: 25 },
-        featured: { type: 'boolean', example: false },
         files: {
           type: 'array',
           items: { type: 'string', format: 'binary' },
           description: 'Product images (select multiple files)',
         },
       },
-      required: ['name', 'price', 'categoryIds'],
+      required: ['name', 'price'],
     },
   })
   @UseInterceptors(FilesInterceptor('files', 10))

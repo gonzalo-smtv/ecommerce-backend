@@ -1,9 +1,9 @@
 services:
   postgres:
-    container_name: nexera-dashboard-db
+    container_name: ltecdeco-db
     image: postgres:latest
     environment:
-      POSTGRES_DB: nexera_dashboard
+      POSTGRES_DB: ltecdeco
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       PGDATA: /data/postgres
@@ -11,13 +11,6 @@ services:
       - postgres:/data/postgres
     ports:
       - "5432:5432"
-    networks:
-      - postgres
-    restart: unless-stopped
-
-networks:
-  postgres:
-    driver: bridge
 
 volumes:
   postgres:

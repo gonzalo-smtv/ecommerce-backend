@@ -4,7 +4,6 @@ import { Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { ProductImage } from './entities/product-image.entity';
 import { ProductAttribute } from '../attributes/entities/product-attribute.entity';
-import { ProductCategory } from '../categories/entities/product-category.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { StorageService } from '@app/storage/storage.service';
 import { CacheService } from '@app/cache/cache.service';
@@ -20,8 +19,6 @@ export class ProductsService {
     private productImagesRepository: Repository<ProductImage>,
     @InjectRepository(ProductAttribute)
     private productAttributeRepository: Repository<ProductAttribute>,
-    @InjectRepository(ProductCategory)
-    private productCategoryRepository: Repository<ProductCategory>,
     private readonly storageService: StorageService,
     private readonly cacheService: CacheService,
   ) {}
@@ -42,9 +39,8 @@ export class ProductsService {
     this.logger.log('Creating a new product...');
     console.log('productData: ', productData);
 
-    // Extract categoryIds and attributeValueIds and remove from productData
-    const { categoryIds, attributeValueIds, ...productFields } =
-      productData as any;
+    // Extract attributeValueIds and remove from productData
+    const { attributeValueIds, ...productFields } = productData as any;
 
     const product = this.productsRepository.create(productFields);
     this.logger.log('Product data prepared, saving to database...');
@@ -54,30 +50,6 @@ export class ProductsService {
     const savedProduct = (await this.productsRepository.save(
       product,
     )) as unknown as Product;
-
-    // Create category connections if categoryIds provided
-    if (categoryIds) {
-      let categoryIdArray: string[];
-      if (typeof categoryIds === 'string') {
-        categoryIdArray = categoryIds
-          .split(',')
-          .map((id) => id.trim())
-          .filter((id) => id);
-      } else {
-        categoryIdArray = categoryIds;
-      }
-
-      if (categoryIdArray.length > 0) {
-        const productCategories = categoryIdArray.map((categoryId, index) => {
-          return this.productCategoryRepository.create({
-            product_id: savedProduct.id,
-            category_id: categoryId,
-            is_primary: index === 0, // First category is primary
-          });
-        });
-        await this.productCategoryRepository.save(productCategories);
-      }
-    }
 
     // Create attribute connections if attributeValueIds provided
     if (attributeValueIds) {
@@ -111,32 +83,12 @@ export class ProductsService {
   async update(id: string, productData: any): Promise<Product> {
     const product = await this.findById(id);
 
-    // Extract categoryIds and attributeValueIds from productData
-    const { categoryIds, attributeValueIds, ...basicProductData } = productData;
+    // Extract attributeValueIds from productData
+    const { attributeValueIds, ...basicProductData } = productData;
 
     // Update basic product data
     Object.assign(product, basicProductData);
     await this.productsRepository.save(product);
-
-    // Update category connections if categoryIds provided
-    if (categoryIds !== undefined) {
-      // Remove existing category connections
-      await this.productCategoryRepository.delete({ product_id: id });
-
-      // Create new category connections
-      if (categoryIds && categoryIds.length > 0) {
-        const productCategories = categoryIds.map(
-          (categoryId: string, index: number) => {
-            return this.productCategoryRepository.create({
-              product_id: id,
-              category_id: categoryId,
-              is_primary: index === 0, // First category is primary
-            });
-          },
-        );
-        await this.productCategoryRepository.save(productCategories);
-      }
-    }
 
     // Update attribute connections if attributeValueIds provided
     if (attributeValueIds !== undefined) {
@@ -213,51 +165,11 @@ export class ProductsService {
   }
 
   /**
-   * Find products by category ID
-   */
-  async findByCategory(categoryId: string): Promise<Product[]> {
-    const products = await this.productsRepository
-      .createQueryBuilder('product')
-      .innerJoin('product.categoryConnections', 'pc')
-      .where('pc.category_id = :categoryId', { categoryId })
-      .leftJoinAndSelect('product.images', 'images')
-      .getMany();
-
-    return products;
-  }
-
-  /**
-   * Find products by category slug
-   */
-  async findByCategorySlug(slug: string): Promise<Product[]> {
-    const products = await this.productsRepository
-      .createQueryBuilder('product')
-      .innerJoin('product.categoryConnections', 'pc')
-      .innerJoin('pc.category', 'category')
-      .where('category.slug = :slug', { slug })
-      .leftJoinAndSelect('product.images', 'images')
-      .getMany();
-
-    return products;
-  }
-
-  /**
-   * Get products with their categories
-   */
-  async findAllWithCategories(): Promise<Product[]> {
-    return this.productsRepository.find({
-      relations: ['categoryConnections', 'categoryConnections.category'],
-    });
-  }
-
-  /**
-   * Get all products with full details (categories + attributes)
+   * Get all products with full details (attributes)
    */
   async findAllWithDetails(): Promise<Product[]> {
     return this.productsRepository.find({
       relations: [
-        'categoryConnections',
-        'categoryConnections.category',
         'productAttributes',
         'productAttributes.attributeValue',
         'productAttributes.attributeValue.attribute',
@@ -292,8 +204,6 @@ export class ProductsService {
   async findAllWithAttributes(): Promise<Product[]> {
     return this.productsRepository.find({
       relations: [
-        'categoryConnections',
-        'categoryConnections.category',
         'productAttributes',
         'productAttributes.attributeValue',
         'productAttributes.attributeValue.attribute',
@@ -302,14 +212,12 @@ export class ProductsService {
   }
 
   /**
-   * Get product with full details (categories + attributes)
+   * Get product with full details (attributes)
    */
   async findByIdWithDetails(id: string): Promise<Product> {
     const product = await this.productsRepository.findOne({
       where: { id },
       relations: [
-        'categoryConnections',
-        'categoryConnections.category',
         'productAttributes',
         'productAttributes.attributeValue',
         'productAttributes.attributeValue.attribute',

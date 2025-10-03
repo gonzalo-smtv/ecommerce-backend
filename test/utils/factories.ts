@@ -1,6 +1,5 @@
 import { Product } from '../../src/products/entities/product.entity';
 import { User, UserRole } from '../../src/users/entities/user.entity';
-import { Category } from '../../src/categories/entities/category.entity';
 import { Cart } from '../../src/cart/entities/cart.entity';
 import { CartItem } from '../../src/cart/entities/cart-item.entity';
 
@@ -12,13 +11,7 @@ export function createTestProduct(
     id: 'test-product-id',
     name: 'Test Product',
     price: 99,
-    description: 'This is a test product description',
-    dimensions: '10x10x10',
-    weight: 1.5,
     inStock: true,
-    rating: 4.5,
-    reviewCount: 10,
-    featured: false,
     createdAt: new Date(),
     updatedAt: new Date(),
     ...overrides,
@@ -37,23 +30,6 @@ export function createTestUser(overrides: Partial<User> = {}): Partial<User> {
     isEmailVerified: false,
     createdAt: new Date(),
     updatedAt: new Date(),
-    ...overrides,
-  };
-}
-
-// Category factory
-export function createTestCategory(
-  overrides: Partial<Category> = {},
-): Partial<Category> {
-  return {
-    id: 'test-category-id',
-    name: 'Test Category',
-    slug: 'test-category',
-    description: 'This is a test category',
-    image: 'test-image.jpg',
-    is_active: true,
-    created_at: new Date(),
-    updated_at: new Date(),
     ...overrides,
   };
 }
