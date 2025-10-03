@@ -7,7 +7,6 @@ import {
   Delete,
   Body,
   Param,
-  Query,
   UseInterceptors,
   UploadedFiles,
   Res,
@@ -16,7 +15,6 @@ import {
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ProductVariationsService } from './products.service';
 import { ProductImagesService } from './product-images.service';
-// Using ProductVariation instead of legacy Product entity
 import { ProductVariation } from './entities/product-variation.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -38,19 +36,6 @@ export class ProductsController {
   @Get('with-details')
   findAllWithDetails(): Promise<ProductVariation[]> {
     return this.productsService.findAllWithDetails();
-  }
-
-  @Get('with-attributes')
-  findAllWithAttributes(): Promise<ProductVariation[]> {
-    return this.productsService.findAllWithAttributes();
-  }
-
-  @Get('filter-by-attributes')
-  findByAttributes(
-    @Query('attributes') attributes: string,
-  ): Promise<ProductVariation[]> {
-    const attributeIds = attributes.split(',').filter((id) => id.trim());
-    return this.productsService.findByAttributes(attributeIds);
   }
 
   @Get(':id')
@@ -107,6 +92,11 @@ export class ProductsController {
       properties: {
         name: { type: 'string', example: 'Mesa de Comedor Rústica' },
         price: { type: 'number', example: 45000 },
+        attributes: {
+          type: 'object',
+          example: { color: 'red', size: 'M' },
+          description: 'Product attributes as key-value pairs',
+        },
         inStock: { type: 'boolean', example: true },
         files: {
           type: 'array',
