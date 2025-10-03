@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
-import { ProductsService } from '@app/products/products.service';
+import { ProductVariationsService } from '@app/products/products.service';
 import { UsersService } from '@app/users/users.service';
 import { CheckoutItemDto } from './dto/checkout.dto';
 import { PreferenceRequest } from 'mercadopago/dist/clients/preference/commonTypes';
@@ -24,7 +24,7 @@ export class PaymentsService {
 
   constructor(
     private configService: ConfigService,
-    private productsService: ProductsService,
+    private productsService: ProductVariationsService,
     private usersService: UsersService,
     private orderService: OrderService,
   ) {

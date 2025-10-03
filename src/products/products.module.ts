@@ -9,12 +9,13 @@ import { ProductTemplatesService } from './services/product-templates.service';
 import { ProductTemplate } from './entities/product-template.entity';
 import { ProductVariation } from './entities/product-variation.entity';
 import { ProductImage } from './entities/product-image.entity';
+import { Category } from '../categories/entities/category.entity';
 import { StorageModule } from '@app/storage/storage.module';
 import { CacheModule } from '@app/cache/cache.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ProductTemplate, ProductVariation, ProductImage]),
+    TypeOrmModule.forFeature([ProductTemplate, ProductVariation, ProductImage, Category]),
     StorageModule,
     CacheModule,
   ],

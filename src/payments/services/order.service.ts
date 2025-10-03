@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Order, OrderStatus } from '../entities/order.entity';
 import { CheckoutItemDto } from '../dto/checkout.dto';
-import { ProductsService } from '@app/products/products.service';
+import { ProductVariationsService } from '@app/products/products.service';
 import { OrderItem } from '../entities/order-item.entity';
 import { OrderPaymentDetail } from '../entities/order-payment-detail.entity';
 import { PaymentData } from '../types/payment.types';
@@ -19,7 +19,7 @@ export class OrderService {
     private readonly orderItemRepository: Repository<OrderItem>,
     @InjectRepository(OrderPaymentDetail)
     private readonly orderPaymentDetailRepository: Repository<OrderPaymentDetail>,
-    private readonly productsService: ProductsService,
+    private readonly productsService: ProductVariationsService,
   ) {}
 
   async createOrder(data: {
