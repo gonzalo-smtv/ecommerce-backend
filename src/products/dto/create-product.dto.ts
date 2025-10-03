@@ -3,8 +3,6 @@ import {
   IsNumber,
   IsOptional,
   IsBoolean,
-  IsUUID,
-  IsArray,
   Min,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
@@ -25,6 +23,19 @@ export class CreateProductDto {
   @IsNumber()
   @Min(0)
   price: number;
+
+  @ApiPropertyOptional({
+    description: 'Product attributes as key-value pairs',
+    example: {
+      color: 'red',
+      size: 'M',
+      material: 'cotton',
+    },
+    type: 'object',
+    additionalProperties: true,
+  })
+  @IsOptional()
+  attributes?: Record<string, any>;
 
   @ApiPropertyOptional({
     description: 'Whether product is in stock',
@@ -54,18 +65,17 @@ export class CreateProductWithImagesDto {
   price: number;
 
   @ApiPropertyOptional({
-    description: 'Product attribute value IDs (can be multiple)',
-    example: [
-      '123e4567-e89b-12d3-a456-426614174000',
-      '987e6543-e21c-12d3-a456-426614174001',
-      '456e7890-e12c-34d5-a678-426614174002',
-    ],
-    type: [String],
+    description: 'Product attributes as key-value pairs',
+    example: {
+      color: 'red',
+      size: 'M',
+      material: 'cotton',
+    },
+    type: 'object',
+    additionalProperties: true,
   })
   @IsOptional()
-  @IsArray()
-  @IsUUID('all', { each: true })
-  attributeValueIds?: string[];
+  attributes?: Record<string, any>;
 
   @ApiPropertyOptional({
     description: 'Whether product is in stock',

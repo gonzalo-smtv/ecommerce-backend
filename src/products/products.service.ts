@@ -115,64 +115,23 @@ export class ProductVariationsService {
   }
 
   /**
-   * Get all products with full details (attributes)
+   * Get all products with full details
    */
   async findAllWithDetails(): Promise<ProductVariation[]> {
     return this.productsRepository.find({
       relations: [
-        'productAttributes',
-        'productAttributes.attributeValue',
-        'productAttributes.attributeValue.attribute',
         'images',
       ],
     });
   }
 
   /**
-   * Find products by multiple attribute values
-   */
-  async findByAttributes(
-    attributeValues: string[],
-  ): Promise<ProductVariation[]> {
-    if (attributeValues.length === 0) {
-      return this.findAll();
-    }
-
-    const products = await this.productsRepository
-      .createQueryBuilder('product')
-      .innerJoin('product.productAttributes', 'pa')
-      .where('pa.attribute_value_id IN (:...attributeValues)', {
-        attributeValues,
-      })
-      .leftJoinAndSelect('product.images', 'images')
-      .getMany();
-
-    return products;
-  }
-
-  /**
-   * Get products with their attributes
-   */
-  async findAllWithAttributes(): Promise<ProductVariation[]> {
-    return this.productsRepository.find({
-      relations: [
-        'productAttributes',
-        'productAttributes.attributeValue',
-        'productAttributes.attributeValue.attribute',
-      ],
-    });
-  }
-
-  /**
-   * Get product with full details (attributes)
+   * Get product with full details
    */
   async findByIdWithDetails(id: string): Promise<ProductVariation> {
     const product = await this.productsRepository.findOne({
       where: { id },
       relations: [
-        'productAttributes',
-        'productAttributes.attributeValue',
-        'productAttributes.attributeValue.attribute',
         'images',
       ],
     });
