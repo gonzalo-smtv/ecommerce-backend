@@ -2,7 +2,6 @@ import {
   Controller,
   Get,
   Post,
-  Put,
   Delete,
   Body,
   Param,
@@ -22,35 +21,32 @@ import {
   ApiParam,
   ApiOperation,
 } from '@nestjs/swagger';
-import {
-  UpdateProductImageDto,
-  AddProductImagesDto,
-} from './dto/product-image.dto';
+import { AddProductImagesDto } from './dto/product-image.dto';
 
 @ApiTags('04 - Product-Images')
-@Controller('products/:productId/images')
+@Controller('product-variations/:variationId/images')
 export class ProductImagesController {
   constructor(private readonly productImagesService: ProductImagesService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Get all images for a product' })
+  @ApiOperation({ summary: 'Get all images for a product variation' })
   @ApiParam({
-    name: 'productId',
+    name: 'variationId',
     type: 'string',
-    description: 'ID of the product',
+    description: 'ID of the product variation',
   })
   findAll(
-    @Param('productId', ParseUUIDPipe) productId: string,
+    @Param('variationId', ParseUUIDPipe) variationId: string,
   ): Promise<ProductImage[]> {
-    return this.productImagesService.findAllByProductId(productId);
+    return this.productImagesService.findAllByVariationId(variationId);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a specific product image' })
   @ApiParam({
-    name: 'productId',
+    name: 'variationId',
     type: 'string',
-    description: 'ID of the product',
+    description: 'ID of the product variation',
   })
   @ApiParam({ name: 'id', type: 'string', description: 'ID of the image' })
   findOne(@Param('id', ParseUUIDPipe) id: string): Promise<ProductImage> {
@@ -60,9 +56,9 @@ export class ProductImagesController {
   @Get(':id/file')
   @ApiOperation({ summary: 'Get the image file' })
   @ApiParam({
-    name: 'productId',
+    name: 'variationId',
     type: 'string',
-    description: 'ID of the product',
+    description: 'ID of the product variation',
   })
   @ApiParam({ name: 'id', type: 'string', description: 'ID of the image' })
   async getImageFile(
@@ -81,12 +77,12 @@ export class ProductImagesController {
   }
 
   @Post()
-  @ApiOperation({ summary: 'Upload multiple images for a product' })
+  @ApiOperation({ summary: 'Upload multiple images for a product variation' })
   @ApiConsumes('multipart/form-data')
   @ApiParam({
-    name: 'productId',
+    name: 'variationId',
     type: 'string',
-    description: 'ID of the product',
+    description: 'ID of the product variation',
   })
   @ApiBody({
     schema: {
@@ -112,39 +108,24 @@ export class ProductImagesController {
   })
   @UseInterceptors(FilesInterceptor('files', 10)) // Maximum 10 images at a time
   uploadImages(
-    @Param('productId', ParseUUIDPipe) productId: string,
+    @Param('variationId', ParseUUIDPipe) variationId: string,
     @UploadedFiles() files: Express.Multer.File[],
     @Body() addImagesDto: AddProductImagesDto,
   ): Promise<ProductImage[]> {
     return this.productImagesService.create(
-      productId,
+      variationId,
       files,
       addImagesDto.isMain,
       addImagesDto.altText,
     );
   }
 
-  @Put(':id')
-  @ApiOperation({ summary: 'Update image details' })
-  @ApiParam({
-    name: 'productId',
-    type: 'string',
-    description: 'ID of the product',
-  })
-  @ApiParam({ name: 'id', type: 'string', description: 'ID of the image' })
-  updateImage(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateImageDto: UpdateProductImageDto,
-  ): Promise<ProductImage> {
-    return this.productImagesService.update(id, updateImageDto);
-  }
-
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a product image' })
   @ApiParam({
-    name: 'productId',
+    name: 'variationId',
     type: 'string',
-    description: 'ID of the product',
+    description: 'ID of the product variation',
   })
   @ApiParam({ name: 'id', type: 'string', description: 'ID of the image' })
   async deleteImage(
@@ -152,48 +133,5 @@ export class ProductImagesController {
   ): Promise<{ success: boolean }> {
     await this.productImagesService.delete(id);
     return { success: true };
-  }
-
-  @Put(':id/set-main')
-  @ApiOperation({ summary: 'Set an image as the main product image' })
-  @ApiParam({
-    name: 'productId',
-    type: 'string',
-    description: 'ID of the product',
-  })
-  @ApiParam({ name: 'id', type: 'string', description: 'ID of the image' })
-  setMainImage(
-    @Param('productId', ParseUUIDPipe) productId: string,
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<ProductImage> {
-    return this.productImagesService.setMainImage(productId, id);
-  }
-
-  @Put('reorder')
-  @ApiOperation({ summary: 'Reorder product images' })
-  @ApiParam({
-    name: 'productId',
-    type: 'string',
-    description: 'ID of the product',
-  })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        imageIds: {
-          type: 'array',
-          items: {
-            type: 'string',
-          },
-          description: 'Array of image IDs in the desired order',
-        },
-      },
-    },
-  })
-  reorderImages(
-    @Param('productId', ParseUUIDPipe) productId: string,
-    @Body() body: { imageIds: string[] },
-  ): Promise<ProductImage[]> {
-    return this.productImagesService.reorderImages(productId, body.imageIds);
   }
 }

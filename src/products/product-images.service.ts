@@ -2,25 +2,24 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ProductImage } from './entities/product-image.entity';
-import { Product } from './entities/product.entity';
+import { ProductVariation } from './entities/product-variation.entity';
 import { StorageService } from '@app/storage/storage.service';
 import { CacheService } from '@app/cache/cache.service';
-import { UpdateProductImageDto } from './dto/product-image.dto';
 
 @Injectable()
 export class ProductImagesService {
   constructor(
     @InjectRepository(ProductImage)
     private productImagesRepository: Repository<ProductImage>,
-    @InjectRepository(Product)
-    private productsRepository: Repository<Product>,
+    @InjectRepository(ProductVariation)
+    private productVariationsRepository: Repository<ProductVariation>,
     private readonly storageService: StorageService,
     private readonly cacheService: CacheService,
   ) {}
 
-  async findAllByProductId(productId: string): Promise<ProductImage[]> {
+  async findAllByVariationId(variationId: string): Promise<ProductImage[]> {
     return this.productImagesRepository.find({
-      where: { productId },
+      where: { variation_id: variationId },
       order: { sortOrder: 'ASC' },
     });
   }
@@ -34,21 +33,23 @@ export class ProductImagesService {
   }
 
   async create(
-    productId: string,
+    variationId: string,
     files: Express.Multer.File[],
     isMain: boolean = false,
     altText?: string,
   ): Promise<ProductImage[]> {
-    // Verify that the product exists
-    const product = await this.productsRepository.findOne({
-      where: { id: productId },
+    // Verify that the product variation exists
+    const productVariation = await this.productVariationsRepository.findOne({
+      where: { id: variationId },
     });
-    if (!product) {
-      throw new NotFoundException(`Product with ID ${productId} not found`);
+    if (!productVariation) {
+      throw new NotFoundException(
+        `Product variation with ID ${variationId} not found`,
+      );
     }
 
     // Find the maximum sort order to add new images after existing ones
-    const existingImages = await this.findAllByProductId(productId);
+    const existingImages = await this.findAllByVariationId(variationId);
     let maxSortOrder = 0;
     if (existingImages.length > 0) {
       maxSortOrder = Math.max(...existingImages.map((img) => img.sortOrder));
@@ -57,7 +58,7 @@ export class ProductImagesService {
     // If isMain is true and there are existing images, we need to update them
     if (isMain && existingImages.length > 0) {
       await this.productImagesRepository.update(
-        { productId },
+        { variation_id: variationId },
         { isMain: false },
       );
     }
@@ -69,7 +70,7 @@ export class ProductImagesService {
       const file = files[i];
       const { url, path } = await this.storageService.uploadFile(
         file,
-        `products/${productId}`,
+        `products/${variationId}`,
       );
 
       // Mark as main if it's the first image and there are no others, or if isMain is true and it's the first file
@@ -79,7 +80,7 @@ export class ProductImagesService {
       const newImage = this.productImagesRepository.create({
         url,
         path,
-        productId,
+        variation_id: variationId,
         isMain: shouldBeMain,
         sortOrder: maxSortOrder + i + 1,
         altText: altText || file.originalname,
@@ -90,25 +91,6 @@ export class ProductImagesService {
     }
 
     return createdImages;
-  }
-
-  async update(
-    id: string,
-    updateData: UpdateProductImageDto,
-  ): Promise<ProductImage> {
-    const image = await this.findOne(id);
-
-    // If we're setting this image as main, update the others
-    if (updateData.isMain) {
-      await this.productImagesRepository.update(
-        { productId: image.productId },
-        { isMain: false },
-      );
-    }
-
-    // Update the image
-    Object.assign(image, updateData);
-    return this.productImagesRepository.save(image);
   }
 
   async delete(id: string): Promise<void> {
@@ -139,55 +121,5 @@ export class ProductImagesService {
 
     // Get the image from cache or download it if not cached
     return this.cacheService.getImage(image.url);
-  }
-
-  async setMainImage(
-    productId: string,
-    imageId: string,
-  ): Promise<ProductImage> {
-    // Verify that the image exists and belongs to the product
-    const image = await this.productImagesRepository.findOne({
-      where: { id: imageId, productId },
-    });
-
-    if (!image) {
-      throw new NotFoundException(
-        `Image with ID ${imageId} not found for product ${productId}`,
-      );
-    }
-
-    // Update all product images so they are not main
-    await this.productImagesRepository.update({ productId }, { isMain: false });
-
-    // Set the selected image as main
-    image.isMain = true;
-    return this.productImagesRepository.save(image);
-  }
-
-  async reorderImages(
-    productId: string,
-    imageIds: string[],
-  ): Promise<ProductImage[]> {
-    // Verify that all images exist and belong to the product
-    const images = await this.productImagesRepository.find({
-      where: { productId },
-    });
-
-    if (images.length !== imageIds.length) {
-      throw new NotFoundException('Some image IDs are invalid');
-    }
-
-    // Reorder the images
-    const updatePromises = imageIds.map((id, index) => {
-      return this.productImagesRepository.update(
-        { id },
-        { sortOrder: index + 1 },
-      );
-    });
-
-    await Promise.all(updatePromises);
-
-    // Return the updated images
-    return this.findAllByProductId(productId);
   }
 }

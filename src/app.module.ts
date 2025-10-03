@@ -10,7 +10,7 @@ import { UsersModule } from '@app/users/users.module';
 import { CartModule } from '@app/cart/cart.module';
 import { PaymentsModule } from '@app/payments/payments.module';
 import { CacheModule } from '@app/cache/cache.module';
-import { AttributesModule } from '@app/attributes/attributes.module';
+import { CategoriesModule } from '@app/categories/categories.module';
 import { THROTTLE_LIMIT, THROTTLE_TTL } from '@app/utils/environments';
 @Module({
   imports: [
@@ -48,7 +48,7 @@ import { THROTTLE_LIMIT, THROTTLE_TTL } from '@app/utils/environments';
     CartModule,
     PaymentsModule,
     CacheModule,
-    AttributesModule,
+    CategoriesModule,
   ],
   controllers: [],
   providers: [

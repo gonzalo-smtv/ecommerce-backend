@@ -1,113 +1,63 @@
 import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Product } from './entities/product.entity';
+import { ProductVariation } from './entities/product-variation.entity';
 import { ProductImage } from './entities/product-image.entity';
-import { ProductAttribute } from '../attributes/entities/product-attribute.entity';
+import { Category } from '../categories/entities/category.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { StorageService } from '@app/storage/storage.service';
 import { CacheService } from '@app/cache/cache.service';
 
 @Injectable()
-export class ProductsService {
-  private readonly logger = new Logger(ProductsService.name);
+export class ProductVariationsService {
+  private readonly logger = new Logger(ProductVariationsService.name);
 
   constructor(
-    @InjectRepository(Product)
-    private productsRepository: Repository<Product>,
+    @InjectRepository(ProductVariation)
+    private productsRepository: Repository<ProductVariation>,
     @InjectRepository(ProductImage)
     private productImagesRepository: Repository<ProductImage>,
-    @InjectRepository(ProductAttribute)
-    private productAttributeRepository: Repository<ProductAttribute>,
+    @InjectRepository(Category)
+    private categoriesRepository: Repository<Category>,
     private readonly storageService: StorageService,
     private readonly cacheService: CacheService,
   ) {}
 
-  findAll(): Promise<Product[]> {
+  findAll(): Promise<ProductVariation[]> {
     return this.productsRepository.find();
   }
 
-  async findById(id: string): Promise<Product> {
+  async findById(id: string): Promise<ProductVariation> {
     const product = await this.productsRepository.findOne({ where: { id } });
     if (!product) {
-      throw new NotFoundException(`Product with ID ${id} not found`);
+      throw new NotFoundException(`ProductVariation with ID ${id} not found`);
     }
     return product;
   }
 
-  async create(productData: CreateProductDto): Promise<Product> {
+  async create(productData: CreateProductDto): Promise<ProductVariation> {
     this.logger.log('Creating a new product...');
     console.log('productData: ', productData);
 
-    // Extract attributeValueIds and remove from productData
-    const { attributeValueIds, ...productFields } = productData as any;
-
-    const product = this.productsRepository.create(productFields);
-    this.logger.log('Product data prepared, saving to database...');
-    console.log('Product entity: ', product);
+    const product = this.productsRepository.create(productData);
+    this.logger.log('ProductVariation data prepared, saving to database...');
+    console.log('ProductVariation entity: ', product);
 
     // Save the product to get an ID
-    const savedProduct = (await this.productsRepository.save(
-      product,
-    )) as unknown as Product;
+    const savedProductVariation = await this.productsRepository.save(product);
 
-    // Create attribute connections if attributeValueIds provided
-    if (attributeValueIds) {
-      let attributeValueIdArray: string[];
-      if (typeof attributeValueIds === 'string') {
-        attributeValueIdArray = attributeValueIds
-          .split(',')
-          .map((id) => id.trim())
-          .filter((id) => id);
-      } else {
-        attributeValueIdArray = attributeValueIds;
-      }
-
-      if (attributeValueIdArray.length > 0) {
-        const productAttributes = attributeValueIdArray.map(
-          (attributeValueId) => {
-            return this.productAttributeRepository.create({
-              product_id: savedProduct.id,
-              attribute_value_id: attributeValueId,
-            });
-          },
-        );
-        await this.productAttributeRepository.save(productAttributes);
-      }
-    }
-
-    this.logger.log(`Product created successfully with ID: ${savedProduct.id}`);
-    return this.findById(savedProduct.id);
+    this.logger.log(
+      `ProductVariation created successfully with ID: ${savedProductVariation.id}`,
+    );
+    return this.findById(savedProductVariation.id);
   }
 
-  async update(id: string, productData: any): Promise<Product> {
+  async update(id: string, productData: any): Promise<ProductVariation> {
     const product = await this.findById(id);
 
-    // Extract attributeValueIds from productData
-    const { attributeValueIds, ...basicProductData } = productData;
-
     // Update basic product data
-    Object.assign(product, basicProductData);
+    Object.assign(product, productData);
     await this.productsRepository.save(product);
-
-    // Update attribute connections if attributeValueIds provided
-    if (attributeValueIds !== undefined) {
-      // Remove existing attribute connections
-      await this.productAttributeRepository.delete({ product_id: id });
-
-      // Create new attribute connections
-      if (attributeValueIds && attributeValueIds.length > 0) {
-        const productAttributes = attributeValueIds.map(
-          (attributeValueId: string) => {
-            return this.productAttributeRepository.create({
-              product_id: id,
-              attribute_value_id: attributeValueId,
-            });
-          },
-        );
-        await this.productAttributeRepository.save(productAttributes);
-      }
-    }
 
     // Return the updated product with all relations
     return this.findByIdWithDetails(id);
@@ -118,7 +68,7 @@ export class ProductsService {
 
     // Find all images associated with the product
     const productImages = await this.productImagesRepository.find({
-      where: { productId: id },
+      where: { variation_id: id },
     });
 
     // Delete each image from Supabase and database
@@ -141,7 +91,7 @@ export class ProductsService {
     await this.productsRepository.remove(product);
 
     this.logger.log(
-      `Product with ID ${id} and its images deleted successfully`,
+      `ProductVariation with ID ${id} and its images deleted successfully`,
     );
   }
 
@@ -150,10 +100,10 @@ export class ProductsService {
    * @param productId - The ID of the product
    * @returns Buffer with the image data or null if not found
    */
-  async getProductImage(productId: string): Promise<Buffer | null> {
+  async getProductVariationImage(productId: string): Promise<Buffer | null> {
     // Find the main product image
     const mainImage = await this.productImagesRepository.findOne({
-      where: { productId, isMain: true },
+      where: { variation_id: productId, isMain: true },
     });
 
     if (!mainImage || !mainImage.url) {
@@ -167,7 +117,7 @@ export class ProductsService {
   /**
    * Get all products with full details (attributes)
    */
-  async findAllWithDetails(): Promise<Product[]> {
+  async findAllWithDetails(): Promise<ProductVariation[]> {
     return this.productsRepository.find({
       relations: [
         'productAttributes',
@@ -181,7 +131,9 @@ export class ProductsService {
   /**
    * Find products by multiple attribute values
    */
-  async findByAttributes(attributeValues: string[]): Promise<Product[]> {
+  async findByAttributes(
+    attributeValues: string[],
+  ): Promise<ProductVariation[]> {
     if (attributeValues.length === 0) {
       return this.findAll();
     }
@@ -201,7 +153,7 @@ export class ProductsService {
   /**
    * Get products with their attributes
    */
-  async findAllWithAttributes(): Promise<Product[]> {
+  async findAllWithAttributes(): Promise<ProductVariation[]> {
     return this.productsRepository.find({
       relations: [
         'productAttributes',
@@ -214,7 +166,7 @@ export class ProductsService {
   /**
    * Get product with full details (attributes)
    */
-  async findByIdWithDetails(id: string): Promise<Product> {
+  async findByIdWithDetails(id: string): Promise<ProductVariation> {
     const product = await this.productsRepository.findOne({
       where: { id },
       relations: [
@@ -226,42 +178,161 @@ export class ProductsService {
     });
 
     if (!product) {
-      throw new NotFoundException(`Product with ID ${id} not found`);
+      throw new NotFoundException(`ProductVariation with ID ${id} not found`);
     }
 
     return product;
   }
 
   /**
-   * Add attribute to product
+   * Find products by category ID
    */
-  async addAttributeToProduct(
-    productId: string,
-    attributeValueId: string,
-  ): Promise<ProductAttribute> {
-    const productAttribute = this.productAttributeRepository.create({
-      product_id: productId,
-      attribute_value_id: attributeValueId,
-    });
-
-    return this.productAttributeRepository.save(productAttribute);
+  async findByCategory(categoryId: string): Promise<ProductVariation[]> {
+    return this.productsRepository
+      .createQueryBuilder('product')
+      .innerJoin('product.categories', 'category')
+      .where('category.id = :categoryId', { categoryId })
+      .leftJoinAndSelect('product.images', 'images')
+      .leftJoinAndSelect('product.categories', 'categories')
+      .getMany();
   }
 
   /**
-   * Remove attribute from product
+   * Find products by category slug
    */
-  async removeAttributeFromProduct(
+  async findByCategorySlug(slug: string): Promise<ProductVariation[]> {
+    return this.productsRepository
+      .createQueryBuilder('product')
+      .innerJoin('product.categories', 'category')
+      .where('category.slug = :slug', { slug })
+      .leftJoinAndSelect('product.images', 'images')
+      .leftJoinAndSelect('product.categories', 'categories')
+      .getMany();
+  }
+
+  /**
+   * Add category to product
+   */
+  async addCategoryToProductVariation(
     productId: string,
-    attributeValueId: string,
+    categoryId: string,
   ): Promise<void> {
-    const productAttribute = await this.productAttributeRepository.findOne({
-      where: { product_id: productId, attribute_value_id: attributeValueId },
+    const product = await this.findById(productId);
+    const category = await this.categoriesRepository.findOne({
+      where: { id: categoryId },
     });
 
-    if (!productAttribute) {
-      throw new NotFoundException('Attribute assignment not found');
+    if (!category) {
+      throw new NotFoundException(`Category with ID ${categoryId} not found`);
     }
 
-    await this.productAttributeRepository.remove(productAttribute);
+    // Check if the relationship already exists
+    const existingRelationship = await this.productsRepository
+      .createQueryBuilder('product')
+      .innerJoin('product.categories', 'category')
+      .where('product.id = :productId', { productId })
+      .andWhere('category.id = :categoryId', { categoryId })
+      .getOne();
+
+    if (existingRelationship) {
+      throw new Error('ProductVariation is already in this category');
+    }
+
+    // Add the category to the product
+    product.categories = product.categories || [];
+    product.categories.push(category);
+    await this.productsRepository.save(product);
+  }
+
+  /**
+   * Remove category from product
+   */
+  async removeCategoryFromProductVariation(
+    productId: string,
+    categoryId: string,
+  ): Promise<void> {
+    const product = await this.findById(productId);
+
+    // Remove the category from the product's categories array
+    product.categories = product.categories.filter(
+      (category) => category.id !== categoryId,
+    );
+
+    await this.productsRepository.save(product);
+  }
+
+  /**
+   * Update product categories
+   */
+  async updateProductVariationCategories(
+    productId: string,
+    categoryIds: string[],
+  ): Promise<void> {
+    const product = await this.findById(productId);
+
+    // Get all categories
+    const categories = await this.categoriesRepository.findByIds(categoryIds);
+
+    if (categories.length !== categoryIds.length) {
+      throw new NotFoundException('One or more categories not found');
+    }
+
+    // Update the product's categories
+    product.categories = categories;
+    await this.productsRepository.save(product);
+  }
+
+  /**
+   * Get category hierarchy for a product
+   */
+  async getProductVariationCategoryHierarchy(
+    productId: string,
+  ): Promise<Category[]> {
+    const product = await this.productsRepository.findOne({
+      where: { id: productId },
+      relations: ['categories'],
+    });
+
+    if (!product) {
+      throw new NotFoundException(
+        `ProductVariation with ID ${productId} not found`,
+      );
+    }
+
+    // For each category, build the full hierarchy path
+    const hierarchies: Category[] = [];
+
+    for (const category of product.categories) {
+      const hierarchy = await this.buildCategoryHierarchy(category.id);
+      hierarchies.push(...hierarchy);
+    }
+
+    return hierarchies;
+  }
+
+  /**
+   * Build category hierarchy from leaf to root
+   */
+  private async buildCategoryHierarchy(
+    categoryId: string,
+  ): Promise<Category[]> {
+    const hierarchy: Category[] = [];
+    let currentCategory = await this.categoriesRepository.findOne({
+      where: { id: categoryId },
+    });
+
+    while (currentCategory) {
+      hierarchy.unshift(currentCategory);
+
+      if (currentCategory.parent_id) {
+        currentCategory = await this.categoriesRepository.findOne({
+          where: { id: currentCategory.parent_id },
+        });
+      } else {
+        break;
+      }
+    }
+
+    return hierarchy;
   }
 }

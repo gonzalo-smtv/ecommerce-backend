@@ -7,7 +7,7 @@ import { ApiProperty } from '@nestjs/swagger';
 export class AddToCartDto {
   @IsNotEmpty()
   @ApiProperty({
-    description: 'Product ID to add to cart',
+    description: 'Product variation ID to add to cart',
     example: '123e4567-e89b-12d3-a456-426614174000',
   })
   productId: string;

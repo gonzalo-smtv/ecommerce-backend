@@ -1,29 +1,26 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ProductsService } from './products.service';
-import { Product } from './entities/product.entity';
+import { ProductVariationsService } from './products.service';
+import { ProductVariation } from './entities/product-variation.entity';
 import { ProductImage } from './entities/product-image.entity';
-import { ProductAttribute } from '../attributes/entities/product-attribute.entity';
 import { StorageService } from '@app/storage/storage.service';
 import { CacheService } from '@app/cache/cache.service';
 import { NotFoundException } from '@nestjs/common';
-import { createTestProduct } from '../../test/utils/factories';
+import { createTestProductVariation } from '../../test/utils/factories';
 import { createMockRepository } from '../../test/utils/test-setup';
 
-describe('ProductsService', () => {
-  let service: ProductsService;
-  let productRepository: Partial<Repository<Product>>;
+describe('ProductVariationsService', () => {
+  let service: ProductVariationsService;
+  let productRepository: Partial<Repository<ProductVariation>>;
   let productImageRepository: Partial<Repository<ProductImage>>;
-  let productAttributeRepository: Partial<Repository<ProductAttribute>>;
   let storageService: Partial<StorageService>;
   let cacheService: Partial<CacheService>;
 
   beforeEach(async () => {
     // Create mock repositories
-    productRepository = createMockRepository<Product>();
+    productRepository = createMockRepository<ProductVariation>();
     productImageRepository = createMockRepository<ProductImage>();
-    productAttributeRepository = createMockRepository<ProductAttribute>();
 
     // Create mock services
     storageService = {
@@ -37,18 +34,14 @@ describe('ProductsService', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        ProductsService,
+        ProductVariationsService,
         {
-          provide: getRepositoryToken(Product),
+          provide: getRepositoryToken(ProductVariation),
           useValue: productRepository,
         },
         {
           provide: getRepositoryToken(ProductImage),
           useValue: productImageRepository,
-        },
-        {
-          provide: getRepositoryToken(ProductAttribute),
-          useValue: productAttributeRepository,
         },
         {
           provide: StorageService,
@@ -61,7 +54,7 @@ describe('ProductsService', () => {
       ],
     }).compile();
 
-    service = module.get<ProductsService>(ProductsService);
+    service = module.get<ProductVariationsService>(ProductVariationsService);
   });
 
   it('should be defined', () => {
@@ -70,29 +63,36 @@ describe('ProductsService', () => {
 
   describe('findAll', () => {
     it('should return an array of products', async () => {
-      const mockProducts = [
-        createTestProduct({ id: '1', name: 'Product 1' }),
-        createTestProduct({ id: '2', name: 'Product 2' }),
+      const mockProductVariations = [
+        createTestProductVariation({ id: '1', name: 'ProductVariation 1' }),
+        createTestProductVariation({ id: '2', name: 'ProductVariation 2' }),
       ];
 
-      (productRepository.find as jest.Mock).mockResolvedValue(mockProducts);
+      (productRepository.find as jest.Mock).mockResolvedValue(
+        mockProductVariations,
+      );
 
       const result = await service.findAll();
 
-      expect(result).toEqual(mockProducts);
+      expect(result).toEqual(mockProductVariations);
       expect(productRepository.find).toHaveBeenCalled();
     });
   });
 
   describe('findById', () => {
     it('should return a product by id', async () => {
-      const mockProduct = createTestProduct({ id: '1', name: 'Test Product' });
+      const mockProductVariation = createTestProductVariation({
+        id: '1',
+        name: 'Test ProductVariation',
+      });
 
-      (productRepository.findOne as jest.Mock).mockResolvedValue(mockProduct);
+      (productRepository.findOne as jest.Mock).mockResolvedValue(
+        mockProductVariation,
+      );
 
       const result = await service.findById('1');
 
-      expect(result).toEqual(mockProduct);
+      expect(result).toEqual(mockProductVariation);
       expect(productRepository.findOne).toHaveBeenCalledWith({
         where: { id: '1' },
       });
@@ -109,16 +109,22 @@ describe('ProductsService', () => {
 
   describe('create', () => {
     it('should create and return a new product', async () => {
-      const productData = createTestProduct({ name: 'New Product' });
-      const savedProduct = { ...productData, id: 'generated-id' };
+      const productData = createTestProductVariation({
+        name: 'New ProductVariation',
+      });
+      const savedProductVariation = { ...productData, id: 'generated-id' };
 
       (productRepository.create as jest.Mock).mockReturnValue(productData);
-      (productRepository.save as jest.Mock).mockResolvedValue(savedProduct);
-      (productRepository.findOne as jest.Mock).mockResolvedValue(savedProduct);
+      (productRepository.save as jest.Mock).mockResolvedValue(
+        savedProductVariation,
+      );
+      (productRepository.findOne as jest.Mock).mockResolvedValue(
+        savedProductVariation,
+      );
 
       const result = await service.create(productData);
 
-      expect(result).toEqual(savedProduct);
+      expect(result).toEqual(savedProductVariation);
       expect(productRepository.create).toHaveBeenCalledWith(productData);
       expect(productRepository.save).toHaveBeenCalled();
     });
@@ -126,28 +132,38 @@ describe('ProductsService', () => {
 
   describe('update', () => {
     it('should update an existing product', async () => {
-      const existingProduct = createTestProduct({ id: '1', name: 'Old Name' });
+      const existingProductVariation = createTestProductVariation({
+        id: '1',
+        name: 'Old Name',
+      });
       const updateData = { name: 'Updated Name' };
-      const updatedProduct = { ...existingProduct, ...updateData };
+      const updatedProductVariation = {
+        ...existingProductVariation,
+        ...updateData,
+      };
 
       (productRepository.findOne as jest.Mock).mockResolvedValue(
-        existingProduct,
+        existingProductVariation,
       );
-      (productRepository.save as jest.Mock).mockResolvedValue(updatedProduct);
+      (productRepository.save as jest.Mock).mockResolvedValue(
+        updatedProductVariation,
+      );
 
       const result = await service.update('1', updateData);
 
-      expect(result).toEqual(updatedProduct);
+      expect(result).toEqual(updatedProductVariation);
       expect(productRepository.findOne).toHaveBeenCalledWith({
         where: { id: '1' },
       });
-      expect(productRepository.save).toHaveBeenCalledWith(updatedProduct);
+      expect(productRepository.save).toHaveBeenCalledWith(
+        updatedProductVariation,
+      );
     });
   });
 
   describe('delete', () => {
     it('should delete a product and its images', async () => {
-      const product = createTestProduct({ id: '1' });
+      const product = createTestProductVariation({ id: '1' });
       const mockImages = [
         { id: 'img1', path: 'path1', url: 'url1' },
         { id: 'img2', path: 'path2', url: 'url2' },

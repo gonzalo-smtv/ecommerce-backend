@@ -7,7 +7,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { Product } from './product.entity';
+import { ProductVariation } from './product-variation.entity';
 
 @Entity('product_images')
 export class ProductImage {
@@ -29,14 +29,14 @@ export class ProductImage {
   @Column({ type: 'text', name: 'altText', nullable: true })
   altText: string;
 
-  @ManyToOne(() => Product, (product) => product.images, {
+  @ManyToOne(() => ProductVariation, (variation) => variation.images, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'productId' })
-  product: Product;
+  @JoinColumn({ name: 'variation_id' })
+  variation: ProductVariation;
 
-  @Column({ type: 'uuid', name: 'productId' })
-  productId: string;
+  @Column({ type: 'uuid', name: 'variation_id' })
+  variation_id: string;
 
   @CreateDateColumn({
     name: 'createdAt',

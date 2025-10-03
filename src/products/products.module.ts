@@ -1,23 +1,37 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductsController } from './products.controller';
-import { ProductsService } from './products.service';
+import { ProductVariationsService } from './products.service';
 import { ProductImagesController } from './product-images.controller';
 import { ProductImagesService } from './product-images.service';
-import { Product } from './entities/product.entity';
+import { ProductTemplatesController } from './controllers/product-templates.controller';
+import { ProductTemplatesService } from './services/product-templates.service';
+import { ProductTemplate } from './entities/product-template.entity';
+import { ProductVariation } from './entities/product-variation.entity';
 import { ProductImage } from './entities/product-image.entity';
-import { ProductAttribute } from '../attributes/entities/product-attribute.entity';
 import { StorageModule } from '@app/storage/storage.module';
 import { CacheModule } from '@app/cache/cache.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Product, ProductImage, ProductAttribute]),
+    TypeOrmModule.forFeature([ProductTemplate, ProductVariation, ProductImage]),
     StorageModule,
     CacheModule,
   ],
-  controllers: [ProductsController, ProductImagesController],
-  providers: [ProductsService, ProductImagesService],
-  exports: [ProductsService, ProductImagesService],
+  controllers: [
+    ProductsController,
+    ProductImagesController,
+    ProductTemplatesController,
+  ],
+  providers: [
+    ProductVariationsService,
+    ProductImagesService,
+    ProductTemplatesService,
+  ],
+  exports: [
+    ProductVariationsService,
+    ProductImagesService,
+    ProductTemplatesService,
+  ],
 })
 export class ProductsModule {}

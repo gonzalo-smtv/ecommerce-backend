@@ -14,9 +14,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { ProductsService } from './products.service';
+import { ProductVariationsService } from './products.service';
 import { ProductImagesService } from './product-images.service';
-import { Product } from './entities/product.entity';
+// Using ProductVariation instead of legacy Product entity
+import { ProductVariation } from './entities/product-variation.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ApiTags, ApiConsumes, ApiBody, ApiOperation } from '@nestjs/swagger';
@@ -25,46 +26,46 @@ import { ApiTags, ApiConsumes, ApiBody, ApiOperation } from '@nestjs/swagger';
 @Controller('products')
 export class ProductsController {
   constructor(
-    private readonly productsService: ProductsService,
+    private readonly productsService: ProductVariationsService,
     private readonly productImagesService: ProductImagesService,
   ) {}
 
   @Get()
-  findAll(): Promise<Product[]> {
+  findAll(): Promise<ProductVariation[]> {
     return this.productsService.findAll();
   }
 
   @Get('with-details')
-  findAllWithDetails(): Promise<Product[]> {
+  findAllWithDetails(): Promise<ProductVariation[]> {
     return this.productsService.findAllWithDetails();
   }
 
   @Get('with-attributes')
-  findAllWithAttributes(): Promise<Product[]> {
+  findAllWithAttributes(): Promise<ProductVariation[]> {
     return this.productsService.findAllWithAttributes();
   }
 
   @Get('filter-by-attributes')
   findByAttributes(
     @Query('attributes') attributes: string,
-  ): Promise<Product[]> {
+  ): Promise<ProductVariation[]> {
     const attributeIds = attributes.split(',').filter((id) => id.trim());
     return this.productsService.findByAttributes(attributeIds);
   }
 
   @Get(':id')
-  findById(@Param('id') id: string): Promise<Product> {
+  findById(@Param('id') id: string): Promise<ProductVariation> {
     return this.productsService.findById(id);
   }
 
   @Get(':id/image')
   @ApiOperation({ summary: 'Get the main image of a product' })
-  async getProductImage(
+  async getProductVariationImage(
     @Param('id') id: string,
     @Res() res: any,
   ): Promise<any> {
     const mainImage = await this.productImagesService
-      .findAllByProductId(id)
+      .findAllByVariationId(id)
       .then((images) => images.find((img) => img.isMain));
 
     if (!mainImage) {
@@ -110,7 +111,7 @@ export class ProductsController {
         files: {
           type: 'array',
           items: { type: 'string', format: 'binary' },
-          description: 'Product images (select multiple files)',
+          description: 'ProductVariation images (select multiple files)',
         },
       },
       required: ['name', 'price'],
@@ -120,7 +121,7 @@ export class ProductsController {
   async create(
     @Body() productData: CreateProductDto,
     @UploadedFiles() files?: Express.Multer.File[],
-  ): Promise<Product> {
+  ): Promise<ProductVariation> {
     const product = await this.productsService.create(productData);
 
     if (files && files.length > 0) {
@@ -142,7 +143,7 @@ export class ProductsController {
     @Param('id') id: string,
     @Body() productData: UpdateProductDto,
     @UploadedFiles() files?: Express.Multer.File[],
-  ): Promise<Product> {
+  ): Promise<ProductVariation> {
     // First update the basic product data
     await this.productsService.update(id, productData);
 
@@ -154,7 +155,7 @@ export class ProductsController {
       if (replaceImages) {
         // Get all existing images
         const existingImages =
-          await this.productImagesService.findAllByProductId(id);
+          await this.productImagesService.findAllByVariationId(id);
 
         // Delete each image
         for (const image of existingImages) {
@@ -179,7 +180,7 @@ export class ProductsController {
   async updateJson(
     @Param('id') id: string,
     @Body() productData: UpdateProductDto,
-  ): Promise<Product> {
+  ): Promise<ProductVariation> {
     return this.productsService.update(id, productData);
   }
 
@@ -188,6 +189,6 @@ export class ProductsController {
     @Param('id') id: string,
   ): Promise<{ success: boolean; message: string }> {
     await this.productsService.delete(id);
-    return { success: true, message: 'Product deleted successfully' };
+    return { success: true, message: 'ProductVariation deleted successfully' };
   }
 }

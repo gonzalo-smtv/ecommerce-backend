@@ -6,7 +6,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Cart } from './cart.entity';
-import { Product } from '@app/products/entities/product.entity';
+import { ProductVariation } from '@app/products/entities/product-variation.entity';
 
 /**
  * CartItem entity to store individual products in a shopping cart
@@ -21,7 +21,7 @@ export class CartItem {
   cartId: string;
 
   @Column()
-  productId: string;
+  productVariationId: string;
 
   @Column({ type: 'int', default: 1 })
   quantity: number;
@@ -33,7 +33,7 @@ export class CartItem {
   @JoinColumn({ name: 'cartId' })
   cart: Cart;
 
-  @ManyToOne(() => Product, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'productId' })
-  product: Product;
+  @ManyToOne(() => ProductVariation, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'productVariationId' })
+  productVariation: ProductVariation;
 }

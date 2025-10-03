@@ -9,7 +9,7 @@ import { Cart } from './entities/cart.entity';
 import { CartItem } from './entities/cart-item.entity';
 import { AddToCartDto } from './dto/add-to-cart.dto';
 import { UpdateCartItemDto } from './dto/update-cart-item.dto';
-import { ProductsService } from '@app/products/products.service';
+import { ProductVariationsService } from '@app/products/services/product-variations.service';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
@@ -23,7 +23,7 @@ export class CartService {
     private cartRepository: Repository<Cart>,
     @InjectRepository(CartItem)
     private cartItemRepository: Repository<CartItem>,
-    private productsService: ProductsService,
+    private productVariationsService: ProductVariationsService,
   ) {}
 
   /**
@@ -80,38 +80,43 @@ export class CartService {
   ): Promise<Cart> {
     const { productId, quantity } = addToCartDto;
 
-    // Verify product exists
-    const product = await this.productsService.findById(productId);
-    if (!product) {
-      throw new NotFoundException(`Product with ID ${productId} not found`);
+    // Verify product variation exists
+    const productVariation =
+      await this.productVariationsService.findById(productId);
+    if (!productVariation) {
+      throw new NotFoundException(
+        `Product variation with ID ${productId} not found`,
+      );
     }
 
-    // Check stock availability if implemented
-    if (product.inStock === false) {
-      throw new BadRequestException(`Product ${product.name} is out of stock`);
+    // Check stock availability
+    if (productVariation.stock <= 0) {
+      throw new BadRequestException(
+        `Product ${productVariation.name} is out of stock`,
+      );
     }
 
     // Get or create cart
     const cart = await this.getOrCreateCart(userId, sessionId);
 
-    // Check if product is already in cart
+    // Check if product variation is already in cart
     const existingItem = cart.items.find(
-      (item) => item.productId === productId,
+      (item) => item.productVariationId === productId,
     );
 
     if (existingItem) {
       // Update quantity if item exists
       existingItem.quantity += quantity;
-      existingItem.price = product.price * existingItem.quantity;
+      existingItem.price = productVariation.price * existingItem.quantity;
       await this.cartItemRepository.save(existingItem);
     } else {
       // Create new item if it doesn't exist
       const cartItem = new CartItem();
       cartItem.cartId = cart.id;
-      cartItem.productId = productId;
+      cartItem.productVariationId = productId;
       cartItem.quantity = quantity;
-      cartItem.price = product.price * quantity;
-      cartItem.product = product;
+      cartItem.price = productVariation.price * quantity;
+      cartItem.productVariation = productVariation;
 
       const savedItem = await this.cartItemRepository.save(cartItem);
       cart.items.push(savedItem);
@@ -158,7 +163,7 @@ export class CartService {
 
     // Update quantity and price
     cartItem.quantity = quantity;
-    cartItem.price = cartItem.product.price * quantity;
+    cartItem.price = cartItem.productVariation.price * quantity;
 
     await this.cartItemRepository.save(cartItem);
 

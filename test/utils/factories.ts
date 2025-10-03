@@ -1,19 +1,23 @@
-import { Product } from '../../src/products/entities/product.entity';
+import { ProductVariation } from '../../src/products/entities/product-variation.entity';
 import { User, UserRole } from '../../src/users/entities/user.entity';
 import { Cart } from '../../src/cart/entities/cart.entity';
 import { CartItem } from '../../src/cart/entities/cart-item.entity';
 
-// Product factory
-export function createTestProduct(
-  overrides: Partial<Product> = {},
-): Partial<Product> {
+// ProductVariation factory
+export function createTestProductVariation(
+  overrides: Partial<ProductVariation> = {},
+): Partial<ProductVariation> {
   return {
     id: 'test-product-id',
-    name: 'Test Product',
+    template_id: 'test-template-id',
+    sku: 'TEST-SKU',
+    name: 'Test ProductVariation',
     price: 99,
-    inStock: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    stock: 10,
+    is_active: true,
+    sort_order: 0,
+    created_at: new Date(),
+    updated_at: new Date(),
     ...overrides,
   };
 }
@@ -55,7 +59,7 @@ export function createTestCartItem(
   return {
     id: 'test-cart-item-id',
     cartId: 'test-cart-id',
-    productId: 'test-product-id',
+    productVariationId: 'test-product-id',
     quantity: 2,
     price: 99,
     ...overrides,
@@ -63,14 +67,14 @@ export function createTestCartItem(
 }
 
 // Factory for creating multiple products
-export function createTestProducts(
+export function createTestProductVariations(
   count: number,
-  overrides: Partial<Product> = {},
-): Partial<Product>[] {
+  overrides: Partial<ProductVariation> = {},
+): Partial<ProductVariation>[] {
   return Array.from({ length: count }, (_, index) =>
-    createTestProduct({
+    createTestProductVariation({
       id: `test-product-${index + 1}`,
-      name: `Test Product ${index + 1}`,
+      name: `Test ProductVariation ${index + 1}`,
       ...overrides,
     }),
   );

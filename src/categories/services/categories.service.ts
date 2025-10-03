@@ -1,0 +1,263 @@
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  Logger,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Category } from '../entities/category.entity';
+import { CreateCategoryDto } from '../dto/create-category.dto';
+import { UpdateCategoryDto } from '../dto/update-category.dto';
+
+@Injectable()
+export class CategoriesService {
+  private readonly logger = new Logger(CategoriesService.name);
+
+  constructor(
+    @InjectRepository(Category)
+    private categoriesRepository: Repository<Category>,
+  ) {}
+
+  async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
+    this.logger.log('Creating a new category...');
+
+    // Check if slug already exists
+    const existingCategory = await this.categoriesRepository.findOne({
+      where: { slug: createCategoryDto.slug },
+    });
+
+    if (existingCategory) {
+      throw new BadRequestException(
+        `Category with slug "${createCategoryDto.slug}" already exists`,
+      );
+    }
+
+    // If parent_id is provided, verify parent exists and update level
+    if (createCategoryDto.parent_id) {
+      const parent = await this.categoriesRepository.findOne({
+        where: { id: createCategoryDto.parent_id },
+      });
+
+      if (!parent) {
+        throw new NotFoundException(
+          `Parent category with ID ${createCategoryDto.parent_id} not found`,
+        );
+      }
+
+      // Set level based on parent level
+      createCategoryDto.level = parent.level + 1;
+    }
+
+    const category = this.categoriesRepository.create(createCategoryDto);
+    const savedCategory = await this.categoriesRepository.save(category);
+
+    this.logger.log(
+      `Category created successfully with ID: ${savedCategory.id}`,
+    );
+    return this.findOne(savedCategory.id);
+  }
+
+  async findAll(includeInactive = false): Promise<Category[]> {
+    const whereCondition = includeInactive ? {} : { is_active: true };
+
+    return this.categoriesRepository.find({
+      where: whereCondition,
+      order: { level: 'ASC', sort_order: 'ASC', name: 'ASC' },
+    });
+  }
+
+  async findOne(id: string): Promise<Category> {
+    const category = await this.categoriesRepository.findOne({
+      where: { id },
+      relations: ['parent', 'children'],
+    });
+
+    if (!category) {
+      throw new NotFoundException(`Category with ID ${id} not found`);
+    }
+
+    return category;
+  }
+
+  async findBySlug(slug: string): Promise<Category> {
+    const category = await this.categoriesRepository.findOne({
+      where: { slug },
+      relations: ['parent', 'children'],
+    });
+
+    if (!category) {
+      throw new NotFoundException(`Category with slug "${slug}" not found`);
+    }
+
+    return category;
+  }
+
+  async update(
+    id: string,
+    updateCategoryDto: UpdateCategoryDto,
+  ): Promise<Category> {
+    const category = await this.findOne(id);
+
+    // Check if slug is being changed and if it already exists
+    if (updateCategoryDto.slug && updateCategoryDto.slug !== category.slug) {
+      const existingCategory = await this.categoriesRepository.findOne({
+        where: { slug: updateCategoryDto.slug },
+      });
+
+      if (existingCategory) {
+        throw new BadRequestException(
+          `Category with slug "${updateCategoryDto.slug}" already exists`,
+        );
+      }
+    }
+
+    // If parent_id is being changed, verify parent exists and update level
+    if (
+      updateCategoryDto.parent_id &&
+      updateCategoryDto.parent_id !== category.parent_id
+    ) {
+      if (updateCategoryDto.parent_id === id) {
+        throw new BadRequestException('Category cannot be its own parent');
+      }
+
+      const parent = await this.categoriesRepository.findOne({
+        where: { id: updateCategoryDto.parent_id },
+      });
+
+      if (!parent) {
+        throw new NotFoundException(
+          `Parent category with ID ${updateCategoryDto.parent_id} not found`,
+        );
+      }
+
+      // Set level based on parent level
+      updateCategoryDto.level = parent.level + 1;
+    }
+
+    Object.assign(category, updateCategoryDto);
+    await this.categoriesRepository.save(category);
+
+    return this.findOne(id);
+  }
+
+  async remove(id: string): Promise<void> {
+    const category = await this.findOne(id);
+
+    // Check if category has children
+    const childrenCount = await this.categoriesRepository.count({
+      where: { parent_id: id },
+    });
+
+    if (childrenCount > 0) {
+      throw new BadRequestException(
+        'Cannot delete category with children. Move or delete children first.',
+      );
+    }
+
+    await this.categoriesRepository.remove(category);
+    this.logger.log(`Category with ID ${id} deleted successfully`);
+  }
+
+  async getCategoryTree(): Promise<Category[]> {
+    return this.categoriesRepository.find({
+      where: { is_active: true },
+      order: { level: 'ASC', sort_order: 'ASC', name: 'ASC' },
+      relations: ['children'],
+    });
+  }
+
+  async getCategoryHierarchy(id: string): Promise<Category[]> {
+    const category = await this.findOne(id);
+    return this.buildCategoryHierarchy(category);
+  }
+
+  async getCategoryBreadcrumbs(id: string): Promise<Category[]> {
+    const hierarchy = await this.getCategoryHierarchy(id);
+
+    // Return hierarchy in reverse order (root to leaf) for breadcrumbs
+    return hierarchy.reverse();
+  }
+
+  async getChildren(id: string): Promise<Category[]> {
+    return this.categoriesRepository.find({
+      where: { parent_id: id, is_active: true },
+      order: { sort_order: 'ASC', name: 'ASC' },
+    });
+  }
+
+  async getParent(id: string): Promise<Category | null> {
+    const category = await this.categoriesRepository.findOne({
+      where: { id },
+      relations: ['parent'],
+    });
+
+    return category?.parent || null;
+  }
+
+  async moveCategory(
+    id: string,
+    moveData: { parentId?: string; sortOrder?: number },
+  ): Promise<Category> {
+    const category = await this.findOne(id);
+
+    if (moveData.parentId) {
+      if (moveData.parentId === id) {
+        throw new BadRequestException('Category cannot be its own parent');
+      }
+
+      const parent = await this.categoriesRepository.findOne({
+        where: { id: moveData.parentId },
+      });
+
+      if (!parent) {
+        throw new NotFoundException(
+          `Parent category with ID ${moveData.parentId} not found`,
+        );
+      }
+
+      category.parent_id = moveData.parentId;
+      category.level = parent.level + 1;
+    }
+
+    if (moveData.sortOrder !== undefined) {
+      category.sort_order = moveData.sortOrder;
+    }
+
+    await this.categoriesRepository.save(category);
+    return this.findOne(id);
+  }
+
+  getCategoryProducts(id: string): any[] {
+    // This would typically use the products service or a query builder
+    // For now, return a placeholder structure
+    return [
+      {
+        categoryId: id,
+        products: [],
+        totalCount: 0,
+      },
+    ];
+  }
+
+  private async buildCategoryHierarchy(
+    category: Category,
+  ): Promise<Category[]> {
+    const hierarchy: Category[] = [];
+    let currentCategory: Category | null = category;
+
+    while (currentCategory) {
+      hierarchy.unshift(currentCategory);
+
+      if (currentCategory.parent_id) {
+        currentCategory = await this.categoriesRepository.findOne({
+          where: { id: currentCategory.parent_id },
+        });
+      } else {
+        break;
+      }
+    }
+
+    return hierarchy;
+  }
+}
