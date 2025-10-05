@@ -11,10 +11,9 @@ import {
   Logger,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags, ApiConsumes, ApiParam, ApiQuery } from '@nestjs/swagger';
+import { ApiConsumes, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { StorageService } from './storage.service';
 
-@ApiTags('05 - Storage')
 @Controller('storage')
 export class StorageController {
   private readonly logger = new Logger(StorageController.name);

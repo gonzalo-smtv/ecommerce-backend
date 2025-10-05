@@ -10,13 +10,7 @@ import {
 import { CartService } from './cart.service';
 import { AddToCartDto } from './dto/add-to-cart.dto';
 import { UpdateCartItemDto } from './dto/update-cart-item.dto';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiParam,
-  ApiBody,
-} from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
 import { Cart } from './entities/cart.entity';
 import { CartInfo } from './decorators/cart-info.decorator';
 import type { CartInfoType } from './types/cart-info.type';
@@ -26,7 +20,7 @@ import type { CartInfoType } from './types/cart-info.type';
  * Controller for cart operations
  * Handles both authenticated and anonymous shopping carts
  */
-@ApiTags('06 - Cart')
+
 @Controller('cart')
 export class CartController {
   constructor(private readonly cartService: CartService) {}

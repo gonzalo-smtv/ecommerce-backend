@@ -36,6 +36,7 @@ async function bootstrap() {
     swaggerOptions: {
       tagsSorter: 'alpha',
       operationsSorter: 'method',
+      docExpansion: 'none', // Collapse all sections by default
     },
   });
 

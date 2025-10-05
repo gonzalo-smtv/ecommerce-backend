@@ -18,9 +18,8 @@ import { ProductImagesService } from './product-images.service';
 import { ProductVariation } from './entities/product-variation.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { ApiTags, ApiConsumes, ApiBody, ApiOperation } from '@nestjs/swagger';
+import { ApiConsumes, ApiBody, ApiOperation } from '@nestjs/swagger';
 
-@ApiTags('03 - Products')
 @Controller('products')
 export class ProductsController {
   constructor(

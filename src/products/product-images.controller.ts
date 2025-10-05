@@ -14,16 +14,9 @@ import {
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ProductImagesService } from './product-images.service';
 import { ProductImage } from './entities/product-image.entity';
-import {
-  ApiTags,
-  ApiConsumes,
-  ApiBody,
-  ApiParam,
-  ApiOperation,
-} from '@nestjs/swagger';
+import { ApiConsumes, ApiBody, ApiParam, ApiOperation } from '@nestjs/swagger';
 import { AddProductImagesDto } from './dto/product-image.dto';
 
-@ApiTags('04 - Product-Images')
 @Controller('product-variations/:variationId/images')
 export class ProductImagesController {
   constructor(private readonly productImagesService: ProductImagesService) {}

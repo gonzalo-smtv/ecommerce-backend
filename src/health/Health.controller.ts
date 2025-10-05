@@ -1,13 +1,12 @@
 import { getVersionFromPackageJson } from '@app/utils';
 import { Controller, Get } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+
 import {
   HealthCheck,
   HealthCheckService,
   TypeOrmHealthIndicator,
 } from '@nestjs/terminus';
 
-@ApiTags('z - Health')
 @Controller('health')
 export class HealthController {
   constructor(
