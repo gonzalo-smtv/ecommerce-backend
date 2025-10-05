@@ -58,15 +58,6 @@ export class CategoriesService {
     return this.findOne(savedCategory.id);
   }
 
-  async findAll(includeInactive = false): Promise<Category[]> {
-    const whereCondition = includeInactive ? {} : { is_active: true };
-
-    return this.categoriesRepository.find({
-      where: whereCondition,
-      order: { level: 'ASC', sort_order: 'ASC', name: 'ASC' },
-    });
-  }
-
   async findOne(id: string): Promise<Category> {
     const category = await this.categoriesRepository.findOne({
       where: { id },
@@ -75,19 +66,6 @@ export class CategoriesService {
 
     if (!category) {
       throw new NotFoundException(`Category with ID ${id} not found`);
-    }
-
-    return category;
-  }
-
-  async findBySlug(slug: string): Promise<Category> {
-    const category = await this.categoriesRepository.findOne({
-      where: { slug },
-      relations: ['parent', 'children'],
-    });
-
-    if (!category) {
-      throw new NotFoundException(`Category with slug "${slug}" not found`);
     }
 
     return category;
@@ -229,34 +207,6 @@ export class CategoriesService {
     }
   }
 
-  async getCategoryHierarchy(id: string): Promise<Category[]> {
-    const category = await this.findOne(id);
-    return this.buildCategoryHierarchy(category);
-  }
-
-  async getCategoryBreadcrumbs(id: string): Promise<Category[]> {
-    const hierarchy = await this.getCategoryHierarchy(id);
-
-    // Return hierarchy in reverse order (root to leaf) for breadcrumbs
-    return hierarchy.reverse();
-  }
-
-  async getChildren(id: string): Promise<Category[]> {
-    return this.categoriesRepository.find({
-      where: { parentId: id, is_active: true },
-      order: { sort_order: 'ASC', name: 'ASC' },
-    });
-  }
-
-  async getParent(id: string): Promise<Category | null> {
-    const category = await this.categoriesRepository.findOne({
-      where: { id },
-      relations: ['parent'],
-    });
-
-    return category?.parent || null;
-  }
-
   async moveCategory(
     id: string,
     moveData: { parentId?: string; sortOrder?: number },
@@ -300,26 +250,5 @@ export class CategoriesService {
         totalCount: 0,
       },
     ];
-  }
-
-  private async buildCategoryHierarchy(
-    category: Category,
-  ): Promise<Category[]> {
-    const hierarchy: Category[] = [];
-    let currentCategory: Category | null = category;
-
-    while (currentCategory) {
-      hierarchy.unshift(currentCategory);
-
-      if (currentCategory.parentId) {
-        currentCategory = await this.categoriesRepository.findOne({
-          where: { id: currentCategory.parentId },
-        });
-      } else {
-        break;
-      }
-    }
-
-    return hierarchy;
   }
 }

@@ -6,7 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  Query,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
@@ -21,46 +20,9 @@ export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   // ===== GET METHODS (Read Operations) =====
-
-  @Get()
-  findAll(@Query('includeInactive') includeInactive?: string) {
-    const includeInactiveBool = includeInactive === 'true';
-    return this.categoriesService.findAll(includeInactiveBool);
-  }
-
   @Get('tree')
   getCategoryTree() {
     return this.categoriesService.getCategoryTree();
-  }
-
-  @Get('hierarchy/:id')
-  getCategoryHierarchy(@Param('id') id: string) {
-    return this.categoriesService.getCategoryHierarchy(id);
-  }
-
-  @Get('breadcrumbs/:id')
-  getCategoryBreadcrumbs(@Param('id') id: string) {
-    return this.categoriesService.getCategoryBreadcrumbs(id);
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.categoriesService.findOne(id);
-  }
-
-  @Get('slug/:slug')
-  findBySlug(@Param('slug') slug: string) {
-    return this.categoriesService.findBySlug(slug);
-  }
-
-  @Get(':id/children')
-  getChildren(@Param('id') id: string) {
-    return this.categoriesService.getChildren(id);
-  }
-
-  @Get(':id/parent')
-  getParent(@Param('id') id: string) {
-    return this.categoriesService.getParent(id);
   }
 
   @Get(':id/products')
