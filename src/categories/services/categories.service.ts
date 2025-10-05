@@ -181,7 +181,6 @@ export class CategoriesService {
   async getCategoryTree(): Promise<Category[]> {
     // Fetch all active categories to build the complete tree
     const allCategories = await this.categoriesRepository.find({
-      where: { is_active: true },
       order: { level: 'ASC', sort_order: 'ASC', name: 'ASC' },
     });
 
