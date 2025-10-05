@@ -239,16 +239,4 @@ export class CategoriesService {
     await this.categoriesRepository.save(category);
     return this.findOne(id);
   }
-
-  getCategoryProducts(id: string): any[] {
-    // This would typically use the products service or a query builder
-    // For now, return a placeholder structure
-    return [
-      {
-        categoryId: id,
-        products: [],
-        totalCount: 0,
-      },
-    ];
-  }
 }

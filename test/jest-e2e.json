@@ -1,9 +1,18 @@
 {
   "moduleFileExtensions": ["js", "json", "ts"],
-  "rootDir": ".",
+  "rootDir": "../src",
   "testEnvironment": "node",
-  "testRegex": ".*\\.e2e-spec\\.ts$",
+  "testMatch": ["**/*.e2e-spec.ts"],
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "transformIgnorePatterns": ["node_modules/(?!(uuid)/)"],
+  "moduleNameMapper": {
+    "^@app/(.*)$": "<rootDir>/$1",
+    "^@common/(.*)$": "<rootDir>/common/$1",
+    "^@config/(.*)$": "<rootDir>/config/$1",
+    "^@core/(.*)$": "<rootDir>/core/$1",
+    "^@modules/(.*)$": "<rootDir>/modules/$1",
+    "^@health/(.*)$": "<rootDir>/health/$1"
   }
 }

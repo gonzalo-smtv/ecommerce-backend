@@ -25,15 +25,26 @@ export class CategoriesController {
     return this.categoriesService.getCategoryTree();
   }
 
-  @Get(':id/products')
-  getCategoryProducts(@Param('id') id: string) {
-    return this.categoriesService.getCategoryProducts(id);
-  }
-
   // ===== POST METHODS (Create Operations) =====
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary: 'Create a new category',
+    description: 'Creates a new category in the system',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Category created successfully',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - validation error or business logic violation',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Parent category not found',
+  })
   create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoriesService.create(createCategoryDto);
   }
@@ -72,6 +83,27 @@ export class CategoriesController {
   // ===== PATCH METHODS (Update Operations) =====
 
   @Patch(':id')
+  @ApiOperation({
+    summary: 'Update a category',
+    description: 'Updates an existing category with the provided data',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Category ID to update',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Category updated successfully',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - validation error or business logic violation',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Category not found',
+  })
   update(
     @Param('id') id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
