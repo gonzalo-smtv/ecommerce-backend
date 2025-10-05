@@ -10,6 +10,9 @@ Backend API for LTecDeco application built with NestJS, TypeScript, and PostgreS
 - **API Documentation** with Swagger
 - **Health Checks** endpoint
 - **Rate Limiting** for API protection
+- **Volume-based Pricing** - Dynamic pricing based on product quantity
+- **Product Management** - Templates, variations, and categories
+- **Shopping Cart** with dynamic pricing
 
 ## Prerequisites
 
@@ -58,6 +61,59 @@ Check the API health status:
 
 ```
 GET /api/health
+```
+
+## Volume-based Pricing
+
+The API supports dynamic pricing based on product quantity through price tiers:
+
+### Features
+
+- **Multiple Price Tiers** per product variation
+- **Quantity-based Discounts** - Different prices for different quantity ranges
+- **Automatic Price Calculation** in shopping cart
+- **Admin Management** via REST API
+
+### API Endpoints
+
+#### Get Price for Quantity
+
+```http
+GET /product-price-tiers/price/{variationId}?quantity={number}
+```
+
+#### Manage Price Tiers
+
+```http
+GET    /product-price-tiers              # List all tiers
+GET    /product-price-tiers/{id}         # Get specific tier
+GET    /product-price-tiers/by-variation/{variationId}  # Get tiers for variation
+POST   /product-price-tiers              # Create new tier
+PATCH  /product-price-tiers/{id}         # Update tier
+DELETE /product-price-tiers/{id}         # Delete tier
+```
+
+### Example Usage
+
+**Create a price tier:**
+
+```json
+POST /product-price-tiers
+{
+  "variation_id": "uuid-here",
+  "min_quantity": 10,
+  "max_quantity": 49,
+  "price": 90.00,
+  "is_active": true,
+  "sort_order": 1
+}
+```
+
+**Get price for 25 units:**
+
+```http
+GET /product-price-tiers/price/uuid-here?quantity=25
+# Returns: {"price": 90.00, "quantity": 25}
 ```
 
 ## Environment Variables

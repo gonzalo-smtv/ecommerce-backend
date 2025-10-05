@@ -107,7 +107,11 @@ export class CartService {
     if (existingItem) {
       // Update quantity if item exists
       existingItem.quantity += quantity;
-      existingItem.price = productVariation.price * existingItem.quantity;
+      const unitPrice = await this.productVariationsService.getPriceForQuantity(
+        productId,
+        existingItem.quantity,
+      );
+      existingItem.price = unitPrice * existingItem.quantity;
       await this.cartItemRepository.save(existingItem);
     } else {
       // Create new item if it doesn't exist
@@ -115,7 +119,11 @@ export class CartService {
       cartItem.cartId = cart.id;
       cartItem.productVariationId = productId;
       cartItem.quantity = quantity;
-      cartItem.price = productVariation.price * quantity;
+      const unitPrice = await this.productVariationsService.getPriceForQuantity(
+        productId,
+        quantity,
+      );
+      cartItem.price = unitPrice * quantity;
       cartItem.productVariation = productVariation;
 
       const savedItem = await this.cartItemRepository.save(cartItem);
@@ -163,7 +171,11 @@ export class CartService {
 
     // Update quantity and price
     cartItem.quantity = quantity;
-    cartItem.price = cartItem.productVariation.price * quantity;
+    const unitPrice = await this.productVariationsService.getPriceForQuantity(
+      cartItem.productVariationId,
+      quantity,
+    );
+    cartItem.price = unitPrice * quantity;
 
     await this.cartItemRepository.save(cartItem);
 

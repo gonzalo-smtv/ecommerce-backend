@@ -8,6 +8,7 @@ import { Category } from '../categories/entities/category.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { StorageService } from '@app/storage/storage.service';
 import { CacheService } from '@app/cache/cache.service';
+import { ProductPriceTiersService } from './services/product-price-tiers.service';
 
 @Injectable()
 export class ProductVariationsService {
@@ -24,6 +25,7 @@ export class ProductVariationsService {
     private categoriesRepository: Repository<Category>,
     private readonly storageService: StorageService,
     private readonly cacheService: CacheService,
+    private readonly productPriceTiersService: ProductPriceTiersService,
   ) {}
 
   async create(productData: CreateProductDto): Promise<ProductVariation> {
@@ -293,5 +295,15 @@ export class ProductVariationsService {
     }
 
     return hierarchy;
+  }
+
+  async getPriceForQuantity(
+    variationId: string,
+    quantity: number,
+  ): Promise<number> {
+    return this.productPriceTiersService.getPriceForQuantity(
+      variationId,
+      quantity,
+    );
   }
 }
