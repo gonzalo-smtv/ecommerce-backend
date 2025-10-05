@@ -68,16 +68,8 @@ export class ProductsController {
   @ApiConsumes('multipart/form-data')
   @ApiOperation({
     summary: 'Create a new product with multiple images',
-    description: `
-    Creates a new product with the ability to upload multiple images.
-
-    How to use:
-    - Set Content-Type to "multipart/form-data"
-    - Add all product fields as form fields (name, price, etc.)
-    - Add images in a field named "files" (you can select multiple image files)
-    - Maximum 10 images per request
-    - Images will be automatically uploaded to Supabase storage
-    `,
+    description:
+      'Creates a new product with the ability to upload multiple images.',
   })
   @ApiBody({
     schema: {
@@ -91,6 +83,12 @@ export class ProductsController {
           description: 'Product attributes as key-value pairs',
         },
         inStock: { type: 'boolean', example: true },
+        template_id: {
+          type: 'string',
+          format: 'uuid',
+          example: '123e4567-e89b-12d3-a456-426614174000',
+          description: 'Product template ID to associate with this product',
+        },
         files: {
           type: 'array',
           items: { type: 'string', format: 'binary' },

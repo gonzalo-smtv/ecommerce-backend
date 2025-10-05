@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ProductVariation } from './entities/product-variation.entity';
 import { ProductImage } from './entities/product-image.entity';
+import { ProductTemplate } from './entities/product-template.entity';
 import { Category } from '../categories/entities/category.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { StorageService } from '@app/storage/storage.service';
@@ -17,6 +18,8 @@ export class ProductVariationsService {
     private productsRepository: Repository<ProductVariation>,
     @InjectRepository(ProductImage)
     private productImagesRepository: Repository<ProductImage>,
+    @InjectRepository(ProductTemplate)
+    private productTemplatesRepository: Repository<ProductTemplate>,
     @InjectRepository(Category)
     private categoriesRepository: Repository<Category>,
     private readonly storageService: StorageService,
@@ -26,6 +29,19 @@ export class ProductVariationsService {
   async create(productData: CreateProductDto): Promise<ProductVariation> {
     this.logger.log('Creating a new product...');
     console.log('productData: ', productData);
+
+    // If template_id is provided, verify template exists
+    if (productData.template_id) {
+      const template = await this.productTemplatesRepository.findOne({
+        where: { id: productData.template_id },
+      });
+
+      if (!template) {
+        throw new NotFoundException(
+          `Product template with ID ${productData.template_id} not found`,
+        );
+      }
+    }
 
     const product = this.productsRepository.create(productData);
     this.logger.log('ProductVariation data prepared, saving to database...');
