@@ -50,12 +50,16 @@ export class CreateProductTemplateDto {
   specifications?: Record<string, any>;
 
   @ApiPropertyOptional({
-    description: 'Category ID this template belongs to',
-    example: '123e4567-e89b-12d3-a456-426614174000',
+    description: 'Category IDs this template belongs to (can be multiple)',
+    example: [
+      '123e4567-e89b-12d3-a456-426614174000',
+      '456e7890-e12c-34d5-b678-901234567890',
+    ],
+    type: [String],
   })
   @IsOptional()
-  @IsUUID()
-  category_id?: string;
+  @IsUUID('all', { each: true })
+  category_ids?: string[];
 
   @ApiPropertyOptional({
     description: 'Whether the template is active',

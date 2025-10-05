@@ -5,15 +5,14 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
-  ManyToOne,
-  JoinColumn,
+  ManyToMany,
+  JoinTable,
   Index,
 } from 'typeorm';
 import { Category } from '../../categories/entities/category.entity';
 import { ProductVariation } from './product-variation.entity';
 
 @Entity('product_templates')
-@Index(['category_id'])
 @Index(['is_active'])
 @Index(['slug'])
 export class ProductTemplate {
@@ -32,12 +31,19 @@ export class ProductTemplate {
   @Column({ type: 'jsonb', nullable: true })
   specifications: Record<string, any>;
 
-  @Column({ type: 'uuid', nullable: true })
-  category_id: string;
-
-  @ManyToOne(() => Category, { nullable: true })
-  @JoinColumn({ name: 'category_id' })
-  category: Category;
+  @ManyToMany(() => Category, { eager: true, nullable: true })
+  @JoinTable({
+    name: 'product_templates_categories',
+    joinColumn: {
+      name: 'product_template_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'category_id',
+      referencedColumnName: 'id',
+    },
+  })
+  categories: Category[];
 
   @Column({ type: 'boolean', default: true })
   is_active: boolean;

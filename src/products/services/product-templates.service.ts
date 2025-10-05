@@ -27,7 +27,7 @@ export class ProductTemplatesService {
 
   async findAll(): Promise<ProductTemplate[]> {
     return this.productTemplatesRepository.find({
-      relations: ['category', 'variations'],
+      relations: ['categories', 'variations'],
       order: { name: 'ASC' },
     });
   }
@@ -35,7 +35,7 @@ export class ProductTemplatesService {
   async findOne(id: string): Promise<ProductTemplate> {
     const template = await this.productTemplatesRepository.findOne({
       where: { id },
-      relations: ['category', 'variations'],
+      relations: ['categories', 'variations'],
     });
 
     if (!template) {
@@ -61,22 +61,33 @@ export class ProductTemplatesService {
       );
     }
 
-    // If category_id is provided, verify category exists
-    if (createProductTemplateDto.category_id) {
-      const category = await this.categoriesRepository.findOne({
-        where: { id: createProductTemplateDto.category_id },
-      });
-
-      if (!category) {
-        throw new NotFoundException(
-          `Category with ID ${createProductTemplateDto.category_id} not found`,
-        );
-      }
-    }
-
     const template = this.productTemplatesRepository.create(
       createProductTemplateDto,
     );
+
+    // If category_ids are provided, verify all categories exist
+    if (
+      createProductTemplateDto.category_ids &&
+      createProductTemplateDto.category_ids.length > 0
+    ) {
+      const categories = await this.categoriesRepository.find({
+        where: createProductTemplateDto.category_ids.map((id) => ({ id })),
+      });
+
+      if (categories.length !== createProductTemplateDto.category_ids.length) {
+        const foundIds = categories.map((cat) => cat.id);
+        const notFoundIds = createProductTemplateDto.category_ids.filter(
+          (id) => !foundIds.includes(id),
+        );
+        throw new NotFoundException(
+          `Categories with IDs ${notFoundIds.join(', ')} not found`,
+        );
+      }
+
+      // Assign the found categories to the template
+      template.categories = categories;
+    }
+
     const savedTemplate = await this.productTemplatesRepository.save(template);
 
     this.logger.log(
@@ -107,20 +118,28 @@ export class ProductTemplatesService {
       }
     }
 
-    // If category_id is being changed, verify category exists
+    // If category_ids are being changed, verify all categories exist
     if (
-      updateProductTemplateDto.category_id &&
-      updateProductTemplateDto.category_id !== template.category_id
+      updateProductTemplateDto.category_ids &&
+      JSON.stringify(updateProductTemplateDto.category_ids.sort()) !==
+        JSON.stringify(template.categories?.map((cat) => cat.id).sort() || [])
     ) {
-      const category = await this.categoriesRepository.findOne({
-        where: { id: updateProductTemplateDto.category_id },
+      const categories = await this.categoriesRepository.find({
+        where: updateProductTemplateDto.category_ids.map((id) => ({ id })),
       });
 
-      if (!category) {
+      if (categories.length !== updateProductTemplateDto.category_ids.length) {
+        const foundIds = categories.map((cat) => cat.id);
+        const notFoundIds = updateProductTemplateDto.category_ids.filter(
+          (id) => !foundIds.includes(id),
+        );
         throw new NotFoundException(
-          `Category with ID ${updateProductTemplateDto.category_id} not found`,
+          `Categories with IDs ${notFoundIds.join(', ')} not found`,
         );
       }
+
+      // Assign the found categories to the template
+      template.categories = categories;
     }
 
     Object.assign(template, updateProductTemplateDto);
