@@ -13,7 +13,7 @@ import {
 import { ProductVariation } from '../../products/entities/product-variation.entity';
 
 @Entity('categories')
-@Index(['parent_id'])
+@Index(['parentId'])
 @Index(['level'])
 @Index(['is_active'])
 @Index(['slug'])
@@ -33,7 +33,7 @@ export class Category {
   description: string;
 
   @Column({ type: 'uuid', nullable: true })
-  parent_id: string;
+  parentId: string;
 
   @Column({ type: 'int', default: 1 })
   level: number;

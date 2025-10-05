@@ -279,9 +279,9 @@ export class ProductVariationsService {
     while (currentCategory) {
       hierarchy.unshift(currentCategory);
 
-      if (currentCategory.parent_id) {
+      if (currentCategory.parentId) {
         currentCategory = await this.categoriesRepository.findOne({
-          where: { id: currentCategory.parent_id },
+          where: { id: currentCategory.parentId },
         });
       } else {
         break;

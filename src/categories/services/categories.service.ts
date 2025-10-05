@@ -33,15 +33,15 @@ export class CategoriesService {
       );
     }
 
-    // If parent_id is provided, verify parent exists and update level
-    if (createCategoryDto.parent_id) {
+    // If parentId is provided, verify parent exists and update level
+    if (createCategoryDto.parentId) {
       const parent = await this.categoriesRepository.findOne({
-        where: { id: createCategoryDto.parent_id },
+        where: { id: createCategoryDto.parentId },
       });
 
       if (!parent) {
         throw new NotFoundException(
-          `Parent category with ID ${createCategoryDto.parent_id} not found`,
+          `Parent category with ID ${createCategoryDto.parentId} not found`,
         );
       }
 
@@ -112,22 +112,22 @@ export class CategoriesService {
       }
     }
 
-    // If parent_id is being changed, verify parent exists and update level
+    // If parentId is being changed, verify parent exists and update level
     if (
-      updateCategoryDto.parent_id &&
-      updateCategoryDto.parent_id !== category.parent_id
+      updateCategoryDto.parentId &&
+      updateCategoryDto.parentId !== category.parentId
     ) {
-      if (updateCategoryDto.parent_id === id) {
+      if (updateCategoryDto.parentId === id) {
         throw new BadRequestException('Category cannot be its own parent');
       }
 
       const parent = await this.categoriesRepository.findOne({
-        where: { id: updateCategoryDto.parent_id },
+        where: { id: updateCategoryDto.parentId },
       });
 
       if (!parent) {
         throw new NotFoundException(
-          `Parent category with ID ${updateCategoryDto.parent_id} not found`,
+          `Parent category with ID ${updateCategoryDto.parentId} not found`,
         );
       }
 
@@ -146,7 +146,7 @@ export class CategoriesService {
 
     // Check if category has children
     const childrenCount = await this.categoriesRepository.count({
-      where: { parent_id: id },
+      where: { parentId: id },
     });
 
     if (childrenCount > 0) {
@@ -160,11 +160,55 @@ export class CategoriesService {
   }
 
   async getCategoryTree(): Promise<Category[]> {
-    return this.categoriesRepository.find({
+    // Fetch all active categories to build the complete tree
+    const allCategories = await this.categoriesRepository.find({
       where: { is_active: true },
       order: { level: 'ASC', sort_order: 'ASC', name: 'ASC' },
-      relations: ['children'],
     });
+
+    // Build a map for quick lookup
+    const categoryMap = new Map<string, Category>();
+    const rootCategories: Category[] = [];
+
+    // First pass: create map and identify root categories
+    for (const category of allCategories) {
+      categoryMap.set(category.id, { ...category, children: [] });
+
+      if (!category.parentId) {
+        rootCategories.push(categoryMap.get(category.id)!);
+      }
+    }
+
+    // Second pass: build parent-child relationships
+    for (const category of allCategories) {
+      if (category.parentId && categoryMap.has(category.parentId)) {
+        const parent = categoryMap.get(category.parentId)!;
+        const child = categoryMap.get(category.id)!;
+        parent.children.push(child);
+      }
+    }
+
+    // Sort root categories and their children recursively
+    this.sortCategoriesRecursive(rootCategories);
+
+    return rootCategories;
+  }
+
+  private sortCategoriesRecursive(categories: Category[]): void {
+    // Sort the current level
+    categories.sort((a, b) => {
+      if (a.sort_order !== b.sort_order) {
+        return a.sort_order - b.sort_order;
+      }
+      return a.name.localeCompare(b.name);
+    });
+
+    // Recursively sort children
+    for (const category of categories) {
+      if (category.children && category.children.length > 0) {
+        this.sortCategoriesRecursive(category.children);
+      }
+    }
   }
 
   async getCategoryHierarchy(id: string): Promise<Category[]> {
@@ -181,7 +225,7 @@ export class CategoriesService {
 
   async getChildren(id: string): Promise<Category[]> {
     return this.categoriesRepository.find({
-      where: { parent_id: id, is_active: true },
+      where: { parentId: id, is_active: true },
       order: { sort_order: 'ASC', name: 'ASC' },
     });
   }
@@ -216,7 +260,7 @@ export class CategoriesService {
         );
       }
 
-      category.parent_id = moveData.parentId;
+      category.parentId = moveData.parentId;
       category.level = parent.level + 1;
     }
 
@@ -249,9 +293,9 @@ export class CategoriesService {
     while (currentCategory) {
       hierarchy.unshift(currentCategory);
 
-      if (currentCategory.parent_id) {
+      if (currentCategory.parentId) {
         currentCategory = await this.categoriesRepository.findOne({
-          where: { id: currentCategory.parent_id },
+          where: { id: currentCategory.parentId },
         });
       } else {
         break;

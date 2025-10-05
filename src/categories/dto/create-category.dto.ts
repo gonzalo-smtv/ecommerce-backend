@@ -38,7 +38,7 @@ export class CreateCategoryDto {
   })
   @IsOptional()
   @IsUUID()
-  parent_id?: string;
+  parentId?: string;
 
   @ApiPropertyOptional({
     description: 'Category image URL',
