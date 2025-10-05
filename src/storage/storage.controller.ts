@@ -11,13 +11,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import {
-  ApiTags,
-  ApiConsumes,
-  ApiBody,
-  ApiParam,
-  ApiQuery,
-} from '@nestjs/swagger';
+import { ApiTags, ApiConsumes, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { StorageService } from './storage.service';
 
 @ApiTags('05 - Storage')
@@ -61,21 +55,6 @@ export class StorageController {
 
   @Post('upload')
   @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        file: {
-          type: 'string',
-          format: 'binary',
-        },
-        path: {
-          type: 'string',
-          description: 'Optional path within the bucket, e.g. "products/"',
-        },
-      },
-    },
-  })
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,

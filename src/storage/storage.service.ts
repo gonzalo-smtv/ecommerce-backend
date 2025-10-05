@@ -74,6 +74,16 @@ export class StorageService {
    */
   async deleteFile(filePath: string): Promise<void> {
     try {
+      // Check if the image exists before attempting to delete
+      const { data: fileExists } = await this.supabase.storage
+        .from(SUPABASE_STORAGE_BUCKET)
+        .list(filePath);
+
+      if (!fileExists || fileExists.length === 0) {
+        this.logger.warn(`File not found: ${filePath}`);
+        throw new BadRequestException(`File not found: ${filePath}`);
+      }
+
       const { error } = await this.supabase.storage
         .from(SUPABASE_STORAGE_BUCKET)
         .remove([filePath]);
