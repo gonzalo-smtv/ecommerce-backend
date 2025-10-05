@@ -6,8 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  Query,
-  BadRequestException,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { UsersService } from './users.service';
@@ -30,21 +28,6 @@ export class UsersController {
   })
   async findAll(): Promise<User[]> {
     return this.usersService.findAll();
-  }
-
-  @Get('verify-email')
-  @ApiOperation({ summary: 'Verify a user email' })
-  @ApiResponse({ status: 200, description: 'Email verified successfully.' })
-  @ApiResponse({ status: 404, description: 'Invalid verification token.' })
-  async verifyEmail(
-    @Query('token') token: string,
-  ): Promise<{ message: string }> {
-    if (!token) {
-      throw new BadRequestException('Verification token is required');
-    }
-
-    await this.usersService.verifyEmail(token);
-    return { message: 'Email verified successfully' };
   }
 
   @Get(':email')
@@ -72,51 +55,6 @@ export class UsersController {
   @ApiResponse({ status: 409, description: 'User already exists.' })
   async create(@Body() createUserDto: CreateUserDto): Promise<User> {
     return this.usersService.create(createUserDto);
-  }
-
-  @Post('reset-password-request')
-  @ApiOperation({ summary: 'Request password reset' })
-  @ApiResponse({
-    status: 200,
-    description: 'Password reset token has been sent if email exists.',
-  })
-  async resetPasswordRequest(
-    @Body('email') email: string,
-  ): Promise<{ message: string }> {
-    if (!email) {
-      throw new BadRequestException('Email is required');
-    }
-
-    await this.usersService.generatePasswordResetToken(email);
-
-    // TODO: send email
-    // In a real application, send email with reset link containing the token
-    // Here we just return a success message regardless of whether email exists
-
-    return {
-      message:
-        'If an account with this email exists, a password reset link has been sent.',
-    };
-  }
-
-  @Post('reset-password')
-  @ApiOperation({ summary: 'Reset password using token' })
-  @ApiResponse({ status: 200, description: 'Password reset successfully.' })
-  @ApiResponse({ status: 400, description: 'Invalid or expired token.' })
-  async resetPassword(
-    @Body('token') token: string,
-    @Body('password') password: string,
-  ): Promise<{ message: string }> {
-    if (!token || !password) {
-      throw new BadRequestException('Token and password are required');
-    }
-
-    const user = await this.usersService.resetPassword(token, password);
-    if (!user) {
-      throw new BadRequestException('Invalid or expired token');
-    }
-
-    return { message: 'Password reset successfully' };
   }
 
   // ===== PATCH METHODS (Update Operations) =====

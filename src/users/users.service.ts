@@ -4,7 +4,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, MoreThan } from 'typeorm';
+import { Repository } from 'typeorm';
 import { User, AuthProvider } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -93,70 +93,6 @@ export class UsersService {
   async remove(id: string): Promise<void> {
     const user = await this.findById(id);
     await this.usersRepository.remove(user);
-  }
-
-  async verifyEmail(token: string): Promise<User> {
-    const user = await this.usersRepository.findOne({
-      where: { verificationToken: token },
-    });
-
-    if (!user) {
-      throw new NotFoundException('Invalid verification token');
-    }
-
-    // Update user verification status
-    user.isEmailVerified = true;
-    user.verificationToken = '';
-
-    return this.usersRepository.save(user);
-  }
-
-  async generatePasswordResetToken(email: string): Promise<string | null> {
-    const user = await this.findByEmail(email);
-    if (!user) {
-      return null;
-    }
-
-    // Generate reset token
-    const resetToken = uuidv4();
-
-    // Set token expiration (24 hours)
-    const expiresDate = new Date();
-    expiresDate.setHours(expiresDate.getHours() + 24);
-
-    // Update user with reset token
-    user.resetPasswordToken = resetToken;
-    user.resetPasswordExpires = expiresDate;
-    await this.usersRepository.save(user);
-
-    return resetToken;
-  }
-
-  async resetPassword(
-    token: string,
-    newPassword: string,
-  ): Promise<User | null> {
-    const user = await this.usersRepository.findOne({
-      where: {
-        resetPasswordToken: token,
-        resetPasswordExpires: MoreThan(new Date()),
-      },
-    });
-
-    if (!user) {
-      return null;
-    }
-
-    // Update password and clear reset token
-    user.password = newPassword;
-    user.resetPasswordToken = '';
-
-    // Clear the expiration date by setting it to a past date
-    const pastDate = new Date();
-    pastDate.setFullYear(pastDate.getFullYear() - 1);
-    user.resetPasswordExpires = pastDate;
-
-    return this.usersRepository.save(user);
   }
 
   async findOrCreateFromOAuth(

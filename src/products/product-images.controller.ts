@@ -36,18 +36,6 @@ export class ProductImagesController {
     return this.productImagesService.findAllByVariationId(variationId);
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Get a specific product image' })
-  @ApiParam({
-    name: 'variationId',
-    type: 'string',
-    description: 'ID of the product variation',
-  })
-  @ApiParam({ name: 'id', type: 'string', description: 'ID of the image' })
-  findOne(@Param('id', ParseUUIDPipe) id: string): Promise<ProductImage> {
-    return this.productImagesService.findOne(id);
-  }
-
   @Get(':id/file')
   @ApiOperation({ summary: 'Get the image file' })
   @ApiParam({
