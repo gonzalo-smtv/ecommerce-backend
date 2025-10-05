@@ -82,7 +82,7 @@ export class CartService {
 
     // Verify product variation exists
     const productVariation =
-      await this.productVariationsService.findById(productId);
+      await this.productVariationsService.findByIdWithDetails(productId);
     if (!productVariation) {
       throw new NotFoundException(
         `Product variation with ID ${productId} not found`,

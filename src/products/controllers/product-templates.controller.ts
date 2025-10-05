@@ -6,7 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  Query,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
@@ -23,29 +22,8 @@ export class ProductTemplatesController {
   // ===== GET METHODS (Read Operations) =====
 
   @Get()
-  findAll(@Query('includeInactive') includeInactive?: string) {
-    const includeInactiveBool = includeInactive === 'true';
-    return this.productTemplatesService.findAll(includeInactiveBool);
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productTemplatesService.findOne(id);
-  }
-
-  @Get('slug/:slug')
-  findBySlug(@Param('slug') slug: string) {
-    return this.productTemplatesService.findBySlug(slug);
-  }
-
-  @Get(':id/variations')
-  getTemplateVariations(@Param('id') id: string) {
-    return this.productTemplatesService.getTemplateVariations(id);
-  }
-
-  @Get(':id/complete')
-  getTemplateWithVariations(@Param('id') id: string) {
-    return this.productTemplatesService.getTemplateWithVariations(id);
+  findAll() {
+    return this.productTemplatesService.findAll();
   }
 
   // ===== POST METHODS (Create Operations) =====

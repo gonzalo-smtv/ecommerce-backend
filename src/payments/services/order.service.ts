@@ -39,7 +39,7 @@ export class OrderService {
     // Get product details and create order items
     const orderItems = await Promise.all(
       data.items.map(async (item) => {
-        const product = await this.productsService.findById(item.id);
+        const product = await this.productsService.findByIdWithDetails(item.id);
         if (!product) {
           throw new Error(`Product with id ${item.id} not found`);
         }

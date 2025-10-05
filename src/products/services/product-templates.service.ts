@@ -25,6 +25,26 @@ export class ProductTemplatesService {
     private categoriesRepository: Repository<Category>,
   ) {}
 
+  async findAll(): Promise<ProductTemplate[]> {
+    return this.productTemplatesRepository.find({
+      relations: ['category', 'variations'],
+      order: { name: 'ASC' },
+    });
+  }
+
+  async findOne(id: string): Promise<ProductTemplate> {
+    const template = await this.productTemplatesRepository.findOne({
+      where: { id },
+      relations: ['category', 'variations'],
+    });
+
+    if (!template) {
+      throw new NotFoundException(`Product template with ID ${id} not found`);
+    }
+
+    return template;
+  }
+
   async create(
     createProductTemplateDto: CreateProductTemplateDto,
   ): Promise<ProductTemplate> {
@@ -63,44 +83,6 @@ export class ProductTemplatesService {
       `Product template created successfully with ID: ${savedTemplate.id}`,
     );
     return this.findOne(savedTemplate.id);
-  }
-
-  async findAll(includeInactive = false): Promise<ProductTemplate[]> {
-    const whereCondition = includeInactive ? {} : { is_active: true };
-
-    return this.productTemplatesRepository.find({
-      where: whereCondition,
-      relations: ['category', 'variations'],
-      order: { name: 'ASC' },
-    });
-  }
-
-  async findOne(id: string): Promise<ProductTemplate> {
-    const template = await this.productTemplatesRepository.findOne({
-      where: { id },
-      relations: ['category', 'variations'],
-    });
-
-    if (!template) {
-      throw new NotFoundException(`Product template with ID ${id} not found`);
-    }
-
-    return template;
-  }
-
-  async findBySlug(slug: string): Promise<ProductTemplate> {
-    const template = await this.productTemplatesRepository.findOne({
-      where: { slug },
-      relations: ['category', 'variations'],
-    });
-
-    if (!template) {
-      throw new NotFoundException(
-        `Product template with slug "${slug}" not found`,
-      );
-    }
-
-    return template;
   }
 
   async update(
@@ -163,25 +145,5 @@ export class ProductTemplatesService {
 
     await this.productTemplatesRepository.remove(template);
     this.logger.log(`Product template with ID ${id} deleted successfully`);
-  }
-
-  async getTemplateVariations(id: string): Promise<ProductVariation[]> {
-    return this.productVariationsRepository.find({
-      where: { template_id: id, is_active: true },
-      order: { sort_order: 'ASC', name: 'ASC' },
-    });
-  }
-
-  async getTemplateWithVariations(id: string): Promise<ProductTemplate> {
-    const template = await this.productTemplatesRepository.findOne({
-      where: { id },
-      relations: ['category', 'variations', 'variations.images'],
-    });
-
-    if (!template) {
-      throw new NotFoundException(`Product template with ID ${id} not found`);
-    }
-
-    return template;
   }
 }

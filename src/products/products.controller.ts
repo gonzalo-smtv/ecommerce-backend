@@ -29,19 +29,9 @@ export class ProductsController {
 
   // ===== GET METHODS (Read Operations) =====
 
-  @Get()
-  findAll(): Promise<ProductVariation[]> {
-    return this.productsService.findAll();
-  }
-
   @Get('with-details')
   findAllWithDetails(): Promise<ProductVariation[]> {
     return this.productsService.findAllWithDetails();
-  }
-
-  @Get(':id')
-  findById(@Param('id') id: string): Promise<ProductVariation> {
-    return this.productsService.findById(id);
   }
 
   @Get(':id/image')
@@ -121,7 +111,7 @@ export class ProductsController {
       await this.productImagesService.create(product.id, files);
     }
 
-    return this.productsService.findById(product.id);
+    return this.productsService.findByIdWithDetails(product.id);
   }
 
   // ===== PUT METHODS (Full Update Operations) =====
@@ -163,7 +153,7 @@ export class ProductsController {
     }
 
     // Return the updated product with its images
-    return this.productsService.findById(id);
+    return this.productsService.findByIdWithDetails(id);
   }
 
   // ===== PATCH METHODS (Partial Update Operations) =====

@@ -23,18 +23,6 @@ export class ProductVariationsService {
     private readonly cacheService: CacheService,
   ) {}
 
-  findAll(): Promise<ProductVariation[]> {
-    return this.productsRepository.find();
-  }
-
-  async findById(id: string): Promise<ProductVariation> {
-    const product = await this.productsRepository.findOne({ where: { id } });
-    if (!product) {
-      throw new NotFoundException(`ProductVariation with ID ${id} not found`);
-    }
-    return product;
-  }
-
   async create(productData: CreateProductDto): Promise<ProductVariation> {
     this.logger.log('Creating a new product...');
     console.log('productData: ', productData);
@@ -49,11 +37,11 @@ export class ProductVariationsService {
     this.logger.log(
       `ProductVariation created successfully with ID: ${savedProductVariation.id}`,
     );
-    return this.findById(savedProductVariation.id);
+    return this.findByIdWithDetails(savedProductVariation.id);
   }
 
   async update(id: string, productData: any): Promise<ProductVariation> {
-    const product = await this.findById(id);
+    const product = await this.findByIdWithDetails(id);
 
     // Update basic product data
     Object.assign(product, productData);
@@ -64,7 +52,7 @@ export class ProductVariationsService {
   }
 
   async delete(id: string): Promise<void> {
-    const product = await this.findById(id);
+    const product = await this.findByIdWithDetails(id);
 
     // Find all images associated with the product
     const productImages = await this.productImagesRepository.find({
@@ -172,7 +160,7 @@ export class ProductVariationsService {
     productId: string,
     categoryId: string,
   ): Promise<void> {
-    const product = await this.findById(productId);
+    const product = await this.findByIdWithDetails(productId);
     const category = await this.categoriesRepository.findOne({
       where: { id: categoryId },
     });
@@ -206,7 +194,7 @@ export class ProductVariationsService {
     productId: string,
     categoryId: string,
   ): Promise<void> {
-    const product = await this.findById(productId);
+    const product = await this.findByIdWithDetails(productId);
 
     // Remove the category from the product's categories array
     product.categories = product.categories.filter(
@@ -223,7 +211,7 @@ export class ProductVariationsService {
     productId: string,
     categoryIds: string[],
   ): Promise<void> {
-    const product = await this.findById(productId);
+    const product = await this.findByIdWithDetails(productId);
 
     // Get all categories
     const categories = await this.categoriesRepository.findByIds(categoryIds);

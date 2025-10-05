@@ -95,7 +95,7 @@ export class PaymentsService {
   private async mapCheckoutItemDtoToItemPreference(
     item: CheckoutItemDto,
   ): Promise<PreferenceItem> {
-    const product = await this.productsService.findById(item.id);
+    const product = await this.productsService.findByIdWithDetails(item.id);
 
     if (!product) {
       throw new Error(`Product with id ${item.id} not found`);
