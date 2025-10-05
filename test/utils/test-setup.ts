@@ -29,7 +29,6 @@ export async function createTestModule(
             DB_USERNAME: 'test',
             DB_PASSWORD: 'test',
             DB_NAME: 'test_db',
-            JWT_SECRET: 'test-secret',
             SUPABASE_URL: 'https://test.supabase.co',
             SUPABASE_ANON_KEY: 'test-key',
             MERCADOPAGO_ACCESS_TOKEN: 'test-token',

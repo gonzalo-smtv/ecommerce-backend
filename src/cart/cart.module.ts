@@ -6,11 +6,11 @@ import { Cart } from './entities/cart.entity';
 import { CartItem } from './entities/cart-item.entity';
 import { ProductsModule } from '@app/products/products.module';
 import { UsersModule } from '@app/users/users.module';
-import { CartSessionMiddleware } from './middleware/cart-session.middleware';
+import { AuthMiddleware } from '@app/auth/middleware/auth.middleware';
 
 /**
- * Module for cart functionality
- * Handles both authenticated and anonymous shopping carts
+ * Cart module for shopping cart functionality
+ * Supports both authenticated users and anonymous sessions
  */
 @Module({
   imports: [
@@ -19,13 +19,13 @@ import { CartSessionMiddleware } from './middleware/cart-session.middleware';
     UsersModule,
   ],
   controllers: [CartController],
-  providers: [CartService],
+  providers: [CartService, AuthMiddleware],
   exports: [CartService],
 })
 export class CartModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
-      .apply(CartSessionMiddleware)
+      .apply(AuthMiddleware)
       .forRoutes({ path: 'cart', method: RequestMethod.ALL });
   }
 }

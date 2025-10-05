@@ -27,7 +27,15 @@ async function bootstrap() {
     .setTitle('LTecDeco API')
     .setDescription('API documentation for LTecDeco application')
     .setVersion('1.0')
-    .addBearerAuth()
+    .addApiKey(
+      {
+        type: 'apiKey',
+        name: 'x-user-id',
+        in: 'header',
+        description: 'User ID from external provider authentication',
+      },
+      'x-user-id',
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

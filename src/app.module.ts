@@ -11,6 +11,7 @@ import { CartModule } from '@app/cart/cart.module';
 import { PaymentsModule } from '@app/payments/payments.module';
 import { CacheModule } from '@app/cache/cache.module';
 import { CategoriesModule } from '@app/categories/categories.module';
+import { ReviewsModule } from '@app/reviews/reviews.module';
 import { THROTTLE_LIMIT, THROTTLE_TTL } from '@app/utils/environments';
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { THROTTLE_LIMIT, THROTTLE_TTL } from '@app/utils/environments';
     PaymentsModule,
     CacheModule,
     CategoriesModule,
+    ReviewsModule,
   ],
   controllers: [],
   providers: [
