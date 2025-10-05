@@ -28,6 +28,8 @@ export class ProductsController {
     private readonly productImagesService: ProductImagesService,
   ) {}
 
+  // ===== GET METHODS (Read Operations) =====
+
   @Get()
   findAll(): Promise<ProductVariation[]> {
     return this.productsService.findAll();
@@ -70,6 +72,8 @@ export class ProductsController {
     });
     return res.send(imageBuffer);
   }
+
+  // ===== POST METHODS (Create Operations) =====
 
   @Post()
   @ApiConsumes('multipart/form-data')
@@ -121,6 +125,8 @@ export class ProductsController {
     return this.productsService.findById(product.id);
   }
 
+  // ===== PUT METHODS (Full Update Operations) =====
+
   @Put(':id')
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Update a product with optional new images' })
@@ -161,6 +167,8 @@ export class ProductsController {
     return this.productsService.findById(id);
   }
 
+  // ===== PATCH METHODS (Partial Update Operations) =====
+
   @Patch(':id')
   @ApiOperation({ summary: 'Update product data (JSON only)' })
   @ApiBody({
@@ -173,6 +181,8 @@ export class ProductsController {
   ): Promise<ProductVariation> {
     return this.productsService.update(id, productData);
   }
+
+  // ===== DELETE METHODS (Delete Operations) =====
 
   @Delete(':id')
   async delete(

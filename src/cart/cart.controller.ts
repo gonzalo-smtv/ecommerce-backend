@@ -31,6 +31,8 @@ import type { CartInfoType } from './types/cart-info.type';
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
+  // ===== GET METHODS (Read Operations) =====
+
   @Get()
   @ApiOperation({ summary: 'Get current cart' })
   @ApiResponse({ status: 200, description: 'Cart found', type: Cart })
@@ -38,6 +40,8 @@ export class CartController {
     const { userId, sessionId } = cartInfo;
     return this.cartService.getOrCreateCart(userId, sessionId);
   }
+
+  // ===== POST METHODS (Create Operations) =====
 
   @Post('items')
   @ApiOperation({ summary: 'Add product to cart' })
@@ -55,6 +59,8 @@ export class CartController {
     return this.cartService.addToCart(userId, sessionId, addToCartDto);
   }
 
+  // ===== PATCH METHODS (Update Operations) =====
+
   @Patch('items/:id')
   @ApiOperation({ summary: 'Update product quantity in cart' })
   @ApiResponse({ status: 200, description: 'Cart updated', type: Cart })
@@ -69,6 +75,8 @@ export class CartController {
     const cart = await this.cartService.getOrCreateCart(userId, sessionId);
     return this.cartService.updateCartItem(cart.id, id, updateCartItemDto);
   }
+
+  // ===== DELETE METHODS (Delete Operations) =====
 
   @Delete('items/:id')
   @ApiOperation({ summary: 'Remove product from cart' })

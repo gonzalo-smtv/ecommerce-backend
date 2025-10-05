@@ -28,6 +28,8 @@ import { AddProductImagesDto } from './dto/product-image.dto';
 export class ProductImagesController {
   constructor(private readonly productImagesService: ProductImagesService) {}
 
+  // ===== GET METHODS (Read Operations) =====
+
   @Get()
   @ApiOperation({ summary: 'Get all images for a product variation' })
   @ApiParam({
@@ -76,6 +78,8 @@ export class ProductImagesController {
     return res.send(imageBuffer);
   }
 
+  // ===== POST METHODS (Create Operations) =====
+
   @Post()
   @ApiOperation({ summary: 'Upload multiple images for a product variation' })
   @ApiConsumes('multipart/form-data')
@@ -119,6 +123,8 @@ export class ProductImagesController {
       addImagesDto.altText,
     );
   }
+
+  // ===== DELETE METHODS (Delete Operations) =====
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a product image' })

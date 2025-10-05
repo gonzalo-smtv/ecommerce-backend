@@ -18,11 +18,7 @@ import { UpdateCategoryDto } from '../dto/update-category.dto';
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  create(@Body() createCategoryDto: CreateCategoryDto) {
-    return this.categoriesService.create(createCategoryDto);
-  }
+  // ===== GET METHODS (Read Operations) =====
 
   @Get()
   findAll(@Query('includeInactive') includeInactive?: string) {
@@ -65,6 +61,29 @@ export class CategoriesController {
     return this.categoriesService.getParent(id);
   }
 
+  @Get(':id/products')
+  getCategoryProducts(@Param('id') id: string) {
+    return this.categoriesService.getCategoryProducts(id);
+  }
+
+  // ===== POST METHODS (Create Operations) =====
+
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  create(@Body() createCategoryDto: CreateCategoryDto) {
+    return this.categoriesService.create(createCategoryDto);
+  }
+
+  @Post(':id/move')
+  moveCategory(
+    @Param('id') id: string,
+    @Body() moveData: { parentId?: string; sortOrder?: number },
+  ) {
+    return this.categoriesService.moveCategory(id, moveData);
+  }
+
+  // ===== PATCH METHODS (Update Operations) =====
+
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -72,6 +91,8 @@ export class CategoriesController {
   ) {
     return this.categoriesService.update(id, updateCategoryDto);
   }
+
+  // ===== DELETE METHODS (Delete Operations) =====
 
   @Delete('delete-all')
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -83,18 +104,5 @@ export class CategoriesController {
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string) {
     return this.categoriesService.remove(id);
-  }
-
-  @Post(':id/move')
-  moveCategory(
-    @Param('id') id: string,
-    @Body() moveData: { parentId?: string; sortOrder?: number },
-  ) {
-    return this.categoriesService.moveCategory(id, moveData);
-  }
-
-  @Get(':id/products')
-  getCategoryProducts(@Param('id') id: string) {
-    return this.categoriesService.getCategoryProducts(id);
   }
 }

@@ -17,6 +17,8 @@ import type { CartInfoType } from '@app/cart/types/cart-info.type';
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
+  // ===== POST METHODS (Create Operations) =====
+
   @Post('/mercadopago/checkout')
   @ApiOperation({ summary: 'Create a Mercado Pago checkout preference' })
   @ApiResponse({

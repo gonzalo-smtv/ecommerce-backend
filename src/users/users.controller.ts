@@ -20,6 +20,8 @@ import { User } from './entities/user.entity';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  // ===== GET METHODS (Read Operations) =====
+
   @Get()
   @ApiOperation({ summary: 'Get all users' })
   @ApiResponse({
@@ -57,6 +59,8 @@ export class UsersController {
   async findOne(@Param('email') email: string): Promise<User | object> {
     return (await this.usersService.findByEmail(email)) || {};
   }
+
+  // ===== POST METHODS (Create Operations) =====
 
   @Post()
   @ApiOperation({ summary: 'Create a new user' })
@@ -116,6 +120,8 @@ export class UsersController {
     return { message: 'Password reset successfully' };
   }
 
+  // ===== PATCH METHODS (Update Operations) =====
+
   @Patch(':id')
   @ApiOperation({ summary: 'Update a user' })
   @ApiResponse({
@@ -130,6 +136,8 @@ export class UsersController {
   ): Promise<User> {
     return this.usersService.update(id, updateUserDto);
   }
+
+  // ===== DELETE METHODS (Delete Operations) =====
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a user' })

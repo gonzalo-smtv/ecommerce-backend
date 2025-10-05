@@ -21,6 +21,8 @@ export class StorageController {
 
   constructor(private readonly storageService: StorageService) {}
 
+  // ===== GET METHODS (Read Operations) =====
+
   @Get('list')
   @ApiQuery({
     name: 'path',
@@ -53,6 +55,8 @@ export class StorageController {
     return { url };
   }
 
+  // ===== POST METHODS (Create Operations) =====
+
   @Post('upload')
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file'))
@@ -71,6 +75,8 @@ export class StorageController {
       throw error;
     }
   }
+
+  // ===== DELETE METHODS (Delete Operations) =====
 
   @Delete('files/:path')
   @ApiParam({

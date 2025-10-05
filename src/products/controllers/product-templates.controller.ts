@@ -20,11 +20,7 @@ export class ProductTemplatesController {
     private readonly productTemplatesService: ProductTemplatesService,
   ) {}
 
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  create(@Body() createProductTemplateDto: CreateProductTemplateDto) {
-    return this.productTemplatesService.create(createProductTemplateDto);
-  }
+  // ===== GET METHODS (Read Operations) =====
 
   @Get()
   findAll(@Query('includeInactive') includeInactive?: string) {
@@ -52,6 +48,16 @@ export class ProductTemplatesController {
     return this.productTemplatesService.getTemplateWithVariations(id);
   }
 
+  // ===== POST METHODS (Create Operations) =====
+
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  create(@Body() createProductTemplateDto: CreateProductTemplateDto) {
+    return this.productTemplatesService.create(createProductTemplateDto);
+  }
+
+  // ===== PATCH METHODS (Update Operations) =====
+
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -59,6 +65,8 @@ export class ProductTemplatesController {
   ) {
     return this.productTemplatesService.update(id, updateProductTemplateDto);
   }
+
+  // ===== DELETE METHODS (Delete Operations) =====
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
