@@ -73,6 +73,12 @@ export class CategoriesController {
     return this.categoriesService.update(id, updateCategoryDto);
   }
 
+  @Delete('delete-all')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  deleteAll() {
+    return this.categoriesService.deleteAll();
+  }
+
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string) {

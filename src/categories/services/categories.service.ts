@@ -159,6 +159,25 @@ export class CategoriesService {
     this.logger.log(`Category with ID ${id} deleted successfully`);
   }
 
+  async deleteAll(): Promise<void> {
+    this.logger.log('Deleting all categories...');
+
+    // Get all categories ordered by level (deepest first) to avoid FK constraint issues
+    const allCategories = await this.categoriesRepository.find({
+      order: { level: 'DESC' },
+    });
+
+    // Delete categories starting from the deepest level (children first)
+    for (const category of allCategories) {
+      await this.categoriesRepository.remove(category);
+      this.logger.log(
+        `Deleted category: ${category.name} (ID: ${category.id})`,
+      );
+    }
+
+    this.logger.log(`Successfully deleted ${allCategories.length} categories`);
+  }
+
   async getCategoryTree(): Promise<Category[]> {
     // Fetch all active categories to build the complete tree
     const allCategories = await this.categoriesRepository.find({
