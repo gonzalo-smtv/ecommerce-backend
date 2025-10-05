@@ -2,6 +2,7 @@ import { ProductVariation } from '../../src/products/entities/product-variation.
 import { User, UserRole } from '../../src/users/entities/user.entity';
 import { Cart } from '../../src/cart/entities/cart.entity';
 import { CartItem } from '../../src/cart/entities/cart-item.entity';
+import { Category } from '../../src/categories/entities/category.entity';
 
 // ProductVariation factory
 export function createTestProductVariation(
@@ -92,4 +93,107 @@ export function createTestUsers(
       ...overrides,
     }),
   );
+}
+
+// Category factory
+export function createTestCategory(
+  overrides: Partial<Category> = {},
+): Partial<Category> {
+  return {
+    id: 'test-category-id',
+    name: 'Test Category',
+    slug: 'test-category',
+    description: 'Test category description',
+    parentId: undefined,
+    level: 1,
+    image: undefined,
+    icon: undefined,
+    is_active: true,
+    sort_order: 0,
+    meta_title: undefined,
+    meta_description: undefined,
+    created_at: new Date(),
+    updated_at: new Date(),
+    ...overrides,
+  };
+}
+
+// Factory for creating root category (no parent)
+export function createTestRootCategory(
+  overrides: Partial<Category> = {},
+): Partial<Category> {
+  return createTestCategory({
+    id: 'test-root-category-id',
+    name: 'Root Category',
+    slug: 'root-category',
+    level: 1,
+    parentId: undefined,
+    ...overrides,
+  });
+}
+
+// Factory for creating child category
+export function createTestChildCategory(
+  parentId: string,
+  overrides: Partial<Category> = {},
+): Partial<Category> {
+  return createTestCategory({
+    id: 'test-child-category-id',
+    name: 'Child Category',
+    slug: 'child-category',
+    level: 2,
+    parentId,
+    ...overrides,
+  });
+}
+
+// Factory for creating multiple categories
+export function createTestCategories(
+  count: number,
+  overrides: Partial<Category> = {},
+): Partial<Category>[] {
+  return Array.from({ length: count }, (_, index) =>
+    createTestCategory({
+      id: `test-category-${index + 1}`,
+      name: `Test Category ${index + 1}`,
+      slug: `test-category-${index + 1}`,
+      ...overrides,
+    }),
+  );
+}
+
+// Factory for creating category tree structure
+export function createTestCategoryTree(): {
+  root: Partial<Category>;
+  children: Partial<Category>[];
+  grandchildren: Partial<Category>[];
+} {
+  const root = createTestRootCategory({
+    id: 'root-category',
+    name: 'Electronics',
+    slug: 'electronics',
+  });
+
+  const children = [
+    createTestChildCategory(root.id!, {
+      id: 'laptops-category',
+      name: 'Laptops',
+      slug: 'laptops',
+    }),
+    createTestChildCategory(root.id!, {
+      id: 'phones-category',
+      name: 'Phones',
+      slug: 'phones',
+    }),
+  ];
+
+  const grandchildren = [
+    createTestChildCategory(children[0].id!, {
+      id: 'gaming-laptops-category',
+      name: 'Gaming Laptops',
+      slug: 'gaming-laptops',
+    }),
+  ];
+
+  return { root, children, grandchildren };
 }
