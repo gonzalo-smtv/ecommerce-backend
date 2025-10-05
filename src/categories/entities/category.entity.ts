@@ -63,7 +63,10 @@ export class Category {
   @TreeChildren()
   children: Category[];
 
-  @ManyToMany(() => ProductVariation, (productVariation) => productVariation.categories)
+  @ManyToMany(
+    () => ProductVariation,
+    (productVariation) => productVariation.categories,
+  )
   productVariations: ProductVariation[];
 
   @CreateDateColumn({

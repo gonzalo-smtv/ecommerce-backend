@@ -120,7 +120,17 @@ describe('ProductVariationsService', () => {
         name: 'New ProductVariation',
         price: 100,
       };
-      const savedProductVariation = { ...productData, id: 'generated-id', sku: 'sku', stock: 0, is_active: true, sort_order: 0, attributes: {}, created_at: new Date(), updated_at: new Date() };
+      const savedProductVariation = {
+        ...productData,
+        id: 'generated-id',
+        sku: 'sku',
+        stock: 0,
+        is_active: true,
+        sort_order: 0,
+        attributes: {},
+        created_at: new Date(),
+        updated_at: new Date(),
+      };
 
       (productRepository.create as jest.Mock).mockReturnValue(productData);
       (productRepository.save as jest.Mock).mockResolvedValue(

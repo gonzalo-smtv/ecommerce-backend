@@ -15,7 +15,12 @@ import { CacheModule } from '@app/cache/cache.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ProductTemplate, ProductVariation, ProductImage, Category]),
+    TypeOrmModule.forFeature([
+      ProductTemplate,
+      ProductVariation,
+      ProductImage,
+      Category,
+    ]),
     StorageModule,
     CacheModule,
   ],

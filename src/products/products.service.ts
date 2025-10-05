@@ -119,9 +119,7 @@ export class ProductVariationsService {
    */
   async findAllWithDetails(): Promise<ProductVariation[]> {
     return this.productsRepository.find({
-      relations: [
-        'images',
-      ],
+      relations: ['images'],
     });
   }
 
@@ -131,9 +129,7 @@ export class ProductVariationsService {
   async findByIdWithDetails(id: string): Promise<ProductVariation> {
     const product = await this.productsRepository.findOne({
       where: { id },
-      relations: [
-        'images',
-      ],
+      relations: ['images'],
     });
 
     if (!product) {

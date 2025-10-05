@@ -1,6 +1,8 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddProductVariationsCategoriesTable1699123456790 implements MigrationInterface {
+export class AddProductVariationsCategoriesTable1699123456790
+  implements MigrationInterface
+{
   name = 'AddProductVariationsCategoriesTable1699123456790';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -42,8 +44,12 @@ export class AddProductVariationsCategoriesTable1699123456790 implements Migrati
     );
 
     // Drop indexes
-    await queryRunner.query(`DROP INDEX "IDX_product_variations_categories_category_id"`);
-    await queryRunner.query(`DROP INDEX "IDX_product_variations_categories_product_variation_id"`);
+    await queryRunner.query(
+      `DROP INDEX "IDX_product_variations_categories_category_id"`,
+    );
+    await queryRunner.query(
+      `DROP INDEX "IDX_product_variations_categories_product_variation_id"`,
+    );
 
     // Drop table
     await queryRunner.query(`DROP TABLE "product_variations_categories"`);
