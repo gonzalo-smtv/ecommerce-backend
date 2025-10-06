@@ -3,8 +3,8 @@ import {
   Get,
   Post,
   Delete,
-  Body,
   Param,
+  Req,
   UseInterceptors,
   UploadedFiles,
   Res,
@@ -15,7 +15,6 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { ProductImagesService } from './product-images.service';
 import { ProductImage } from './entities/product-image.entity';
 import { ApiConsumes, ApiBody, ApiParam, ApiOperation } from '@nestjs/swagger';
-import { AddProductImagesDto } from './dto/product-image.dto';
 
 @Controller('product-variations/:variationId/images')
 export class ProductImagesController {
@@ -94,14 +93,18 @@ export class ProductImagesController {
   @UseInterceptors(FilesInterceptor('files', 10)) // Maximum 10 images at a time
   uploadImages(
     @Param('variationId', ParseUUIDPipe) variationId: string,
+    @Req() request: any,
     @UploadedFiles() files: Express.Multer.File[],
-    @Body() addImagesDto: AddProductImagesDto,
   ): Promise<ProductImage[]> {
+    // Parse form fields from multipart/form-data
+    const isMain = request.body.isMain === 'true';
+    const altText = request.body.altText;
+
     return this.productImagesService.create(
       variationId,
       files,
-      addImagesDto.isMain,
-      addImagesDto.altText,
+      isMain,
+      altText,
     );
   }
 

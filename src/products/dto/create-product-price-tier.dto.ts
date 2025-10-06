@@ -1,7 +1,7 @@
 import {
   IsUUID,
   IsInt,
-  IsDecimal,
+  IsNumber,
   IsBoolean,
   IsOptional,
   Min,
@@ -42,9 +42,12 @@ export class CreateProductPriceTierDto {
     description: 'Precio unitario para este rango de cantidad',
     example: 90.5,
     type: 'number',
-    format: 'decimal',
   })
-  @IsDecimal({ decimal_digits: '2' })
+  @IsNumber(
+    { maxDecimalPlaces: 2 },
+    { message: 'Price must have at most 2 decimal places' },
+  )
+  @Min(0)
   @Type(() => Number)
   price: number;
 
