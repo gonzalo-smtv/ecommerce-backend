@@ -12,6 +12,7 @@ import { PaymentsModule } from '@app/payments/payments.module';
 import { CacheModule } from '@app/cache/cache.module';
 import { CategoriesModule } from '@app/categories/categories.module';
 import { ReviewsModule } from '@app/reviews/reviews.module';
+import { DevelopmentModule } from '@app/development/development.module';
 import { THROTTLE_LIMIT, THROTTLE_TTL } from '@app/utils/environments';
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { THROTTLE_LIMIT, THROTTLE_TTL } from '@app/utils/environments';
     CacheModule,
     CategoriesModule,
     ReviewsModule,
+    DevelopmentModule,
   ],
   controllers: [],
   providers: [

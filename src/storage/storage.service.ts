@@ -151,4 +151,60 @@ export class StorageService {
       );
     }
   }
+
+  /**
+   * Clear all files from the storage bucket (development only)
+   * @returns Number of files deleted
+   */
+  async clearAllFiles(): Promise<{ filesDeleted: number }> {
+    try {
+      this.logger.log('Starting storage cleanup...');
+
+      // List all files in the bucket
+      const { data: files, error: listError } = await this.supabase.storage
+        .from(SUPABASE_STORAGE_BUCKET)
+        .list('', { limit: 1000 });
+
+      if (listError) {
+        this.logger.error(
+          `Error listing files: ${listError.message}`,
+          listError,
+        );
+        throw new BadRequestException(
+          `Error listing files: ${listError.message}`,
+        );
+      }
+
+      if (!files || files.length === 0) {
+        this.logger.log('No files found in storage bucket');
+        return { filesDeleted: 0 };
+      }
+
+      // Extract file paths for deletion
+      const filePaths = files.map((file) => file.name);
+
+      // Delete all files in batches
+      const { error: deleteError } = await this.supabase.storage
+        .from(SUPABASE_STORAGE_BUCKET)
+        .remove(filePaths);
+
+      if (deleteError) {
+        this.logger.error(
+          `Error deleting files: ${deleteError.message}`,
+          deleteError,
+        );
+        throw new BadRequestException(
+          `Error deleting files: ${deleteError.message}`,
+        );
+      }
+
+      this.logger.log(
+        `Successfully deleted ${files.length} files from storage`,
+      );
+      return { filesDeleted: files.length };
+    } catch (error: any) {
+      this.logger.error(`Error in clearAllFiles: ${error.message}`, error);
+      throw error;
+    }
+  }
 }
