@@ -41,6 +41,9 @@ async function bootstrap() {
       },
       'x-user-id',
     )
+    .addSecurityRequirements({
+      'x-user-id': [],
+    })
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

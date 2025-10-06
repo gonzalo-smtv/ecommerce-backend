@@ -10,7 +10,13 @@ import {
 import { CartService } from './cart.service';
 import { AddToCartDto } from './dto/add-to-cart.dto';
 import { UpdateCartItemDto } from './dto/update-cart-item.dto';
-import { ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiBody,
+  ApiSecurity,
+} from '@nestjs/swagger';
 import { Cart } from './entities/cart.entity';
 import { UserInfo } from '@app/auth/decorators/user-info.decorator';
 import type { UserInfoType } from '@app/auth/decorators/user-info.decorator';
@@ -30,6 +36,7 @@ export class CartController {
   @Get()
   @ApiOperation({ summary: 'Get current cart' })
   @ApiResponse({ status: 200, description: 'Cart found', type: Cart })
+  @ApiSecurity('x-user-id')
   async getCart(@UserInfo() userInfo: UserInfoType) {
     const { userId, sessionId } = userInfo;
     return this.cartService.getOrCreateCart(userId, sessionId);
