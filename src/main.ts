@@ -3,12 +3,17 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from '@app/app.module';
 import { PORT } from '@app/utils/environments';
+import { AuthMiddleware } from '@app/auth/middleware/auth.middleware';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Enable CORS
   app.enableCors();
+
+  // Apply AuthMiddleware globally for all routes
+  const authMiddleware = new AuthMiddleware();
+  app.use(authMiddleware.use.bind(authMiddleware));
 
   // Set global prefix for all routes
   app.setGlobalPrefix('api');
