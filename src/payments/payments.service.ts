@@ -46,70 +46,9 @@ export class PaymentsService {
     });
   }
 
-  async createCheckoutPreference(
-    checkoutItems: CheckoutItemDto[],
-    userId: string,
-  ) {
-    // Validate that user exists
-    await this.usersService.findById(userId);
-
-    const items = await Promise.all(
-      checkoutItems.map(this.mapCheckoutItemDtoToItemPreference.bind(this)),
-    );
-
-    // Calculate total amount
-    const totalAmount = items.reduce(
-      (sum, item) => sum + item.unit_price * item.quantity,
-      0,
-    );
-
-    // Create order in pending state
-    const order = await this.orderService.createOrder({
-      userId,
-      items: checkoutItems,
-      totalAmount,
-    });
-
-    const preferenceData: PreferenceRequest = {
-      items,
-      back_urls: {
-        success: this.configService.getOrThrow<string>(
-          'MERCADO_PAGO_SUCCESS_URL',
-        ),
-        failure: this.configService.getOrThrow<string>(
-          'MERCADO_PAGO_FAILURE_URL',
-        ),
-        pending: this.configService.getOrThrow<string>(
-          'MERCADO_PAGO_PENDING_URL',
-        ),
-      },
-      auto_return: 'approved',
-      statement_descriptor: 'LTecDeco',
-      external_reference: order.id,
-      notification_url: this.configService.getOrThrow<string>(
-        'MERCADO_PAGO_WEBHOOK_URL',
-      ),
-    };
-
-    try {
-      const preference = new Preference(this.client);
-      const response = await preference.create({ body: preferenceData });
-      return response;
-    } catch (error: any) {
-      throw new Error(
-        `Failed to create Mercado Pago preference: ${error.message}`,
-      );
-    }
-  }
-
   async createCheckoutPreferenceFromCart(cart: Cart, userId: string) {
     // Validate that user exists
     await this.usersService.findById(userId);
-
-    // Validate cart is not empty
-    if (!cart.items || cart.items.length === 0) {
-      throw new BadRequestException('Cart is empty');
-    }
 
     // Validate stock for all cart items
     const stockErrors = await this.validateCartStock(cart);
@@ -222,24 +161,6 @@ export class PaymentsService {
       quantity: cartItem.quantity,
       title: product.name,
       unit_price: Number(cartItem.price) / cartItem.quantity, // Price already includes tier logic
-      currency_id: 'ARS',
-    };
-  }
-
-  private async mapCheckoutItemDtoToItemPreference(
-    item: CheckoutItemDto,
-  ): Promise<PreferenceItem> {
-    const product = await this.productsService.findByIdWithDetails(item.id);
-
-    if (!product) {
-      throw new Error(`Product with id ${item.id} not found`);
-    }
-
-    return {
-      id: item.id.toString(),
-      quantity: item.quantity,
-      title: product.name,
-      unit_price: product.price,
       currency_id: 'ARS',
     };
   }
