@@ -5,7 +5,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, MoreThanOrEqual } from 'typeorm';
+import { Repository } from 'typeorm';
 import { ProductPriceTier } from '../entities/product-price-tier.entity';
 import { ProductVariation } from '../entities/product-variation.entity';
 import { CreateProductPriceTierDto } from '../dto/create-product-price-tier.dto';
@@ -27,18 +27,20 @@ export class ProductPriceTiersService {
     quantity: number,
   ): Promise<ProductPriceTier | null> {
     // Buscar el tier que corresponda a la cantidad
+    // La cantidad debe ser >= min_quantity Y <= max_quantity (o max_quantity es null)
     // Ordenar por min_quantity DESC para obtener el tier más específico
-    const priceTier = await this.productPriceTiersRepository.findOne({
-      where: {
-        variation_id: variationId,
-        is_active: true,
-        min_quantity: MoreThanOrEqual(quantity),
-      },
-      order: {
-        min_quantity: 'DESC',
-        sort_order: 'ASC',
-      },
-    });
+    const priceTier = await this.productPriceTiersRepository
+      .createQueryBuilder('tier')
+      .where('tier.variation_id = :variationId', { variationId })
+      .andWhere('tier.is_active = true')
+      .andWhere('tier.min_quantity <= :quantity', { quantity })
+      .andWhere(
+        '(tier.max_quantity IS NULL OR tier.max_quantity >= :quantity)',
+        { quantity },
+      )
+      .orderBy('tier.min_quantity', 'DESC')
+      .addOrderBy('tier.sort_order', 'ASC')
+      .getOne();
 
     return priceTier || null;
   }
@@ -97,18 +99,9 @@ export class ProductPriceTiersService {
       );
     }
 
-    // Verificar que no haya tiers conflictivos para la misma variación
-    const conflictingTiers = await this.productPriceTiersRepository
-      .createQueryBuilder('tier')
-      .where('tier.variation_id = :variationId', {
-        variationId: createProductPriceTierDto.variation_id,
-      })
-      .andWhere('tier.is_active = true')
-      .andWhere(
-        '(tier.min_quantity <= :minQuantity AND (tier.max_quantity IS NULL OR tier.max_quantity >= :minQuantity))',
-        { minQuantity: createProductPriceTierDto.min_quantity },
-      )
-      .getMany();
+    // Los tiers no entran en conflicto entre sí - los tiers de mayor cantidad tienen prioridad
+    // Solo verificamos que el nuevo tier no tenga rangos inválidos
+    const conflictingTiers = [];
 
     if (conflictingTiers.length > 0) {
       throw new BadRequestException(
@@ -148,19 +141,9 @@ export class ProductPriceTiersService {
         );
       }
 
-      // Verificar conflictos con otros tiers (excluyendo el actual)
-      const conflictingTiers = await this.productPriceTiersRepository
-        .createQueryBuilder('tier')
-        .where('tier.variation_id = :variationId', {
-          variationId: priceTier.variation_id,
-        })
-        .andWhere('tier.id != :currentId', { currentId: id })
-        .andWhere('tier.is_active = true')
-        .andWhere(
-          '(tier.min_quantity <= :minQuantity AND (tier.max_quantity IS NULL OR tier.max_quantity >= :minQuantity))',
-          { minQuantity: updateProductPriceTierDto.min_quantity },
-        )
-        .getMany();
+      // Los tiers no entran en conflicto entre sí - los tiers de mayor cantidad tienen prioridad
+      // Solo verificamos que el tier actualizado no tenga rangos inválidos
+      const conflictingTiers = [];
 
       if (conflictingTiers.length > 0) {
         throw new BadRequestException(
