@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
 import { ProductVariationsService } from '@app/products/products.service';
@@ -8,6 +8,8 @@ import { PreferenceRequest } from 'mercadopago/dist/clients/preference/commonTyp
 import { PaymentData } from './types/payment.types';
 import { WebhookNotificationDto } from './dto/webhook.dto';
 import { OrderService } from './services/order.service';
+import { CartService } from '@app/cart/cart.service';
+import { Cart } from '@app/cart/entities/cart.entity';
 
 interface PreferenceItem {
   id: string;
@@ -15,6 +17,13 @@ interface PreferenceItem {
   quantity: number;
   unit_price: number;
   currency_id?: string;
+}
+
+interface StockValidationError {
+  productId: string;
+  productName: string;
+  requestedQuantity: number;
+  availableQuantity: number;
 }
 
 @Injectable()
@@ -27,6 +36,7 @@ export class PaymentsService {
     private productsService: ProductVariationsService,
     private usersService: UsersService,
     private orderService: OrderService,
+    private cartService: CartService,
   ) {
     // Initialize MercadoPago client with the new SDK format
     this.client = new MercadoPagoConfig({
@@ -90,6 +100,130 @@ export class PaymentsService {
         `Failed to create Mercado Pago preference: ${error.message}`,
       );
     }
+  }
+
+  async createCheckoutPreferenceFromCart(cart: Cart, userId: string) {
+    // Validate that user exists
+    await this.usersService.findById(userId);
+
+    // Validate cart is not empty
+    if (!cart.items || cart.items.length === 0) {
+      throw new BadRequestException('Cart is empty');
+    }
+
+    // Validate stock for all cart items
+    const stockErrors = await this.validateCartStock(cart);
+    if (stockErrors.length > 0) {
+      throw new BadRequestException({
+        error: 'INSUFFICIENT_STOCK',
+        problems: stockErrors,
+        message: 'Some products do not have sufficient stock',
+      });
+    }
+
+    // Convert cart items to preference items
+    const items = await Promise.all(
+      cart.items.map(this.mapCartItemToPreferenceItem.bind(this)),
+    );
+
+    // Calculate total amount from cart
+    const totalAmount = cart.totalPrice;
+
+    // Create order using cart data
+    const checkoutItems: CheckoutItemDto[] = cart.items.map((item) => ({
+      id: item.productVariationId,
+      quantity: item.quantity,
+    }));
+
+    const order = await this.orderService.createOrder({
+      userId,
+      items: checkoutItems,
+      totalAmount,
+    });
+
+    const preferenceData: PreferenceRequest = {
+      items,
+      back_urls: {
+        success: this.configService.getOrThrow<string>(
+          'MERCADO_PAGO_SUCCESS_URL',
+        ),
+        failure: this.configService.getOrThrow<string>(
+          'MERCADO_PAGO_FAILURE_URL',
+        ),
+        pending: this.configService.getOrThrow<string>(
+          'MERCADO_PAGO_PENDING_URL',
+        ),
+      },
+      auto_return: 'approved',
+      statement_descriptor: 'LTecDeco',
+      external_reference: order.id,
+      notification_url: this.configService.getOrThrow<string>(
+        'MERCADO_PAGO_WEBHOOK_URL',
+      ),
+    };
+
+    try {
+      const preference = new Preference(this.client);
+      const response = await preference.create({ body: preferenceData });
+      return response;
+    } catch (error: any) {
+      throw new Error(
+        `Failed to create Mercado Pago preference: ${error.message}`,
+      );
+    }
+  }
+
+  private async validateCartStock(cart: Cart): Promise<StockValidationError[]> {
+    const errors: StockValidationError[] = [];
+
+    for (const item of cart.items) {
+      const product = await this.productsService.findByIdWithDetails(
+        item.productVariationId,
+      );
+
+      if (!product) {
+        errors.push({
+          productId: item.productVariationId,
+          productName: 'Unknown Product',
+          requestedQuantity: item.quantity,
+          availableQuantity: 0,
+        });
+        continue;
+      }
+
+      if (product.stock < item.quantity) {
+        errors.push({
+          productId: item.productVariationId,
+          productName: product.name,
+          requestedQuantity: item.quantity,
+          availableQuantity: product.stock,
+        });
+      }
+    }
+
+    return errors;
+  }
+
+  private async mapCartItemToPreferenceItem(
+    cartItem: any,
+  ): Promise<PreferenceItem> {
+    const product = await this.productsService.findByIdWithDetails(
+      cartItem.productVariationId,
+    );
+
+    if (!product) {
+      throw new Error(
+        `Product with id ${cartItem.productVariationId} not found`,
+      );
+    }
+
+    return {
+      id: cartItem.productVariationId.toString(),
+      quantity: cartItem.quantity,
+      title: product.name,
+      unit_price: Number(cartItem.price) / cartItem.quantity, // Price already includes tier logic
+      currency_id: 'ARS',
+    };
   }
 
   private async mapCheckoutItemDtoToItemPreference(
@@ -177,8 +311,11 @@ export class PaymentsService {
       switch (paymentData.status) {
         case 'approved':
           this.logger.log(`Payment ${paymentId} approved.`);
+          // Clear cart after successful payment
+          await this.clearCartAfterPayment(order.userId);
+          // Update inventory after successful payment
+          await this.updateInventory(order);
           // TODO: Send order confirmation email
-          // TODO: Update inventory
           break;
         case 'pending':
           this.logger.log(`Payment ${paymentId} is pending.`);
@@ -196,6 +333,52 @@ export class PaymentsService {
         `Error fetching payment ${paymentId}: ${error.message}`,
       );
       throw error;
+    }
+  }
+
+  private async clearCartAfterPayment(userId: string): Promise<void> {
+    try {
+      // Get user's cart
+      const cart = await this.cartService.getOrCreateCart(userId, undefined);
+
+      if (cart && cart.items && cart.items.length > 0) {
+        // Clear the cart
+        await this.cartService.clearCart(cart.id);
+        this.logger.log(
+          `Cart cleared for user ${userId} after successful payment`,
+        );
+      }
+    } catch (error: any) {
+      this.logger.error(
+        `Failed to clear cart for user ${userId}: ${error.message}`,
+        error.stack,
+      );
+      // Don't throw error - payment was successful, cart clearing is secondary
+    }
+  }
+
+  private async updateInventory(order: any): Promise<void> {
+    try {
+      this.logger.log(`Updating inventory for order ${order.id}`);
+
+      for (const item of order.items) {
+        await this.productsService.updateStock(
+          item.productVariationId,
+          -item.quantity, // Reduce stock by purchased quantity
+        );
+        this.logger.log(
+          `Stock updated for product ${item.productVariationId}: -${item.quantity} units`,
+        );
+      }
+
+      this.logger.log(`Inventory updated successfully for order ${order.id}`);
+    } catch (error: any) {
+      this.logger.error(
+        `Failed to update inventory for order ${order.id}: ${error.message}`,
+        error.stack,
+      );
+      // Don't throw error - payment was successful, inventory update is secondary
+      // But this should be monitored as it could lead to overselling
     }
   }
 }

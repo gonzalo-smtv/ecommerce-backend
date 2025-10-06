@@ -306,4 +306,26 @@ export class ProductVariationsService {
       quantity,
     );
   }
+
+  async updateStock(
+    variationId: string,
+    quantityChange: number,
+  ): Promise<ProductVariation> {
+    const productVariation = await this.findByIdWithDetails(variationId);
+
+    const newStock = productVariation.stock + quantityChange;
+
+    if (newStock < 0) {
+      throw new Error(
+        `Insufficient stock for product variation ${variationId}. Available: ${productVariation.stock}, Requested: ${Math.abs(quantityChange)}`,
+      );
+    }
+
+    await this.productsRepository.update(variationId, {
+      stock: newStock,
+    });
+
+    // Return updated product variation
+    return this.findByIdWithDetails(variationId);
+  }
 }

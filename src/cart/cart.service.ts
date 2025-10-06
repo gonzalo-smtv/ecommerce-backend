@@ -89,10 +89,17 @@ export class CartService {
       );
     }
 
-    // Check stock availability
+    // Check stock availability - comprehensive validation
     if (productVariation.stock <= 0) {
       throw new BadRequestException(
         `Product ${productVariation.name} is out of stock`,
+      );
+    }
+
+    // Check if there's enough stock for the requested quantity
+    if (productVariation.stock < quantity) {
+      throw new BadRequestException(
+        `Only ${productVariation.stock} units available for ${productVariation.name}. Requested: ${quantity}`,
       );
     }
 
@@ -167,6 +174,24 @@ export class CartService {
 
     if (!cartItem) {
       throw new NotFoundException(`Item with ID ${itemId} not found in cart`);
+    }
+
+    // Check stock availability for new quantity
+    const productVariation =
+      await this.productVariationsService.findByIdWithDetails(
+        cartItem.productVariationId,
+      );
+
+    if (!productVariation) {
+      throw new NotFoundException(
+        `Product variation with ID ${cartItem.productVariationId} not found`,
+      );
+    }
+
+    if (productVariation.stock < quantity) {
+      throw new BadRequestException(
+        `Only ${productVariation.stock} units available for ${productVariation.name}. Requested: ${quantity}`,
+      );
     }
 
     // Update quantity and price

@@ -4,37 +4,81 @@ import {
   Post,
   HttpCode,
   UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { PaymentsService } from './payments.service';
-import { CreateCheckoutDto } from './dto/checkout.dto';
 import { WebhookNotificationDto } from './dto/webhook.dto';
 import { CartInfo } from '@app/cart/decorators/cart-info.decorator';
 import type { CartInfoType } from '@app/cart/types/cart-info.type';
+import { CartService } from '@app/cart/cart.service';
 
 @Controller('payments')
 export class PaymentsController {
-  constructor(private readonly paymentsService: PaymentsService) {}
+  constructor(
+    private readonly paymentsService: PaymentsService,
+    private readonly cartService: CartService,
+  ) {}
 
   // ===== POST METHODS (Create Operations) =====
 
   @Post('/mercadopago/checkout')
-  @ApiOperation({ summary: 'Create a Mercado Pago checkout preference' })
+  @ApiOperation({
+    summary: 'Create a Mercado Pago checkout preference from cart',
+    description:
+      'Creates a checkout preference using items from the current cart. Requires authentication and a non-empty cart with sufficient stock.',
+  })
   @ApiResponse({
     status: 201,
     description: 'The checkout preference has been successfully created',
   })
-  async createCheckout(
-    @Body() createCheckoutDto: CreateCheckoutDto,
-    @CartInfo() cartInfo: CartInfoType,
-  ) {
+  @ApiResponse({
+    status: 400,
+    description: 'Cart is empty or insufficient stock for one or more items',
+    schema: {
+      type: 'object',
+      properties: {
+        error: { type: 'string', example: 'INSUFFICIENT_STOCK' },
+        problems: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              productId: { type: 'string' },
+              productName: { type: 'string' },
+              requestedQuantity: { type: 'number' },
+              availableQuantity: { type: 'number' },
+            },
+          },
+        },
+        message: { type: 'string' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'User must be authenticated to create checkout',
+  })
+  async createCheckout(@CartInfo() cartInfo: CartInfoType) {
     if (!cartInfo.userId) {
       throw new UnauthorizedException(
         'User must be authenticated to create checkout',
       );
     }
-    return this.paymentsService.createCheckoutPreference(
-      createCheckoutDto.items,
+
+    // Get current cart
+    const cart = await this.cartService.getOrCreateCart(
+      cartInfo.userId,
+      cartInfo.sessionId,
+    );
+
+    // Validate cart is not empty
+    if (!cart.items || cart.items.length === 0) {
+      throw new BadRequestException('Cart is empty');
+    }
+
+    return this.paymentsService.createCheckoutPreferenceFromCart(
+      cart,
       cartInfo.userId,
     );
   }
