@@ -9,10 +9,20 @@ import { ModerationService } from './services/moderation.service';
 import { Review } from './entities/review.entity';
 import { ProductRatingSummary } from './entities/product-rating-summary.entity';
 import { ReviewImage } from './entities/review-image.entity';
+import { User } from '../users/entities/user.entity';
+import { ProductVariation } from '../products/entities/product-variation.entity';
+import { Order } from '../payments/entities/order.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Review, ProductRatingSummary, ReviewImage]),
+    TypeOrmModule.forFeature([
+      Review,
+      ProductRatingSummary,
+      ReviewImage,
+      User,
+      ProductVariation,
+      Order,
+    ]),
     CacheModule.register(),
   ],
   controllers: [ReviewsController, RatingsController, ModerationController],
