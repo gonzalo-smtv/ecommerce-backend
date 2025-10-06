@@ -39,13 +39,13 @@ export class CartService {
       // Find cart by user ID
       cart = await this.cartRepository.findOne({
         where: { userId },
-        relations: ['items', 'items.product'],
+        relations: ['items', 'items.productVariation'],
       });
     } else if (sessionId) {
       // Find cart by session ID (anonymous users)
       cart = await this.cartRepository.findOne({
         where: { sessionId },
-        relations: ['items', 'items.product'],
+        relations: ['items', 'items.productVariation'],
       });
     }
 
@@ -163,7 +163,7 @@ export class CartService {
 
     const cart = await this.cartRepository.findOne({
       where: { id: cartId },
-      relations: ['items', 'items.product'],
+      relations: ['items', 'items.productVariation'],
     });
 
     if (!cart) {
@@ -218,7 +218,7 @@ export class CartService {
   async removeFromCart(cartId: string, itemId: string): Promise<Cart> {
     const cart = await this.cartRepository.findOne({
       where: { id: cartId },
-      relations: ['items', 'items.product'],
+      relations: ['items', 'items.productVariation'],
     });
 
     if (!cart) {
