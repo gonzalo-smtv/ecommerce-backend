@@ -25,6 +25,7 @@ import { UpdateReviewDto } from '../dto/update-review.dto';
 import { ReviewQueryDto } from '../dto/review-query.dto';
 import { Review } from '../entities/review.entity';
 import { AuthenticatedGuard } from '../../auth/guards/authenticated.guard';
+import { UserInfo } from '../../auth/decorators/user-info.decorator';
 
 @ApiTags('Reviews')
 @Controller('reviews')
@@ -57,9 +58,9 @@ export class ReviewsController {
   })
   async create(
     @Body() createReviewDto: CreateReviewDto,
-    @Request() req: any,
+    @UserInfo() userInfo: any,
   ): Promise<Review> {
-    return this.reviewsService.create(createReviewDto, req.user.id);
+    return this.reviewsService.create(createReviewDto, userInfo.userId);
   }
 
   @Get('product/:productVariationId')
@@ -153,9 +154,9 @@ export class ReviewsController {
   async update(
     @Param('id') id: string,
     @Body() updateReviewDto: UpdateReviewDto,
-    @Request() req: any,
+    @UserInfo() userInfo: any,
   ): Promise<Review> {
-    return this.reviewsService.update(id, updateReviewDto, req.user.id);
+    return this.reviewsService.update(id, updateReviewDto, userInfo.userId);
   }
 
   @Delete(':id')
@@ -187,8 +188,11 @@ export class ReviewsController {
     status: 404,
     description: 'Review no encontrado',
   })
-  async remove(@Param('id') id: string, @Request() req: any): Promise<void> {
-    await this.reviewsService.remove(id, req.user.id);
+  async remove(
+    @Param('id') id: string,
+    @UserInfo() userInfo: any,
+  ): Promise<void> {
+    await this.reviewsService.remove(id, userInfo.userId);
   }
 
   @Post(':id/helpful')

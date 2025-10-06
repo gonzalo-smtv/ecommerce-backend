@@ -9,8 +9,8 @@ import {
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { PaymentsService } from './payments.service';
 import { WebhookNotificationDto } from './dto/webhook.dto';
-import { CartInfo } from '@app/cart/decorators/cart-info.decorator';
-import type { CartInfoType } from '@app/cart/types/cart-info.type';
+import { UserInfo } from '@app/auth/decorators/user-info.decorator';
+import type { UserInfoType } from '@app/auth/decorators/user-info.decorator';
 import { CartService } from '@app/cart/cart.service';
 
 @Controller('payments')
@@ -59,8 +59,8 @@ export class PaymentsController {
     status: 401,
     description: 'User must be authenticated to create checkout',
   })
-  async createCheckout(@CartInfo() cartInfo: CartInfoType) {
-    if (!cartInfo.userId) {
+  async createCheckout(@UserInfo() userInfo: UserInfoType) {
+    if (!userInfo.userId) {
       throw new UnauthorizedException(
         'User must be authenticated to create checkout',
       );
@@ -68,8 +68,8 @@ export class PaymentsController {
 
     // Get current cart
     const cart = await this.cartService.getOrCreateCart(
-      cartInfo.userId,
-      cartInfo.sessionId,
+      userInfo.userId,
+      userInfo.sessionId,
     );
 
     // Validate cart is not empty
@@ -79,7 +79,7 @@ export class PaymentsController {
 
     return this.paymentsService.createCheckoutPreferenceFromCart(
       cart,
-      cartInfo.userId,
+      userInfo.userId,
     );
   }
 

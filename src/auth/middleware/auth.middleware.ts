@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 // User object interface for request extension
-interface AuthenticatedUser {
+export interface AuthenticatedUser {
   id: string;
   type: 'authenticated' | 'anonymous';
   isAuthenticated: boolean;
@@ -17,9 +17,16 @@ declare module 'express-serve-static-core' {
   }
 }
 
+// Session configuration constants
+const SESSION_CONFIG = {
+  cookieName: 'sessionId',
+  maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+  httpOnly: true,
+} as const;
+
 /**
  * Unified middleware for handling both authenticated and anonymous users
- * Checks for x-user-id header (authenticated users) or creates/manages session (anonymous users)
+ * Single source of truth for user identification and session management
  */
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
@@ -35,20 +42,8 @@ export class AuthMiddleware implements NestMiddleware {
         isAnonymous: false,
       };
     } else {
-      // Anonymous user - use existing session or create new one
-      let sessionId =
-        req.cookies?.sessionId || (req.headers['x-session-id'] as string);
-
-      if (!sessionId) {
-        sessionId = uuidv4();
-        res.cookie('sessionId', sessionId, {
-          httpOnly: true,
-          maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-        });
-        if (req.cookies) {
-          req.cookies.sessionId = sessionId;
-        }
-      }
+      // Anonymous user - manage session
+      const sessionId = this.getOrCreateSessionId(req, res);
 
       req.user = {
         id: sessionId,
@@ -59,5 +54,50 @@ export class AuthMiddleware implements NestMiddleware {
     }
 
     next();
+  }
+
+  /**
+   * Get existing session ID or create a new one
+   * @param req Express request object
+   * @param res Express response object
+   * @returns Session ID
+   */
+  private getOrCreateSessionId(req: Request, res: Response): string {
+    // Check for existing session in cookies or headers
+    let sessionId =
+      req.cookies?.[SESSION_CONFIG.cookieName] ||
+      (req.headers['x-session-id'] as string);
+
+    if (!sessionId) {
+      // Create new session
+      sessionId = uuidv4();
+
+      // Set cookie for browser-based clients
+      res.cookie(SESSION_CONFIG.cookieName, sessionId, {
+        httpOnly: SESSION_CONFIG.httpOnly,
+        maxAge: SESSION_CONFIG.maxAge,
+      });
+
+      // Set in request cookies for server-side access
+      if (req.cookies) {
+        req.cookies[SESSION_CONFIG.cookieName] = sessionId;
+      }
+    }
+
+    return sessionId;
+  }
+
+  /**
+   * Static method to get user info from request (for use in decorators)
+   * @param req Express request object
+   * @returns User identification info
+   */
+  static getUserInfo(req: Request): { userId?: string; sessionId?: string } {
+    const userId = req.headers['x-user-id'] as string;
+    const sessionId =
+      req.cookies?.[SESSION_CONFIG.cookieName] ||
+      (req.headers['x-session-id'] as string);
+
+    return { userId, sessionId };
   }
 }
