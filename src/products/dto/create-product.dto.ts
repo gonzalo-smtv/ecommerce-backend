@@ -10,6 +10,13 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateProductDto {
   @ApiProperty({
+    description: 'Product SKU (Stock Keeping Unit) - must be unique',
+    example: 'MES-RUS-001',
+  })
+  @IsString()
+  sku: string;
+
+  @ApiProperty({
     description: 'Product name',
     example: 'Mesa de Comedor Rústica',
   })
@@ -57,6 +64,13 @@ export class CreateProductDto {
 }
 
 export class CreateProductWithImagesDto {
+  @ApiProperty({
+    description: 'Product SKU (Stock Keeping Unit) - must be unique',
+    example: 'MES-RUS-001',
+  })
+  @IsString()
+  sku: string;
+
   @ApiProperty({
     description: 'Product name',
     example: 'Mesa de Comedor Rústica',

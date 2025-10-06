@@ -7,6 +7,7 @@ import {
   Delete,
   Body,
   Param,
+  Req,
   UseInterceptors,
   UploadedFiles,
   Res,
@@ -75,6 +76,7 @@ export class ProductsController {
     schema: {
       type: 'object',
       properties: {
+        sku: { type: 'string', example: 'MES-RUS-001' },
         name: { type: 'string', example: 'Mesa de Comedor Rústica' },
         price: { type: 'number', example: 45000 },
         attributes: {
@@ -95,14 +97,26 @@ export class ProductsController {
           description: 'ProductVariation images (select multiple files)',
         },
       },
-      required: ['name', 'price'],
+      required: ['sku', 'name', 'price'],
     },
   })
   @UseInterceptors(FilesInterceptor('files', 10))
   async create(
-    @Body() productData: CreateProductDto,
+    @Req() request: any,
     @UploadedFiles() files?: Express.Multer.File[],
   ): Promise<ProductVariation> {
+    // Parse form fields from multipart/form-data
+    const productData: CreateProductDto = {
+      sku: request.body.sku,
+      name: request.body.name,
+      price: parseFloat(request.body.price),
+      attributes: request.body.attributes
+        ? JSON.parse(request.body.attributes)
+        : undefined,
+      inStock: request.body.inStock === 'true',
+      template_id: request.body.template_id,
+    };
+
     const product = await this.productsService.create(productData);
 
     if (files && files.length > 0) {
