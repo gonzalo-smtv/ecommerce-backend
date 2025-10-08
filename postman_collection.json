@@ -1,0 +1,1268 @@
+{
+	"info": {
+		"_postman_id": "38705c17-f23a-4663-9e41-5cd53d881eb9",
+		"name": "Ecommerce Backend API",
+		"description": "Complete API collection for the NestJS ecommerce backend with cart, products, users, payments, and more",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "935411"
+	},
+	"item": [
+		{
+			"name": "Health",
+			"item": [
+				{
+					"name": "GET Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"health"
+							]
+						},
+						"description": "Check the health status of the application including database connectivity"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "GET Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Retrieve a list of all users in the system"
+					},
+					"response": []
+				},
+				{
+					"name": "GET Get User by Email",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/:email",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								":email"
+							],
+							"variable": [
+								{
+									"key": "email",
+									"value": "user@example.com",
+									"description": "User email address"
+								}
+							]
+						},
+						"description": "Retrieve a specific user by their email address"
+					},
+					"response": []
+				},
+				{
+					"name": "POST Create User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user@example.com\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"password\": \"Password123!\",\n  \"phoneNumber\": \"+1234567890\",\n  \"address\": \"123 Main St\",\n  \"city\": \"New York\",\n  \"state\": \"NY\",\n  \"zipCode\": \"10001\",\n  \"country\": \"USA\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Create a new user account"
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH Update User",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"Jane\",\n  \"phoneNumber\": \"+1987654321\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "123e4567-e89b-12d3-a456-426614174000",
+									"description": "User ID"
+								}
+							]
+						},
+						"description": "Update an existing user's information"
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "123e4567-e89b-12d3-a456-426614174000",
+									"description": "User ID"
+								}
+							]
+						},
+						"description": "Delete a user account"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Categories",
+			"item": [
+				{
+					"name": "GET Get Category Tree",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/categories/tree",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories",
+								"tree"
+							]
+						},
+						"description": "Retrieve the hierarchical tree structure of all categories"
+					},
+					"response": []
+				},
+				{
+					"name": "POST Create Parent Category",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let responseData=pm.response.json();",
+									"console.log(responseData);",
+									"pm.environment.set(\"parent_category_id\", responseData.id);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Furniture\",\n  \"slug\": \"furniture\",\n  \"description\": \"All types of furniture\",\n  \"image\": \"https://example.com/images/categories/furniture.jpg\",\n  \"icon\": \"mdi:chair\",\n  \"is_active\": true,\n  \"sort_order\": 1,\n  \"level\": 1,\n  \"meta_title\": \"Furniture Collection\",\n  \"meta_description\": \"Browse our furniture categories\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/categories",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories"
+							]
+						},
+						"description": "Create a parent category first (note: actual ID will be returned, use it in subsequent requests)"
+					},
+					"response": []
+				},
+				{
+					"name": "POST Create Child Category",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let responseData=pm.response.json();",
+									"console.log(responseData);",
+									"pm.environment.set(\"category_id\", responseData.id);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Living Room\",\n  \"slug\": \"living-room\",\n  \"description\": \"Comfortable furniture for your living room\",\n  \"parentId\": \"{{parent_category_id}}\",\n  \"image\": \"https://example.com/images/categories/living-room.jpg\",\n  \"icon\": \"mdi:sofa\",\n  \"is_active\": true,\n  \"sort_order\": 1,\n  \"level\": 2,\n  \"meta_title\": \"Living Room Furniture\",\n  \"meta_description\": \"Discover our living room collection\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/categories",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories"
+							]
+						},
+						"description": "Create a child category under the parent category. Set {{parent_category_id}} variable to the ID returned from 'Create Parent Category' request."
+					},
+					"response": []
+				},
+				{
+					"name": "POST Move Category",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"parentId\": \"{{parent_category_id}}\",\n  \"sortOrder\": 2\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/categories/:id/move",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories",
+								":id",
+								"move"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{category_id}}"
+								}
+							]
+						},
+						"description": "Move a category to a new parent or change its sort order"
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH Update Category",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Living Room\",\n  \"description\": \"Updated description\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/categories/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "123e4567-e89b-12d3-a456-426614174000",
+									"description": "Category ID to update"
+								}
+							]
+						},
+						"description": "Update an existing category"
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Delete Category",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/categories/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{category_id}}",
+									"description": "Category ID to delete"
+								}
+							]
+						},
+						"description": "Delete a category"
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Delete All Categories",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/categories/delete-all",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories",
+								"delete-all"
+							]
+						},
+						"description": "Delete all categories (dangerous operation)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Product Templates",
+			"item": [
+				{
+					"name": "GET Get All Product Templates",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/product-templates",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"product-templates"
+							]
+						},
+						"description": "Retrieve all product templates"
+					},
+					"response": []
+				},
+				{
+					"name": "POST Create Product Template",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let responseData=pm.response.json();",
+									"console.log(responseData);",
+									"pm.environment.set(\"product_template_id\", responseData.id);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Dining Table Template\",\n  \"slug\": \"dining-table-template\",\n  \"description\": \"Template for dining tables\",\n  \"specifications\": {\n    \"material\": \"Solid Wood\",\n    \"finish\": \"Natural Oak\",\n    \"seats\": \"6-8 people\",\n    \"shape\": \"Rectangular\",\n    \"length\": \"180cm\",\n    \"width\": \"90cm\",\n    \"height\": \"75cm\"\n  },\n  \"category_ids\": [\n    \"{{category_id}}\"\n  ],\n  \"is_active\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/product-templates",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"product-templates"
+							]
+						},
+						"description": "Create a new product template"
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH Update Product Template",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Dining Table Template\",\n  \"description\": \"Updated description\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/product-templates/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"product-templates",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{product_template_id}}",
+									"description": "Product template ID"
+								}
+							]
+						},
+						"description": "Update an existing product template"
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Delete Product Template",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/product-templates/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"product-templates",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{product_template_id}}",
+									"description": "Product template ID"
+								}
+							]
+						},
+						"description": "Delete a product template"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "GET Get All Products with Details",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/products/with-details",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"products",
+								"with-details"
+							]
+						},
+						"description": "Retrieve all product variations with their details and images"
+					},
+					"response": []
+				},
+				{
+					"name": "GET Get Product Main Image",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/products/:id/image",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"products",
+								":id",
+								"image"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{product_variant_id}}",
+									"description": "Product variation ID"
+								}
+							]
+						},
+						"description": "Get the main image file for a product variation"
+					},
+					"response": []
+				},
+				{
+					"name": "POST Create Product with Images",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let responseData=pm.response.json();",
+									"console.log(responseData);",
+									"pm.environment.set(\"product_variant_id\", responseData.id);",
+									"pm.environment.set(\"image_id\", responseData.images[0].id);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "multipart/form-data"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "sku",
+									"value": "MES-RUS-001",
+									"description": "Product sku",
+									"type": "text"
+								},
+								{
+									"key": "name",
+									"value": "Mesa de Comedor Rústica",
+									"description": "Product name",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "45000",
+									"description": "Product price",
+									"type": "text"
+								},
+								{
+									"key": "attributes",
+									"value": "{\"color\":\"red\",\"size\":\"M\"}",
+									"description": "Product attributes as JSON",
+									"type": "text"
+								},
+								{
+									"key": "inStock",
+									"value": "true",
+									"description": "Whether product is in stock",
+									"type": "text"
+								},
+								{
+									"key": "template_id",
+									"value": "{{product_template_id}}",
+									"description": "Product template ID",
+									"type": "text"
+								},
+								{
+									"key": "files",
+									"description": "Product images (select multiple files)",
+									"type": "file",
+									"src": "/home/sebas/Downloads/IMG_20210612_162546.jpg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/products",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"products"
+							]
+						},
+						"description": "Create a new product variation with multiple images"
+					},
+					"response": []
+				},
+				{
+					"name": "PUT Update Product with Images",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "multipart/form-data"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Updated Product Name",
+									"description": "Updated product name",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "50000",
+									"description": "Updated product price",
+									"type": "text"
+								},
+								{
+									"key": "replaceImages",
+									"value": "false",
+									"description": "Whether to replace existing images",
+									"type": "text"
+								},
+								{
+									"key": "files",
+									"description": "New product images",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/products/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"products",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{product_variant_id}}",
+									"description": "Product variation ID"
+								}
+							]
+						},
+						"description": "Update a product variation with optional new images"
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH Update Product (JSON only)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Product Name\",\n  \"price\": 50000,\n  \"inStock\": false\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/products/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"products",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{product_variant_id}}",
+									"description": "Product variation ID"
+								}
+							]
+						},
+						"description": "Update product data without images"
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Delete Product",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/products/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"products",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{product_variant_id}}",
+									"description": "Product variation ID"
+								}
+							]
+						},
+						"description": "Delete a product variation"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Product Images",
+			"item": [
+				{
+					"name": "GET Get All Images for Product",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/product-variations/:variationId/images",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"product-variations",
+								":variationId",
+								"images"
+							],
+							"variable": [
+								{
+									"key": "variationId",
+									"value": "{{product_variant_id}}",
+									"description": "Product variation ID"
+								}
+							]
+						},
+						"description": "Get all images for a specific product variation"
+					},
+					"response": []
+				},
+				{
+					"name": "GET Get Image File",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/product-variations/:variationId/images/:id/file",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"product-variations",
+								":variationId",
+								"images",
+								":id",
+								"file"
+							],
+							"variable": [
+								{
+									"key": "variationId",
+									"value": "{{product_variant_id}}",
+									"description": "Product variation ID"
+								},
+								{
+									"key": "id",
+									"value": "{{image_id}}",
+									"description": "Image ID"
+								}
+							]
+						},
+						"description": "Get the actual image file"
+					},
+					"response": []
+				},
+				{
+					"name": "POST Upload Images for Product",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "multipart/form-data"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "files",
+									"description": "Image files to upload",
+									"type": "file",
+									"src": "/home/sebas/Downloads/Balsamiq2022.jpg"
+								},
+								{
+									"key": "isMain",
+									"value": "false",
+									"description": "Set as main product image",
+									"type": "text"
+								},
+								{
+									"key": "altText",
+									"value": "Product view from side",
+									"description": "Alternative text for images",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/product-variations/:variationId/images",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"product-variations",
+								":variationId",
+								"images"
+							],
+							"variable": [
+								{
+									"key": "variationId",
+									"value": "{{product_variant_id}}",
+									"description": "Product variation ID"
+								}
+							]
+						},
+						"description": "Upload multiple images for a product variation"
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Delete Product Image",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/product-variations/:variationId/images/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"product-variations",
+								":variationId",
+								"images",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "variationId",
+									"value": "{{product_variant_id}}",
+									"description": "Product variation ID"
+								},
+								{
+									"key": "id",
+									"value": "{{image_id}}",
+									"description": "Image ID"
+								}
+							]
+						},
+						"description": "Delete a specific product image"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Cart",
+			"item": [
+				{
+					"name": "GET Get Current Cart",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/cart",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cart"
+							]
+						},
+						"description": "Get the current user's cart (requires session or authentication)"
+					},
+					"response": []
+				},
+				{
+					"name": "POST Add Product to Cart",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"productId\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"quantity\": 2\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/cart/items",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cart",
+								"items"
+							]
+						},
+						"description": "Add a product to the cart (requires session)"
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH Update Cart Item Quantity",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"quantity\": 3\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/cart/items/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cart",
+								"items",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "123e4567-e89b-12d3-a456-426614174000",
+									"description": "Cart item ID"
+								}
+							]
+						},
+						"description": "Update the quantity of a cart item (requires session)"
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Remove Product from Cart",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/cart/items/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cart",
+								"items",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "123e4567-e89b-12d3-a456-426614174000",
+									"description": "Cart item ID"
+								}
+							]
+						},
+						"description": "Remove a product from the cart (requires session)"
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Clear Cart",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/cart/clear",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cart",
+								"clear"
+							]
+						},
+						"description": "Clear all items from the cart (requires session)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Payments",
+			"item": [
+				{
+					"name": "POST Create MercadoPago Checkout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"items\": [\n    {\n      \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n      \"quantity\": 1\n    },\n    {\n      \"id\": \"987e6543-e21c-12d3-a456-426614174001\",\n      \"quantity\": 3\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/payments/mercadopago/checkout",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"payments",
+								"mercadopago",
+								"checkout"
+							]
+						},
+						"description": "Create a MercadoPago checkout preference (requires user authentication)"
+					},
+					"response": []
+				},
+				{
+					"name": "POST Handle MercadoPago Webhook",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": 1234567890,\n  \"live_mode\": true,\n  \"type\": \"payment\",\n  \"date_created\": \"2024-01-15T10:30:00.000Z\",\n  \"application_id\": 123456789012345,\n  \"user_id\": 123456789,\n  \"api_version\": \"v1\",\n  \"action\": \"payment.created\",\n  \"data\": {\n    \"id\": \"1234567890\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/payments/mercadopago/webhook",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"payments",
+								"mercadopago",
+								"webhook"
+							]
+						},
+						"description": "Handle MercadoPago webhook notifications (called by MercadoPago)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Storage",
+			"item": [
+				{
+					"name": "GET List Files",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/storage/list?path=uploads",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"storage",
+								"list"
+							],
+							"query": [
+								{
+									"key": "path",
+									"value": "uploads",
+									"description": "Directory path to list"
+								}
+							]
+						},
+						"description": "List files in a directory"
+					},
+					"response": []
+				},
+				{
+					"name": "GET Get Signed URL",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/storage/url/:path?expiresIn=60",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"storage",
+								"url",
+								":path"
+							],
+							"query": [
+								{
+									"key": "expiresIn",
+									"value": "60",
+									"description": "Expiration time in seconds"
+								}
+							],
+							"variable": [
+								{
+									"key": "path",
+									"value": "uploads/image.jpg",
+									"description": "File path"
+								}
+							]
+						},
+						"description": "Get a signed URL for file access"
+					},
+					"response": []
+				},
+				{
+					"name": "POST Upload File",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "multipart/form-data"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"description": "File to upload",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "path",
+									"value": "uploads",
+									"description": "Upload path",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/storage/upload",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"storage",
+								"upload"
+							]
+						},
+						"description": "Upload a file to storage"
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Delete File",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/storage/files/:path",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"storage",
+								"files",
+								":path"
+							],
+							"variable": [
+								{
+									"key": "path",
+									"value": "uploads/image.jpg",
+									"description": "File path to delete"
+								}
+							]
+						},
+						"description": "Delete a file from storage"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000/api",
+			"type": "string"
+		}
+	]
+}

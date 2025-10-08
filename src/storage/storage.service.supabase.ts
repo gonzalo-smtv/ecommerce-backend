@@ -5,18 +5,18 @@ import {
   SUPABASE_URL,
   SUPABASE_STORAGE_BUCKET,
 } from '@app/utils/environments';
+import { IStorageService } from './storage.interface';
 
 @Injectable()
-export class StorageService {
+export class StorageServiceSupabase implements IStorageService {
   private supabase: SupabaseClient;
-  private readonly logger = new Logger(StorageService.name);
+  private readonly logger = new Logger(StorageServiceSupabase.name);
 
   constructor() {
     if (!SUPABASE_URL || !SUPABASE_KEY) {
       this.logger.error('Supabase credentials not provided');
       throw new Error('Supabase credentials not provided');
     }
-
     this.supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
     this.logger.log('Supabase client initialized');
   }
@@ -163,7 +163,9 @@ export class StorageService {
       // List all files in the bucket
       const { data: files, error: listError } = await this.supabase.storage
         .from(SUPABASE_STORAGE_BUCKET)
-        .list('', { limit: 1000 });
+        .list('', {
+          limit: 1000,
+        });
 
       if (listError) {
         this.logger.error(

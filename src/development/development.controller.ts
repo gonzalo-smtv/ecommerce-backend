@@ -1,6 +1,12 @@
-import { Controller, Post, Logger, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Logger,
+  BadRequestException,
+  Inject,
+} from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
-import { StorageService } from '../storage/storage.service';
+import type { IStorageService } from '../storage/storage.interface';
 
 @Controller('development')
 export class DevelopmentController {
@@ -8,7 +14,8 @@ export class DevelopmentController {
 
   constructor(
     private readonly databaseService: DatabaseService,
-    private readonly storageService: StorageService,
+    @Inject('StorageService')
+    private readonly storageService: IStorageService,
   ) {}
 
   /**

@@ -1,9 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ProductImage } from './entities/product-image.entity';
 import { ProductVariation } from './entities/product-variation.entity';
-import { StorageService } from '@app/storage/storage.service';
+import type { IStorageService } from '@app/storage/storage.interface';
 import { CacheService } from '@app/cache/cache.service';
 
 @Injectable()
@@ -13,7 +13,8 @@ export class ProductImagesService {
     private productImagesRepository: Repository<ProductImage>,
     @InjectRepository(ProductVariation)
     private productVariationsRepository: Repository<ProductVariation>,
-    private readonly storageService: StorageService,
+    @Inject('StorageService')
+    private readonly storageService: IStorageService,
     private readonly cacheService: CacheService,
   ) {}
 

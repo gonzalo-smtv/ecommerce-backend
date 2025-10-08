@@ -13,6 +13,10 @@ export const DB_NAME = process.env.DB_NAME;
 export const THROTTLE_TTL = Number(process.env.THROTTLE_TTL) || 60000;
 export const THROTTLE_LIMIT = Number(process.env.THROTTLE_LIMIT) || 10;
 
+// Storage configuration
+export const STORAGE_TYPE = process.env.STORAGE_TYPE || 'SUPABASE';
+export const STORAGE_PATH = process.env.STORAGE_PATH || '~/.storage';
+
 // Supabase configuration
 export const SUPABASE_URL = process.env.SUPABASE_URL;
 export const SUPABASE_KEY = process.env.SUPABASE_KEY;

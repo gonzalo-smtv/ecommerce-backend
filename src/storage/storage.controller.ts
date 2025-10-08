@@ -9,16 +9,20 @@ import {
   Query,
   BadRequestException,
   Logger,
+  Inject,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiParam, ApiQuery } from '@nestjs/swagger';
-import { StorageService } from './storage.service';
+import type { IStorageService } from './storage.interface';
 
 @Controller('storage')
 export class StorageController {
   private readonly logger = new Logger(StorageController.name);
 
-  constructor(private readonly storageService: StorageService) {}
+  constructor(
+    @Inject('StorageService')
+    private readonly storageService: IStorageService,
+  ) {}
 
   // ===== GET METHODS (Read Operations) =====
 
