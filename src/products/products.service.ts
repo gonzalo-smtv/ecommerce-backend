@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, Logger } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ProductVariation } from './entities/product-variation.entity';
@@ -6,7 +6,7 @@ import { ProductImage } from './entities/product-image.entity';
 import { ProductTemplate } from './entities/product-template.entity';
 import { Category } from '../categories/entities/category.entity';
 import { CreateProductDto } from './dto/create-product.dto';
-import { StorageService } from '@app/storage/storage.service';
+import type { IStorageService } from '@app/storage/storage.interface';
 import { CacheService } from '@app/cache/cache.service';
 import { ProductPriceTiersService } from './services/product-price-tiers.service';
 
@@ -23,7 +23,8 @@ export class ProductVariationsService {
     private productTemplatesRepository: Repository<ProductTemplate>,
     @InjectRepository(Category)
     private categoriesRepository: Repository<Category>,
-    private readonly storageService: StorageService,
+    @Inject('StorageService')
+    private readonly storageService: IStorageService,
     private readonly cacheService: CacheService,
     private readonly productPriceTiersService: ProductPriceTiersService,
   ) {}

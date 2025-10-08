@@ -1,16 +1,13 @@
 services:
   postgres:
-    container_name: ltecdeco-db
+    container_name: ecommerce-db
     image: postgres:latest
     environment:
-      POSTGRES_DB: ltecdeco
+      POSTGRES_DB: ecommerce_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       PGDATA: /data/postgres
     volumes:
-      - postgres:/data/postgres
+      - ./.db:/data/postgres
     ports:
-      - "5432:5432"
-
-volumes:
-  postgres:
+      - '5432:5432'

@@ -36,3 +36,7 @@ yarn-error.log*
 Thumbs.db
 
 cache/images
+
+# docker
+.db/
+.storage/
