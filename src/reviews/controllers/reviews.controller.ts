@@ -11,13 +11,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiParam,
-  ApiQuery,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { ReviewsService } from '../services/reviews.service';
 import { CreateReviewDto } from '../dto/create-review.dto';
 import { UpdateReviewDto } from '../dto/update-review.dto';
@@ -73,7 +67,6 @@ export class ReviewsController {
     description: 'ID de la variación del producto',
     example: '123e4567-e89b-12d3-a456-426614174000',
   })
-  @ApiQuery({ type: ReviewQueryDto })
   @ApiResponse({
     status: 200,
     description: 'Lista de reviews obtenida exitosamente',
