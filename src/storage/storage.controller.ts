@@ -12,9 +12,17 @@ import {
   Inject,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiConsumes, ApiParam, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiConsumes,
+  ApiParam,
+  ApiQuery,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import type { IStorageService } from './storage.interface';
 
+@ApiTags('Storage')
 @Controller('storage')
 export class StorageController {
   private readonly logger = new Logger(StorageController.name);
@@ -27,16 +35,28 @@ export class StorageController {
   // ===== GET METHODS (Read Operations) =====
 
   @Get('list')
+  @ApiOperation({
+    summary: 'List files in storage',
+    description: 'Lists files and directories in the specified path',
+  })
   @ApiQuery({
     name: 'path',
     required: false,
     description: 'Directory path to list',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Files listed successfully',
   })
   async listFiles(@Query('path') path?: string) {
     return await this.storageService.listFiles(path);
   }
 
   @Get('url/:path')
+  @ApiOperation({
+    summary: 'Get signed URL for file',
+    description: 'Generates a signed URL for accessing a file',
+  })
   @ApiParam({
     name: 'path',
     required: true,
@@ -46,6 +66,16 @@ export class StorageController {
     name: 'expiresIn',
     required: false,
     description: 'Expiration time in seconds (default: 60)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Signed URL generated successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        url: { type: 'string', description: 'The signed URL' },
+      },
+    },
   })
   async getSignedUrl(
     @Param('path') path: string,
@@ -61,7 +91,24 @@ export class StorageController {
   // ===== POST METHODS (Create Operations) =====
 
   @Post('upload')
+  @ApiOperation({
+    summary: 'Upload a file',
+    description: 'Uploads a file to storage',
+  })
   @ApiConsumes('multipart/form-data')
+  @ApiQuery({
+    name: 'path',
+    required: false,
+    description: 'Target path for the uploaded file',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'File uploaded successfully',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'No file uploaded',
+  })
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
@@ -82,10 +129,24 @@ export class StorageController {
   // ===== DELETE METHODS (Delete Operations) =====
 
   @Delete('files/:path')
+  @ApiOperation({
+    summary: 'Delete a file',
+    description: 'Deletes a file from storage',
+  })
   @ApiParam({
     name: 'path',
     required: true,
     description: 'Path of the file to delete',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'File deleted successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'File deleted successfully' },
+      },
+    },
   })
   async deleteFile(@Param('path') path: string) {
     await this.storageService.deleteFile(path);

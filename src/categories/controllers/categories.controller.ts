@@ -9,18 +9,29 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CategoriesService } from '../services/categories.service';
 import { CreateCategoryDto } from '../dto/create-category.dto';
 import { UpdateCategoryDto } from '../dto/update-category.dto';
 import { MoveCategoryDto } from '../dto/move-category.dto';
 
+@ApiTags('Categories')
 @Controller('categories')
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   // ===== GET METHODS (Read Operations) =====
+
   @Get('tree')
+  @ApiOperation({
+    summary: 'Get category tree',
+    description:
+      'Retrieves the complete category hierarchy as a tree structure',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Category tree retrieved successfully',
+  })
   getCategoryTree() {
     return this.categoriesService.getCategoryTree();
   }
@@ -115,12 +126,37 @@ export class CategoriesController {
 
   @Delete('delete-all')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Delete all categories',
+    description: 'Removes all categories from the system',
+  })
+  @ApiResponse({
+    status: 204,
+    description: 'All categories deleted successfully',
+  })
   deleteAll() {
     return this.categoriesService.deleteAll();
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Delete a category',
+    description: 'Removes a specific category by ID',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Category ID to delete',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @ApiResponse({
+    status: 204,
+    description: 'Category deleted successfully',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Category not found',
+  })
   remove(@Param('id') id: string) {
     return this.categoriesService.remove(id);
   }

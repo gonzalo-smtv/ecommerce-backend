@@ -5,9 +5,11 @@ import {
   BadRequestException,
   Inject,
 } from '@nestjs/common';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { DatabaseService } from '../database/database.service';
 import type { IStorageService } from '../storage/storage.interface';
 
+@ApiTags('Development')
 @Controller('development')
 export class DevelopmentController {
   private readonly logger = new Logger(DevelopmentController.name);
@@ -22,6 +24,30 @@ export class DevelopmentController {
    * Clear all database data and storage files (development only)
    */
   @Post('clear-database')
+  @ApiOperation({
+    summary: 'Clear database and storage (development only)',
+    description:
+      'Clears all database data and storage files. Only available in development environment.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Database and storage cleared successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean', example: true },
+        message: {
+          type: 'string',
+          example: 'Database and storage cleared successfully',
+        },
+        data: { type: 'object' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Endpoint not available in production',
+  })
   async clearDatabase() {
     // Basic protection - only allow in development
     const nodeEnv = process.env.NODE_ENV || 'development';

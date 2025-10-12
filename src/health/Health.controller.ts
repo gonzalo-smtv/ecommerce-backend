@@ -1,5 +1,6 @@
 import { getVersionFromPackageJson } from '@app/utils';
 import { Controller, Get } from '@nestjs/common';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import {
   HealthCheck,
@@ -7,6 +8,7 @@ import {
   TypeOrmHealthIndicator,
 } from '@nestjs/terminus';
 
+@ApiTags('Health')
 @Controller('health')
 export class HealthController {
   constructor(
@@ -15,6 +17,23 @@ export class HealthController {
   ) {}
 
   @Get()
+  @ApiOperation({
+    summary: 'Health check',
+    description:
+      'Checks the health status of the application and its dependencies',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Application is healthy',
+    schema: {
+      type: 'object',
+      properties: {
+        status: { type: 'string', example: 'ok' },
+        version: { type: 'string', example: '1.0.0' },
+        checks: { type: 'object' },
+      },
+    },
+  })
   @HealthCheck()
   async check() {
     return {

@@ -19,7 +19,12 @@ import { ProductImagesService } from './product-images.service';
 import { ProductVariation } from './entities/product-variation.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { ApiConsumes, ApiBody, ApiOperation } from '@nestjs/swagger';
+import {
+  ApiConsumes,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 
 @Controller('products')
 export class ProductsController {
@@ -31,6 +36,12 @@ export class ProductsController {
   // ===== GET METHODS (Read Operations) =====
 
   @Get('with-details')
+  @ApiOperation({ summary: 'Get all products with details' })
+  @ApiResponse({
+    status: 200,
+    description: 'Products found',
+    type: [ProductVariation],
+  })
   findAllWithDetails(): Promise<ProductVariation[]> {
     return this.productsService.findAllWithDetails();
   }

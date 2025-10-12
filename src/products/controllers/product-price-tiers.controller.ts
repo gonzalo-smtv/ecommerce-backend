@@ -43,11 +43,32 @@ export class ProductPriceTiersController {
   }
 
   @Get()
+  @ApiOperation({
+    summary: 'Get all product price tiers',
+    description: 'Retrieves all product price tiers',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Product price tiers retrieved successfully',
+  })
   findAll() {
     return this.productPriceTiersService.findAll();
   }
 
   @Get('by-variation/:variationId')
+  @ApiOperation({
+    summary: 'Get price tiers by product variation',
+    description: 'Retrieves all price tiers for a specific product variation',
+  })
+  @ApiParam({
+    name: 'variationId',
+    description: 'Product variation ID',
+    example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Price tiers retrieved successfully',
+  })
   findByVariation(@Param('variationId', ParseUUIDPipe) variationId: string) {
     return this.productPriceTiersService.findByVariation(variationId);
   }
@@ -98,11 +119,45 @@ export class ProductPriceTiersController {
   }
 
   @Get(':id')
+  @ApiOperation({
+    summary: 'Get a product price tier by ID',
+    description: 'Retrieves a specific product price tier',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Product price tier ID',
+    example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Product price tier retrieved successfully',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Product price tier not found',
+  })
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.productPriceTiersService.findOne(id);
   }
 
   @Patch(':id')
+  @ApiOperation({
+    summary: 'Update a product price tier',
+    description: 'Updates an existing product price tier',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Product price tier ID',
+    example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Product price tier updated successfully',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Product price tier not found',
+  })
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateProductPriceTierDto: UpdateProductPriceTierDto,
@@ -111,6 +166,23 @@ export class ProductPriceTiersController {
   }
 
   @Delete(':id')
+  @ApiOperation({
+    summary: 'Delete a product price tier',
+    description: 'Removes a product price tier',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Product price tier ID',
+    example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Product price tier deleted successfully',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Product price tier not found',
+  })
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.productPriceTiersService.remove(id);
   }
