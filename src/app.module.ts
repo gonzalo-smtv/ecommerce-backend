@@ -31,6 +31,7 @@ import { THROTTLE_LIMIT, THROTTLE_TTL } from '@app/utils/environments';
         synchronize: false,
         migrations: ['dist/database/migrations/*.js'],
         migrationsRun: true,
+        logging: true,
       }),
     }),
     // Brute force protection

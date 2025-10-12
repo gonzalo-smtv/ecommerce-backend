@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from '@app/app.module';
 import { PORT } from '@app/utils/environments';
 import { AuthMiddleware } from '@app/auth/middleware/auth.middleware';
+import { GlobalExceptionFilter } from '@app/global-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -26,6 +27,9 @@ async function bootstrap() {
       transform: true, // Automatically transform types
     }),
   );
+
+  // Apply global exception filter
+  app.useGlobalFilters(new GlobalExceptionFilter());
 
   // Swagger configuration
   const config = new DocumentBuilder()
