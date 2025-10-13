@@ -1,25 +1,21 @@
 import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import * as fs from 'fs';
-import { join, dirname, resolve } from 'path';
-import { homedir } from 'os';
+import { join, dirname } from 'path';
 import { STORAGE_PATH } from '@app/utils/environments';
 import { IStorageService } from './storage.interface';
 
+export const LOCAL_STORAGE = '{{LOCAL_STORAGE}}';
 @Injectable()
 export class StorageServiceLocal implements IStorageService {
-  private localStoragePath: string;
   private readonly logger = new Logger(StorageServiceLocal.name);
 
   constructor() {
-    this.localStoragePath = resolve(homedir(), STORAGE_PATH.replace(/^~/, ''));
     // Ensure directory exists
-    if (!fs.existsSync(this.localStoragePath)) {
-      fs.mkdirSync(this.localStoragePath, { recursive: true });
-      this.logger.log(
-        `Created local storage directory: ${this.localStoragePath}`,
-      );
+    if (!fs.existsSync(STORAGE_PATH)) {
+      fs.mkdirSync(STORAGE_PATH, { recursive: true });
+      this.logger.log(`Created local storage directory: ${STORAGE_PATH}`);
     }
-    this.logger.log(`Local storage initialized at: ${this.localStoragePath}`);
+    this.logger.log(`Local storage initialized at: ${STORAGE_PATH}`);
   }
 
   /**
@@ -41,7 +37,7 @@ export class StorageServiceLocal implements IStorageService {
       const fileExt = file.originalname.split('.').pop();
       const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
       const relativePath = path ? `${path}/${fileName}` : fileName;
-      const fullPath = join(this.localStoragePath, relativePath);
+      const fullPath = join(STORAGE_PATH, relativePath);
 
       // Ensure the directory exists
       const dir = dirname(fullPath);
@@ -53,7 +49,7 @@ export class StorageServiceLocal implements IStorageService {
       fs.writeFileSync(fullPath, file.buffer);
 
       return Promise.resolve({
-        url: fullPath, // For local, return the full path as URL
+        url: await this.getSignedUrl(relativePath),
         path: relativePath,
       });
     } catch (error: any) {
@@ -68,7 +64,7 @@ export class StorageServiceLocal implements IStorageService {
    */
   async deleteFile(filePath: string): Promise<void> {
     try {
-      const fullPath = join(this.localStoragePath, filePath);
+      const fullPath = join(STORAGE_PATH, filePath);
       if (!fs.existsSync(fullPath)) {
         this.logger.warn(`File not found: ${fullPath}`);
         throw new BadRequestException(`File not found: ${filePath}`);
@@ -88,7 +84,7 @@ export class StorageServiceLocal implements IStorageService {
    */
   async listFiles(path: string = ''): Promise<any[]> {
     try {
-      const dirPath = join(this.localStoragePath, path);
+      const dirPath = join(STORAGE_PATH, path);
       if (!fs.existsSync(dirPath)) {
         return [];
       }
@@ -119,11 +115,13 @@ export class StorageServiceLocal implements IStorageService {
   getSignedUrl(filePath: string): Promise<string> {
     try {
       // For local storage, return the full path as "signed URL"
-      const fullPath = join(this.localStoragePath, filePath);
+      const fullPath = join(STORAGE_PATH, filePath);
       if (!fs.existsSync(fullPath)) {
         throw new BadRequestException(`File not found: ${filePath}`);
       }
-      return Promise.resolve(fullPath);
+
+      const signedUrl = `${LOCAL_STORAGE}/${filePath}`;
+      return Promise.resolve(signedUrl);
     } catch (error: any) {
       this.logger.error(`Error in getSignedUrl: ${error.message}`, error);
       throw new BadRequestException(
@@ -140,12 +138,12 @@ export class StorageServiceLocal implements IStorageService {
     try {
       this.logger.log('Starting local storage cleanup...');
 
-      if (!fs.existsSync(this.localStoragePath)) {
+      if (!fs.existsSync(STORAGE_PATH)) {
         this.logger.log('Local storage directory does not exist');
         return Promise.resolve({ filesDeleted: 0 });
       }
 
-      const files = fs.readdirSync(this.localStoragePath);
+      const files = fs.readdirSync(STORAGE_PATH);
       if (files.length === 0) {
         this.logger.log('No files found in local storage');
         return Promise.resolve({ filesDeleted: 0 });
@@ -153,7 +151,7 @@ export class StorageServiceLocal implements IStorageService {
 
       let deletedCount = 0;
       for (const file of files) {
-        const filePath = join(this.localStoragePath, file);
+        const filePath = join(STORAGE_PATH, file);
         if (fs.statSync(filePath).isFile()) {
           fs.unlinkSync(filePath);
           deletedCount++;

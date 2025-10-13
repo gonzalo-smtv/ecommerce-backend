@@ -33,7 +33,7 @@ export class Category {
   description: string;
 
   @Column({ type: 'uuid', nullable: true })
-  parentId: string;
+  parentId: string | null;
 
   @Column({ type: 'int', default: 1 })
   level: number;

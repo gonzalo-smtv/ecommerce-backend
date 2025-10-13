@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class CreateCategoryDto {
+export class PutCategoryDto {
   @ApiProperty({
     description: 'Category name',
     example: 'Living Room',

@@ -4,6 +4,7 @@ import {
   Post,
   Body,
   Patch,
+  Put,
   Param,
   Delete,
   HttpCode,
@@ -13,6 +14,7 @@ import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CategoriesService } from '../services/categories.service';
 import { CreateCategoryDto } from '../dto/create-category.dto';
 import { UpdateCategoryDto } from '../dto/update-category.dto';
+import { PutCategoryDto } from '../dto/put-category.dto';
 import { MoveCategoryDto } from '../dto/move-category.dto';
 
 @ApiTags('Categories')
@@ -34,6 +36,29 @@ export class CategoriesController {
   })
   getCategoryTree() {
     return this.categoriesService.getCategoryTree();
+  }
+
+  @Get(':id')
+  @ApiOperation({
+    summary: 'Get a category by ID',
+    description:
+      'Retrieves a single category with its parent and children relations',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Category ID to retrieve',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Category retrieved successfully',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Category not found',
+  })
+  findOne(@Param('id') id: string) {
+    return this.categoriesService.findOne(id);
   }
 
   // ===== POST METHODS (Create Operations) =====
@@ -92,6 +117,33 @@ export class CategoriesController {
   }
 
   // ===== PATCH METHODS (Update Operations) =====
+
+  @Put(':id')
+  @ApiOperation({
+    summary: 'Replace a category',
+    description:
+      'Fully replaces an existing category with the provided data (all fields required)',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Category ID to replace',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Category replaced successfully',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - validation error or business logic violation',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Category not found',
+  })
+  replace(@Param('id') id: string, @Body() putCategoryDto: PutCategoryDto) {
+    return this.categoriesService.update(id, putCategoryDto);
+  }
 
   @Patch(':id')
   @ApiOperation({
