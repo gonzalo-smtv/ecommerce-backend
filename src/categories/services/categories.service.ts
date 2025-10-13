@@ -113,8 +113,8 @@ export class CategoriesService {
       updateCategoryDto.level = parent.level + 1;
     }
 
-    Object.assign(category, updateCategoryDto);
-    await this.categoriesRepository.save(category);
+    updateCategoryDto.id = category.id;
+    await this.categoriesRepository.save(updateCategoryDto);
 
     return this.findOne(id);
   }

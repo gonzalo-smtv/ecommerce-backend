@@ -7,6 +7,7 @@ import {
   UploadedFile,
   Param,
   Query,
+  Body,
   BadRequestException,
   Logger,
   Inject,
@@ -52,7 +53,7 @@ export class StorageController {
     return await this.storageService.listFiles(path);
   }
 
-  @Get('url/:path')
+  @Get('url')
   @ApiOperation({
     summary: 'Get signed URL for file',
     description: 'Generates a signed URL for accessing a file',
@@ -78,7 +79,7 @@ export class StorageController {
     },
   })
   async getSignedUrl(
-    @Param('path') path: string,
+    @Query('path') path: string,
     @Query('expiresIn') expiresIn?: number,
   ) {
     const expiration = expiresIn
@@ -96,11 +97,6 @@ export class StorageController {
     description: 'Uploads a file to storage',
   })
   @ApiConsumes('multipart/form-data')
-  @ApiQuery({
-    name: 'path',
-    required: false,
-    description: 'Target path for the uploaded file',
-  })
   @ApiResponse({
     status: 201,
     description: 'File uploaded successfully',
@@ -112,14 +108,14 @@ export class StorageController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
-    @Query('path') path?: string,
+    @Body() body: { path?: string },
   ) {
     if (!file) {
       throw new BadRequestException('No file uploaded');
     }
 
     try {
-      return await this.storageService.uploadFile(file, path);
+      return await this.storageService.uploadFile(file, body.path);
     } catch (error) {
       this.logger.error('Error uploading file', error);
       throw error;
