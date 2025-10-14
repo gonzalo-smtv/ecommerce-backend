@@ -36,6 +36,28 @@ export class ProductTemplatesController {
     return this.productTemplatesService.findAll();
   }
 
+  @Get(':id')
+  @ApiOperation({
+    summary: 'Get a product template by ID',
+    description: 'Retrieves a single product template by its ID',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Product template ID',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Product template retrieved successfully',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Product template not found',
+  })
+  findOne(@Param('id') id: string) {
+    return this.productTemplatesService.findOne(id);
+  }
+
   // ===== POST METHODS (Create Operations) =====
 
   @Post()
