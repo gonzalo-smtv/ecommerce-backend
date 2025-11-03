@@ -75,7 +75,14 @@ export class CategoriesService {
     id: string,
     updateCategoryDto: UpdateCategoryDto,
   ): Promise<Category> {
-    const category = await this.findOne(id);
+    // Fetch category without relations to avoid save conflicts
+    const category = await this.categoriesRepository.findOne({
+      where: { id },
+    });
+
+    if (!category) {
+      throw new NotFoundException(`Category with ID ${id} not found`);
+    }
 
     // Check if slug is being changed and if it already exists
     if (updateCategoryDto.slug && updateCategoryDto.slug !== category.slug) {
@@ -92,29 +99,45 @@ export class CategoriesService {
 
     // If parentId is being changed, verify parent exists and update level
     if (
-      updateCategoryDto.parentId &&
+      updateCategoryDto.parentId !== undefined &&
       updateCategoryDto.parentId !== category.parentId
     ) {
       if (updateCategoryDto.parentId === id) {
         throw new BadRequestException('Category cannot be its own parent');
       }
 
-      const parent = await this.categoriesRepository.findOne({
-        where: { id: updateCategoryDto.parentId },
-      });
+      if (updateCategoryDto.parentId) {
+        const parent = await this.categoriesRepository.findOne({
+          where: { id: updateCategoryDto.parentId },
+        });
 
-      if (!parent) {
-        throw new NotFoundException(
-          `Parent category with ID ${updateCategoryDto.parentId} not found`,
-        );
+        if (!parent) {
+          throw new NotFoundException(
+            `Parent category with ID ${updateCategoryDto.parentId} not found`,
+          );
+        }
+
+        // Set level based on parent level
+        updateCategoryDto.level = parent.level + 1;
+
+        // Update levels of all descendant categories
+        await this.updateDescendantLevels(id, updateCategoryDto.level + 1);
+      } else {
+        // If parentId is being set to null, set level to 1
+        updateCategoryDto.level = 1;
+        await this.updateDescendantLevels(id, 2);
       }
-
-      // Set level based on parent level
-      updateCategoryDto.level = parent.level + 1;
     }
 
-    updateCategoryDto.id = category.id;
-    await this.categoriesRepository.save(updateCategoryDto);
+    // Apply only the provided fields to the category, filtering out undefined values
+    const filteredDto = Object.fromEntries(
+      Object.entries(updateCategoryDto).filter(
+        ([, value]) => value !== undefined,
+      ),
+    );
+    Object.assign(category, filteredDto);
+
+    await this.categoriesRepository.save(category);
 
     return this.findOne(id);
   }
@@ -207,15 +230,53 @@ export class CategoriesService {
     }
   }
 
+  private async updateDescendantLevels(
+    parentId: string,
+    newLevel: number,
+  ): Promise<void> {
+    const descendants = await this.categoriesRepository.find({
+      where: { parentId },
+    });
+
+    for (const descendant of descendants) {
+      descendant.level = newLevel;
+      await this.categoriesRepository.save(descendant);
+
+      // Recursively update deeper descendants
+      await this.updateDescendantLevels(descendant.id, newLevel + 1);
+    }
+  }
+
   async moveCategory(
     id: string,
     moveData: { parentId?: string; sortOrder?: number },
   ): Promise<Category> {
-    const category = await this.findOne(id);
+    // Fetch category without relations to avoid save conflicts
+    const category = await this.categoriesRepository.findOne({
+      where: { id },
+    });
+
+    if (!category) {
+      throw new NotFoundException(`Category with ID ${id} not found`);
+    }
 
     if (moveData.parentId) {
       if (moveData.parentId === id) {
         throw new BadRequestException('Category cannot be its own parent');
+      }
+
+      // Prevent moving a category under one of its own descendants
+      const descendants = await this.categoriesRepository.find({
+        where: { parentId: id },
+      });
+
+      const isDescendant = descendants.some(
+        (desc) => desc.id === moveData.parentId,
+      );
+      if (isDescendant) {
+        throw new BadRequestException(
+          'Cannot move category under one of its descendants',
+        );
       }
 
       const parent = await this.categoriesRepository.findOne({
@@ -230,6 +291,9 @@ export class CategoriesService {
 
       category.parentId = moveData.parentId;
       category.level = parent.level + 1;
+
+      // Update levels of all descendant categories
+      await this.updateDescendantLevels(id, category.level + 1);
     }
 
     if (moveData.sortOrder !== undefined) {
