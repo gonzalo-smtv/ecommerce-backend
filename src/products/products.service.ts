@@ -33,17 +33,14 @@ export class ProductVariationsService {
     this.logger.log('Creating a new product...');
     console.log('productData: ', productData);
 
-    // If template_id is provided, verify template exists
-    if (productData.template_id) {
-      const template = await this.productTemplatesRepository.findOne({
-        where: { id: productData.template_id },
-      });
+    const template = await this.productTemplatesRepository.findOne({
+      where: { id: productData.template_id },
+    });
 
-      if (!template) {
-        throw new NotFoundException(
-          `Product template with ID ${productData.template_id} not found`,
-        );
-      }
+    if (!template) {
+      throw new NotFoundException(
+        `Product template with ID ${productData.template_id} not found`,
+      );
     }
 
     const product = this.productsRepository.create(productData);

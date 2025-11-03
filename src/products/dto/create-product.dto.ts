@@ -54,13 +54,12 @@ export class CreateProductDto {
   @IsBoolean()
   inStock?: boolean;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'Product template ID to associate with this product',
     example: '123e4567-e89b-12d3-a456-426614174000',
   })
-  @IsOptional()
   @IsUUID()
-  template_id?: string;
+  template_id: string;
 }
 
 export class CreateProductWithImagesDto {
@@ -121,11 +120,10 @@ export class CreateProductWithImagesDto {
   @IsOptional()
   files?: any[];
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'Product template ID to associate with this product',
     example: '123e4567-e89b-12d3-a456-426614174000',
   })
-  @IsOptional()
   @IsUUID()
-  template_id?: string;
+  template_id: string;
 }
