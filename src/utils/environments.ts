@@ -16,6 +16,7 @@ export const THROTTLE_LIMIT = Number(process.env.THROTTLE_LIMIT) || 10;
 // Storage configuration
 export const STORAGE_TYPE = process.env.STORAGE_TYPE || 'SUPABASE';
 export const STORAGE_PATH = process.env.STORAGE_PATH || '~/.storage';
+export const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3001';
 
 // Supabase configuration
 export const SUPABASE_URL = process.env.SUPABASE_URL;

@@ -43,8 +43,8 @@ export class ImageController {
     const url = await this.storageService.getSignedUrl(path);
     let imageBuffer: Buffer<ArrayBufferLike> | null;
     if (url.startsWith(LOCAL_STORAGE)) {
-      const localUrl = url.replace(LOCAL_STORAGE, STORAGE_PATH);
-      imageBuffer = await readFileAsync(localUrl);
+      const localFile = url.replace(LOCAL_STORAGE, STORAGE_PATH);
+      imageBuffer = await readFileAsync(localFile);
     } else {
       imageBuffer = await this.cacheService.getImage(url);
     }

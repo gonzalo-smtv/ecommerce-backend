@@ -11,6 +11,7 @@ import { ProductVariation } from '../entities/product-variation.entity';
 import { Category } from '../../categories/entities/category.entity';
 import { CreateProductTemplateDto } from '../dto/create-product-template.dto';
 import { UpdateProductTemplateDto } from '../dto/update-product-template.dto';
+import { BACKEND_URL } from '@app/utils/environments';
 
 @Injectable()
 export class ProductTemplatesService {
@@ -26,7 +27,7 @@ export class ProductTemplatesService {
   ) {}
 
   async findAll(): Promise<ProductTemplate[]> {
-    return this.productTemplatesRepository.find({
+    const res = await this.productTemplatesRepository.find({
       relations: [
         'categories',
         'variations',
@@ -36,6 +37,17 @@ export class ProductTemplatesService {
       ],
       order: { name: 'ASC' },
     });
+
+    // Transform image URLs to full URLs
+    res.forEach((template) => {
+      template.variations.forEach((variation) => {
+        variation.images.forEach((image) => {
+          image.url = `${BACKEND_URL}/api/images?path=${image.path}`;
+        });
+      });
+    });
+
+    return res;
   }
 
   async findOne(id: string): Promise<ProductTemplate> {
@@ -53,6 +65,13 @@ export class ProductTemplatesService {
     if (!template) {
       throw new NotFoundException(`Product template with ID ${id} not found`);
     }
+
+    // Transform image URLs to full URLs
+    template.variations.forEach((variation) => {
+      variation.images.forEach((image) => {
+        image.url = `${BACKEND_URL}/api/images?path=${image.path}`;
+      });
+    });
 
     return template;
   }
