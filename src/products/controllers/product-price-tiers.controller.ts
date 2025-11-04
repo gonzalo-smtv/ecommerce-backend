@@ -28,20 +28,6 @@ export class ProductPriceTiersController {
     private readonly productPriceTiersService: ProductPriceTiersService,
   ) {}
 
-  @Post()
-  @ApiOperation({
-    summary: 'Crear un nuevo tier de precio',
-    description:
-      'Crea un nuevo rango de precio basado en cantidad para una variación de producto',
-  })
-  @ApiResponse({
-    status: 201,
-    description: 'Tier de precio creado exitosamente',
-  })
-  create(@Body() createProductPriceTierDto: CreateProductPriceTierDto) {
-    return this.productPriceTiersService.create(createProductPriceTierDto);
-  }
-
   @Get()
   @ApiOperation({
     summary: 'Get all product price tiers',
@@ -53,24 +39,6 @@ export class ProductPriceTiersController {
   })
   findAll() {
     return this.productPriceTiersService.findAll();
-  }
-
-  @Get('by-variation/:variationId')
-  @ApiOperation({
-    summary: 'Get price tiers by product variation',
-    description: 'Retrieves all price tiers for a specific product variation',
-  })
-  @ApiParam({
-    name: 'variationId',
-    description: 'Product variation ID',
-    example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Price tiers retrieved successfully',
-  })
-  findByVariation(@Param('variationId', ParseUUIDPipe) variationId: string) {
-    return this.productPriceTiersService.findByVariation(variationId);
   }
 
   @Get('price/:variationId')
@@ -118,26 +86,18 @@ export class ProductPriceTiersController {
     return { price, quantity: quantityNum };
   }
 
-  @Get(':id')
+  @Post()
   @ApiOperation({
-    summary: 'Get a product price tier by ID',
-    description: 'Retrieves a specific product price tier',
-  })
-  @ApiParam({
-    name: 'id',
-    description: 'Product price tier ID',
-    example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+    summary: 'Crear un nuevo tier de precio',
+    description:
+      'Crea un nuevo rango de precio basado en cantidad para una variación de producto',
   })
   @ApiResponse({
-    status: 200,
-    description: 'Product price tier retrieved successfully',
+    status: 201,
+    description: 'Tier de precio creado exitosamente',
   })
-  @ApiResponse({
-    status: 404,
-    description: 'Product price tier not found',
-  })
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.productPriceTiersService.findOne(id);
+  create(@Body() createProductPriceTierDto: CreateProductPriceTierDto) {
+    return this.productPriceTiersService.create(createProductPriceTierDto);
   }
 
   @Patch(':id')

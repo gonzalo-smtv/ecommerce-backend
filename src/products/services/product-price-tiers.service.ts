@@ -47,7 +47,6 @@ export class ProductPriceTiersService {
 
   async findAll(): Promise<ProductPriceTier[]> {
     return this.productPriceTiersRepository.find({
-      relations: ['variation'],
       order: { variation_id: 'ASC', sort_order: 'ASC', min_quantity: 'ASC' },
     });
   }
