@@ -15,6 +15,7 @@ import { ProductTemplate } from './product-template.entity';
 import { ProductImage } from './product-image.entity';
 import { ProductPriceTier } from './product-price-tier.entity';
 import { Category } from '../../categories/entities/category.entity';
+import { Review } from '../../reviews/entities/review.entity';
 
 @Entity('product_variations')
 @Index(['template_id'])
@@ -75,6 +76,12 @@ export class ProductVariation {
     inverseJoinColumn: { name: 'category_id', referencedColumnName: 'id' },
   })
   categories: Category[];
+
+  @OneToMany(() => Review, (review) => review.productVariation, {
+    cascade: true,
+    eager: true,
+  })
+  reviews: Review[];
 
   @CreateDateColumn({
     name: 'created_at',

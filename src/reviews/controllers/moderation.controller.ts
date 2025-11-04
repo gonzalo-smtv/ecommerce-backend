@@ -200,44 +200,4 @@ export class ModerationController {
   ): Promise<Review> {
     return this.moderationService.hideReview(id, req.user.id, body.reason);
   }
-
-  @Post('bulk/approve')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: 'Aprobar múltiples reviews',
-    description: 'Aprueba múltiples reviews pendientes en una sola operación.',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Reviews aprobados exitosamente',
-    type: [Review],
-  })
-  async bulkApprove(
-    @Body() body: { reviewIds: string[] },
-    @Request() req: any,
-  ): Promise<Review[]> {
-    return this.moderationService.bulkApprove(body.reviewIds, req.user.id);
-  }
-
-  @Post('bulk/reject')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: 'Rechazar múltiples reviews',
-    description: 'Rechaza múltiples reviews en una sola operación.',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Reviews rechazados exitosamente',
-    type: [Review],
-  })
-  async bulkReject(
-    @Body() body: { reviewIds: string[]; reason: string },
-    @Request() req: any,
-  ): Promise<Review[]> {
-    return this.moderationService.bulkReject(
-      body.reviewIds,
-      req.user.id,
-      body.reason,
-    );
-  }
 }

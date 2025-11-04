@@ -2,11 +2,10 @@ import {
   Controller,
   Get,
   Post,
-  Put,
+  Patch,
   Delete,
   Body,
   Param,
-  Query,
   UseGuards,
   HttpCode,
   HttpStatus,
@@ -15,7 +14,6 @@ import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { ReviewsService } from '../services/reviews.service';
 import { CreateReviewDto } from '../dto/create-review.dto';
 import { UpdateReviewDto } from '../dto/update-review.dto';
-import { ReviewQueryDto } from '../dto/review-query.dto';
 import { Review } from '../entities/review.entity';
 import { AuthenticatedGuard } from '../../auth/guards/authenticated.guard';
 import { UserInfo } from '../../auth/decorators/user-info.decorator';
@@ -25,64 +23,19 @@ import { UserInfo } from '../../auth/decorators/user-info.decorator';
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
-  @Get('product/:productVariationId')
+  @Get()
   @ApiOperation({
-    summary: 'Obtener reviews de un producto',
-    description:
-      'Obtiene una lista paginada de reviews para un producto específico.',
-  })
-  @ApiParam({
-    name: 'productVariationId',
-    description: 'ID de la variación del producto',
-    example: '123e4567-e89b-12d3-a456-426614174000',
+    summary: 'Obtener todas las reviews',
+    description: 'Obtiene todas las reviews del sistema.',
   })
   @ApiResponse({
     status: 200,
     description: 'Lista de reviews obtenida exitosamente',
-    schema: {
-      type: 'object',
-      properties: {
-        reviews: {
-          type: 'array',
-          items: { $ref: '#/components/schemas/Review' },
-        },
-        total: { type: 'number' },
-      },
-    },
+    type: [Review],
   })
-  async findByProductVariationId(
-    @Param('productVariationId') productVariationId: string,
-    @Query() queryDto: ReviewQueryDto,
-  ): Promise<{ reviews: Review[]; total: number }> {
-    return this.reviewsService.findByProductVariationId(
-      productVariationId,
-      queryDto,
-    );
+  async findAll(): Promise<Review[]> {
+    return this.reviewsService.findAll();
   }
-
-  @Get(':id')
-  @ApiOperation({
-    summary: 'Obtener un review por ID',
-    description: 'Obtiene un review específico por su ID.',
-  })
-  @ApiParam({
-    name: 'id',
-    description: 'ID del review',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Review encontrado',
-    type: Review,
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Review no encontrado',
-  })
-  async findById(@Param('id') id: string): Promise<Review> {
-    return this.reviewsService.findById(id);
-  }
-
   @Post()
   @UseGuards(AuthenticatedGuard)
   @ApiOperation({
@@ -164,7 +117,7 @@ export class ReviewsController {
     await this.reviewsService.reportReview(id);
   }
 
-  @Put(':id')
+  @Patch(':id')
   @UseGuards(AuthenticatedGuard)
   @ApiOperation({
     summary: 'Actualizar un review',

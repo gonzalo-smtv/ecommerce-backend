@@ -142,6 +142,13 @@ export class ReviewsService {
     return review;
   }
 
+  async findAll(): Promise<Review[]> {
+    return this.reviewRepository.find({
+      relations: ['user', 'productVariation', 'images'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
   async findByProductVariationId(
     productVariationId: string,
     queryDto: ReviewQueryDto,
@@ -152,8 +159,14 @@ export class ReviewsService {
       .leftJoinAndSelect('review.images', 'images')
       .where('review.productVariationId = :productVariationId', {
         productVariationId,
-      })
-      .andWhere('review.status = :status', { status: ReviewStatus.APPROVED });
+      });
+
+    // Si no se especifica incluir todos, filtrar solo aprobados
+    if (!queryDto.includeAll) {
+      queryBuilder.andWhere('review.status = :status', {
+        status: ReviewStatus.APPROVED,
+      });
+    }
 
     // Aplicar filtros
     if (queryDto.verifiedOnly) {

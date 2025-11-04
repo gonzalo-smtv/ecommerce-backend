@@ -27,7 +27,13 @@ export class ProductTemplatesService {
 
   async findAll(): Promise<ProductTemplate[]> {
     return this.productTemplatesRepository.find({
-      relations: ['categories', 'variations', 'variations.priceTiers'],
+      relations: [
+        'categories',
+        'variations',
+        'variations.priceTiers',
+        'variations.reviews',
+        'variations.reviews.user',
+      ],
       order: { name: 'ASC' },
     });
   }
@@ -35,7 +41,13 @@ export class ProductTemplatesService {
   async findOne(id: string): Promise<ProductTemplate> {
     const template = await this.productTemplatesRepository.findOne({
       where: { id },
-      relations: ['categories', 'variations', 'variations.priceTiers'],
+      relations: [
+        'categories',
+        'variations',
+        'variations.priceTiers',
+        'variations.reviews',
+        'variations.reviews.user',
+      ],
     });
 
     if (!template) {

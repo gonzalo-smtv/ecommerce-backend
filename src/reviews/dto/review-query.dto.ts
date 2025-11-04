@@ -101,4 +101,13 @@ export class ReviewQueryDto {
   @IsOptional()
   @IsString()
   search?: string;
+
+  @ApiPropertyOptional({
+    description: 'Incluir todos los reviews (incluyendo pendientes)',
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  @Type(() => Boolean)
+  includeAll?: boolean;
 }

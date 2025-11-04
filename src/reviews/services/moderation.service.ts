@@ -148,37 +148,4 @@ export class ModerationService {
       order: { updatedAt: 'DESC' },
     });
   }
-
-  async bulkApprove(reviewIds: string[], adminId: string): Promise<Review[]> {
-    const reviews = await this.reviewRepository.find({
-      where: { id: { $in: reviewIds } } as any,
-    });
-
-    const updatedReviews = reviews.map((review) => {
-      review.status = ReviewStatus.APPROVED;
-      review.moderatedBy = adminId;
-      return review;
-    });
-
-    return this.reviewRepository.save(updatedReviews);
-  }
-
-  async bulkReject(
-    reviewIds: string[],
-    adminId: string,
-    reason: string,
-  ): Promise<Review[]> {
-    const reviews = await this.reviewRepository.find({
-      where: { id: { $in: reviewIds } } as any,
-    });
-
-    const updatedReviews = reviews.map((review) => {
-      review.status = ReviewStatus.REJECTED;
-      review.moderationReason = reason;
-      review.moderatedBy = adminId;
-      return review;
-    });
-
-    return this.reviewRepository.save(updatedReviews);
-  }
 }
