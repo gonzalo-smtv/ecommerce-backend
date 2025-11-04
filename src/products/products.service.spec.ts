@@ -85,24 +85,6 @@ describe('ProductVariationsService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('findAllWithDetails', () => {
-    it('should return an array of products', async () => {
-      const mockProductVariations = [
-        createTestProductVariation({ id: '1', name: 'ProductVariation 1' }),
-        createTestProductVariation({ id: '2', name: 'ProductVariation 2' }),
-      ];
-
-      (productRepository.find as jest.Mock).mockResolvedValue(
-        mockProductVariations,
-      );
-
-      const result = await service.findAllWithDetails();
-
-      expect(result).toEqual(mockProductVariations);
-      expect(productRepository.find).toHaveBeenCalled();
-    });
-  });
-
   describe('findByIdWithDetails', () => {
     it('should return a product by id', async () => {
       const mockProductVariation = createTestProductVariation({
@@ -135,6 +117,7 @@ describe('ProductVariationsService', () => {
   describe('create', () => {
     it('should create and return a new product', async () => {
       const productData = {
+        template_id: 'template-123',
         name: 'New ProductVariation',
         sku: 'new-sku',
         price: 100,

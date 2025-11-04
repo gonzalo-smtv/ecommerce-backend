@@ -36,29 +36,6 @@ export class CategoriesController {
     return this.categoriesService.getCategoryTree();
   }
 
-  @Get(':id')
-  @ApiOperation({
-    summary: 'Get a category by ID',
-    description:
-      'Retrieves a single category with its parent and children relations',
-  })
-  @ApiParam({
-    name: 'id',
-    description: 'Category ID to retrieve',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Category retrieved successfully',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Category not found',
-  })
-  findOne(@Param('id') id: string) {
-    return this.categoriesService.findOne(id);
-  }
-
   // ===== POST METHODS (Create Operations) =====
 
   @Post()

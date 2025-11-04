@@ -1,62 +1,28 @@
 import {
   Controller,
-  Get,
   Post,
   Delete,
   Param,
   Req,
   UseInterceptors,
   UploadedFiles,
-  Res,
-  NotFoundException,
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ProductImagesService } from './product-images.service';
 import { ProductImage } from './entities/product-image.entity';
-import { ApiConsumes, ApiBody, ApiParam, ApiOperation } from '@nestjs/swagger';
+import {
+  ApiConsumes,
+  ApiBody,
+  ApiParam,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 
+@ApiTags('Product Images')
 @Controller('product-variations/:variationId/images')
 export class ProductImagesController {
   constructor(private readonly productImagesService: ProductImagesService) {}
-
-  // ===== GET METHODS (Read Operations) =====
-
-  @Get()
-  @ApiOperation({ summary: 'Get all images for a product variation' })
-  @ApiParam({
-    name: 'variationId',
-    type: 'string',
-    description: 'ID of the product variation',
-  })
-  findAll(
-    @Param('variationId', ParseUUIDPipe) variationId: string,
-  ): Promise<ProductImage[]> {
-    return this.productImagesService.findAllByVariationId(variationId);
-  }
-
-  @Get(':id/file')
-  @ApiOperation({ summary: 'Get the image file' })
-  @ApiParam({
-    name: 'variationId',
-    type: 'string',
-    description: 'ID of the product variation',
-  })
-  @ApiParam({ name: 'id', type: 'string', description: 'ID of the image' })
-  async getImageFile(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Res() res: any,
-  ): Promise<any> {
-    const imageBuffer = await this.productImagesService.getImageBuffer(id);
-    if (!imageBuffer) {
-      throw new NotFoundException('Image not found');
-    }
-    res.set({
-      'Content-Type': 'image/jpeg',
-      'Cache-Control': 'public, max-age=3600',
-    });
-    return res.send(imageBuffer);
-  }
 
   // ===== POST METHODS (Create Operations) =====
 

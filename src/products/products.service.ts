@@ -119,15 +119,6 @@ export class ProductVariationsService {
   }
 
   /**
-   * Get all products with full details
-   */
-  async findAllWithDetails(): Promise<ProductVariation[]> {
-    return this.productsRepository.find({
-      relations: ['images'],
-    });
-  }
-
-  /**
    * Get product with full details
    */
   async findByIdWithDetails(id: string): Promise<ProductVariation> {

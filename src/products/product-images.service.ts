@@ -113,14 +113,4 @@ export class ProductImagesService {
 
     await this.productImagesRepository.remove(image);
   }
-
-  async getImageBuffer(id: string): Promise<Buffer | null> {
-    const image = await this.findOne(id);
-    if (!image || !image.url) {
-      return null;
-    }
-
-    // Get the image from cache or download it if not cached
-    return this.cacheService.getImage(image.url);
-  }
 }
