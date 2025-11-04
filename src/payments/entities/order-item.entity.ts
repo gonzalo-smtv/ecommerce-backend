@@ -17,6 +17,9 @@ export class OrderItem {
   orderId: string;
 
   @Column()
+  productVariationId: string;
+
+  @Column()
   title: string;
 
   @Column()
