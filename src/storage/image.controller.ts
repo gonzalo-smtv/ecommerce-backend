@@ -5,7 +5,7 @@ import {
   Res,
   Query,
 } from '@nestjs/common';
-import { ApiParam, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
 import { CacheService } from '@app/cache/cache.service';
 import type { IStorageService } from './storage.interface';
 import { Inject } from '@nestjs/common';
@@ -30,7 +30,7 @@ export class ImageController {
     summary: 'Get image file',
     description: 'Returns the image file directly',
   })
-  @ApiParam({
+  @ApiQuery({
     name: 'path',
     required: true,
     description: 'Path of the image file',
