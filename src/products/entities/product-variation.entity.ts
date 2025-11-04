@@ -13,6 +13,7 @@ import {
 } from 'typeorm';
 import { ProductTemplate } from './product-template.entity';
 import { ProductImage } from './product-image.entity';
+import { ProductPriceTier } from './product-price-tier.entity';
 import { Category } from '../../categories/entities/category.entity';
 
 @Entity('product_variations')
@@ -60,6 +61,12 @@ export class ProductVariation {
     eager: true,
   })
   images: ProductImage[];
+
+  @OneToMany(() => ProductPriceTier, (priceTier) => priceTier.variation, {
+    cascade: true,
+    eager: true,
+  })
+  priceTiers: ProductPriceTier[];
 
   @ManyToMany(() => Category, (category) => category.productVariations)
   @JoinTable({
