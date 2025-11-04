@@ -42,13 +42,11 @@ export class ImageController {
   async getImage(@Query('path') path: string, @Res() res: any) {
     const url = await this.storageService.getSignedUrl(path);
     let imageBuffer: Buffer<ArrayBufferLike> | null;
-    if (path.startsWith(LOCAL_STORAGE)) {
-      imageBuffer = await this.cacheService.getImage(url);
+    if (url.startsWith(LOCAL_STORAGE)) {
+      const localUrl = url.replace(LOCAL_STORAGE, STORAGE_PATH);
+      imageBuffer = await readFileAsync(localUrl);
     } else {
-      // For remote URLs, fetch directly without caching
-      imageBuffer = await readFileAsync(
-        url.replace(LOCAL_STORAGE, STORAGE_PATH),
-      );
+      imageBuffer = await this.cacheService.getImage(url);
     }
 
     if (!imageBuffer) {

@@ -106,7 +106,9 @@ export class CacheService {
       this.logger.debug(`Image downloaded and cached: ${imageUrl}`);
       return imageBuffer;
     } catch (error: any) {
-      this.logger.error(`Error downloading image: ${error.message}`);
+      this.logger.error(
+        `Error downloading image from ${imageUrl}: ${error.message}`,
+      );
       return null;
     }
   }
