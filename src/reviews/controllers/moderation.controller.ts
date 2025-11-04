@@ -4,7 +4,6 @@ import {
   Post,
   Body,
   Param,
-  Query,
   UseGuards,
   Request,
   HttpCode,
@@ -15,7 +14,7 @@ import {
   ApiOperation,
   ApiResponse,
   ApiParam,
-  ApiQuery,
+  ApiBody,
 } from '@nestjs/swagger';
 import { ModerationService } from '../services/moderation.service';
 import { Review } from '../entities/review.entity';
@@ -26,70 +25,6 @@ import { AdminGuard } from '../../auth/guards/admin.guard';
 @UseGuards(AdminGuard)
 export class ModerationController {
   constructor(private readonly moderationService: ModerationService) {}
-
-  @Get('pending')
-  @ApiOperation({
-    summary: 'Obtener reviews pendientes de moderación',
-    description:
-      'Obtiene una lista de reviews que requieren aprobación de moderador.',
-  })
-  @ApiQuery({
-    name: 'limit',
-    description: 'Cantidad máxima de reviews a retornar',
-    example: 50,
-    required: false,
-    type: Number,
-  })
-  @ApiQuery({
-    name: 'offset',
-    description: 'Cantidad de reviews a saltar',
-    example: 0,
-    required: false,
-    type: Number,
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Lista de reviews pendientes obtenida exitosamente',
-    type: [Review],
-  })
-  async getPendingReviews(@Query() query: { limit?: number; offset?: number }) {
-    return this.moderationService.getPendingReviews(
-      query.limit || 50,
-      query.offset || 0,
-    );
-  }
-
-  @Get('flagged')
-  @ApiOperation({
-    summary: 'Obtener reviews reportados',
-    description:
-      'Obtiene una lista de reviews que han sido reportados por usuarios.',
-  })
-  @ApiQuery({
-    name: 'limit',
-    description: 'Cantidad máxima de reviews a retornar',
-    example: 50,
-    required: false,
-    type: Number,
-  })
-  @ApiQuery({
-    name: 'offset',
-    description: 'Cantidad de reviews a saltar',
-    example: 0,
-    required: false,
-    type: Number,
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Lista de reviews reportados obtenida exitosamente',
-    type: [Review],
-  })
-  async getFlaggedReviews(@Query() query: { limit?: number; offset?: number }) {
-    return this.moderationService.getFlaggedReviews(
-      query.limit || 50,
-      query.offset || 0,
-    );
-  }
 
   @Get('stats')
   @ApiOperation({
@@ -127,6 +62,19 @@ export class ModerationController {
     description: 'ID del review a aprobar',
     example: '123e4567-e89b-12d3-a456-426614174000',
   })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        reason: {
+          type: 'string',
+          description: 'Razón opcional para la aprobación',
+          example: 'Contenido apropiado y útil',
+        },
+      },
+      required: [],
+    },
+  })
   @ApiResponse({
     status: 200,
     description: 'Review aprobado exitosamente',
@@ -154,6 +102,19 @@ export class ModerationController {
     name: 'id',
     description: 'ID del review a rechazar',
     example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        reason: {
+          type: 'string',
+          description: 'Razón requerida para el rechazo',
+          example: 'Contenido inapropiado o spam',
+        },
+      },
+      required: ['reason'],
+    },
   })
   @ApiResponse({
     status: 200,
@@ -183,6 +144,19 @@ export class ModerationController {
     name: 'id',
     description: 'ID del review a ocultar',
     example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        reason: {
+          type: 'string',
+          description: 'Razón requerida para ocultar el review',
+          example: 'Violación de políticas de contenido',
+        },
+      },
+      required: ['reason'],
+    },
   })
   @ApiResponse({
     status: 200,

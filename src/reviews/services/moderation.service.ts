@@ -85,32 +85,6 @@ export class ModerationService {
     return this.reviewRepository.save(review);
   }
 
-  async getPendingReviews(
-    limit: number = 50,
-    offset: number = 0,
-  ): Promise<Review[]> {
-    return this.reviewRepository.find({
-      where: { status: ReviewStatus.PENDING },
-      relations: ['user', 'productVariation'],
-      order: { createdAt: 'ASC' },
-      take: limit,
-      skip: offset,
-    });
-  }
-
-  async getFlaggedReviews(
-    limit: number = 50,
-    offset: number = 0,
-  ): Promise<Review[]> {
-    return this.reviewRepository.find({
-      where: { status: ReviewStatus.FLAGGED },
-      relations: ['user', 'productVariation'],
-      order: { reportCount: 'DESC', updatedAt: 'DESC' },
-      take: limit,
-      skip: offset,
-    });
-  }
-
   async getModerationStats(): Promise<{
     pending: number;
     approved: number;
