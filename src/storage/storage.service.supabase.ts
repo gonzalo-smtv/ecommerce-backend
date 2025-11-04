@@ -127,23 +127,28 @@ export class StorageServiceSupabase implements IStorageService {
    * @param expiresIn - Expiration time in seconds
    * @returns The signed URL
    */
+  // eslint-disable-next-line @typescript-eslint/require-await
   async getSignedUrl(
     filePath: string,
-    expiresIn: number = 60,
+    // expiresIn: number = 60,
   ): Promise<string> {
     try {
-      const { data, error } = await this.supabase.storage
+      const { data } = this.supabase.storage
         .from(SUPABASE_STORAGE_BUCKET)
-        .createSignedUrl(filePath, expiresIn);
+        .getPublicUrl(filePath);
 
-      if (error) {
-        this.logger.error(`Error creating signed URL: ${error.message}`, error);
-        throw new BadRequestException(
-          `Error creating signed URL: ${error.message}`,
-        );
-      }
+      // const { data, error } = await this.supabase.storage
+      //   .from(SUPABASE_STORAGE_BUCKET)
+      //   .createSignedUrl(filePath, expiresIn);
 
-      return data.signedUrl;
+      // if (error) {
+      //   this.logger.error(`Error creating signed URL: ${error.message}`, error);
+      //   throw new BadRequestException(
+      //     `Error creating signed URL: ${error.message}`,
+      //   );
+      // }
+
+      return data.publicUrl;
     } catch (error: any) {
       this.logger.error(`Error in getSignedUrl: ${error.message}`, error);
       throw new BadRequestException(
