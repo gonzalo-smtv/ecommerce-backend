@@ -331,23 +331,65 @@ export class ReviewsService {
       return null;
     }
 
-    const summary = this.ratingSummaryRepository.create({
-      productVariationId,
-      averageRating: parseFloat(result.average) || 0,
-      totalReviews: parseInt(result.total),
-      ratingDistribution: result.distribution,
-      verifiedReviews: parseInt(result.verified_count) || 0,
-      verifiedAverageRating: parseFloat(result.verified_average) || 0,
-      lastCalculated: new Date(),
+    // Verificar si ya existe un resumen para este producto
+    const existingSummary = await this.ratingSummaryRepository.findOne({
+      where: { productVariationId },
     });
 
-    // Guardar en base de datos
-    await this.ratingSummaryRepository.save(summary);
+    let summary: ProductRatingSummary;
+
+    if (existingSummary) {
+      // Actualizar el resumen existente
+      Object.assign(existingSummary, {
+        averageRating: parseFloat(result.average) || 0,
+        totalReviews: parseInt(result.total),
+        ratingDistribution: result.distribution,
+        verifiedReviews: parseInt(result.verified_count) || 0,
+        verifiedAverageRating: parseFloat(result.verified_average) || 0,
+        lastCalculated: new Date(),
+      });
+      summary = await this.ratingSummaryRepository.save(existingSummary);
+    } else {
+      // Crear nuevo resumen
+      summary = this.ratingSummaryRepository.create({
+        productVariationId,
+        averageRating: parseFloat(result.average) || 0,
+        totalReviews: parseInt(result.total),
+        ratingDistribution: result.distribution,
+        verifiedReviews: parseInt(result.verified_count) || 0,
+        verifiedAverageRating: parseFloat(result.verified_average) || 0,
+        lastCalculated: new Date(),
+      });
+      summary = await this.ratingSummaryRepository.save(summary);
+    }
 
     // Cachear por 1 hora
     const cacheKey = `rating:product:${productVariationId}`;
     await this.cacheManager.set(cacheKey, summary, 3600);
 
     return summary;
+  }
+
+  async getTopRatedProducts(limit: number = 10, minReviews: number = 1) {
+    const summaries = await this.ratingSummaryRepository
+      .createQueryBuilder('summary')
+      .leftJoinAndSelect('summary.productVariation', 'productVariation')
+      .leftJoinAndSelect('productVariation.template', 'template')
+      .where('summary.totalReviews >= :minReviews', { minReviews })
+      .andWhere('summary.averageRating > 0')
+      .orderBy('summary.averageRating', 'DESC')
+      .addOrderBy('summary.totalReviews', 'DESC')
+      .limit(limit)
+      .getMany();
+
+    return summaries.map((summary) => ({
+      productVariationId: summary.productVariationId,
+      productVariation: summary.productVariation,
+      averageRating: summary.averageRating,
+      totalReviews: summary.totalReviews,
+      verifiedReviews: summary.verifiedReviews,
+      verifiedAverageRating: summary.verifiedAverageRating,
+      ratingDistribution: summary.ratingDistribution,
+    }));
   }
 }

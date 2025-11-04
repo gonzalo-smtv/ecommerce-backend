@@ -148,16 +148,48 @@ export class RatingsController {
   @ApiResponse({
     status: 200,
     description: 'Lista de productos mejor calificados obtenida exitosamente',
+    schema: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          productVariationId: {
+            type: 'string',
+            description: 'ID de la variación del producto',
+          },
+          productVariation: {
+            $ref: '#/components/schemas/ProductVariation',
+          },
+          averageRating: {
+            type: 'number',
+            description: 'Calificación promedio',
+          },
+          totalReviews: {
+            type: 'number',
+            description: 'Total de reviews',
+          },
+          verifiedReviews: {
+            type: 'number',
+            description: 'Reviews verificadas',
+          },
+          verifiedAverageRating: {
+            type: 'number',
+            description: 'Calificación promedio de reviews verificadas',
+          },
+          ratingDistribution: {
+            type: 'object',
+            description: 'Distribución de calificaciones por estrella',
+          },
+        },
+      },
+    },
   })
-  getTopRatedProducts(@Query() query: { limit?: number; minReviews?: number }) {
-    // TODO: Implementar consulta para obtener productos top-rated
-    // Esta funcionalidad requeriría una consulta más compleja que involucre
-    // la tabla product_rating_summary y posiblemente product_variations
+  async getTopRatedProducts(
+    @Query() query: { limit?: number; minReviews?: number },
+  ) {
+    const limit = query.limit || 10;
+    const minReviews = query.minReviews || 1;
 
-    return {
-      message: 'Funcionalidad pendiente de implementar',
-      limit: query.limit || 10,
-      minReviews: query.minReviews || 1,
-    };
+    return this.reviewsService.getTopRatedProducts(limit, minReviews);
   }
 }
