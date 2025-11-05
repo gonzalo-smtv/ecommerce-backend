@@ -94,7 +94,7 @@ export class PaymentsService {
         ),
       },
       auto_return: 'approved',
-      statement_descriptor: 'LTecDeco',
+      statement_descriptor: 'Ecommerce',
       external_reference: order.id,
       notification_url: this.configService.getOrThrow<string>(
         'MERCADO_PAGO_WEBHOOK_URL',

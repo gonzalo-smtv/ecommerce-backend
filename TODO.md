@@ -1,6 +1,6 @@
-# LTecDeco Backend - TODO List
+# Ecommerce Backend - TODO List
 
-This document outlines planned enhancements and features for the LTecDeco backend application.
+This document outlines planned enhancements and features for the Ecommerce backend application.
 
 ## Completed Features
 

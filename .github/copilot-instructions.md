@@ -1,8 +1,8 @@
-# LTecDeco Backend - AI Assistant Instructions
+# Ecommerce Backend - AI Assistant Instructions
 
 ## Project Overview
 
-LTecDeco is an e-commerce backend API built with NestJS, TypeScript, and PostgreSQL. The application follows a modular architecture with clean separation of concerns.
+Ecommerce is an e-commerce backend API built with NestJS, TypeScript, and PostgreSQL. The application follows a modular architecture with clean separation of concerns.
 
 ## Architecture
 

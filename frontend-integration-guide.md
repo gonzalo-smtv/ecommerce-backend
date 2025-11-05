@@ -1,4 +1,4 @@
-# Guía de Integración Frontend - LTecDeco Backend API
+# Guía de Integración Frontend - Ecommerce Backend API
 
 ## 📋 Tabla de Contenidos
 
@@ -15,7 +15,7 @@
 
 ## 🚀 Introducción
 
-Esta guía proporciona toda la información necesaria para integrar aplicaciones frontend con el backend API de LTecDeco, un sistema de e-commerce completo construido con NestJS.
+Esta guía proporciona toda la información necesaria para integrar aplicaciones frontend con el backend API de Ecommerce, un sistema de e-commerce completo construido con NestJS.
 
 ### Características Principales
 
@@ -72,7 +72,7 @@ DB_HOST=localhost
 DB_PORT=5432
 DB_USERNAME=your_username
 DB_PASSWORD=your_password
-DB_NAME=ltecdeco
+DB_NAME=ecommerce
 
 # Servidor
 PORT=3000
@@ -731,7 +731,7 @@ Para aplicaciones Next.js, se recomienda **fuertemente** hacer los requests del 
 // lib/api-client.ts
 import axios from 'axios';
 
-class LTecDecoAPI {
+class EcommerceAPI {
   private baseURL: string;
   private apiClient: any;
 
@@ -780,7 +780,7 @@ class LTecDecoAPI {
   }
 }
 
-export const apiClient = new LTecDecoAPI();
+export const apiClient = new EcommerceAPI();
 ```
 
 ### Server Components (App Router)
@@ -1052,12 +1052,12 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     const product = response.data;
 
     return {
-      title: `${product.name} - LTecDeco`,
+      title: `${product.name} - Ecommerce`,
       description: `Compra ${product.name} por $${product.price}`,
     };
   } catch {
     return {
-      title: 'Producto no encontrado - LTecDeco',
+      title: 'Producto no encontrado - Ecommerce',
     };
   }
 }
@@ -1145,7 +1145,7 @@ Este enfoque proporciona la mejor combinación de seguridad, performance y exper
 ### Cliente JavaScript/TypeScript Completo
 
 ```javascript
-class LTecDecoAPI {
+class EcommerceAPI {
   constructor(baseURL = 'http://localhost:3000/api') {
     this.baseURL = baseURL;
     this.apiClient = axios.create({
@@ -1237,7 +1237,7 @@ class LTecDecoAPI {
 }
 
 // Uso
-const api = new LTecDecoAPI();
+const api = new EcommerceAPI();
 
 // Configurar autenticación si el usuario está logueado
 if (currentUser) {
@@ -1273,14 +1273,14 @@ async function ejemploFlujoCompra() {
 
 ```javascript
 import { useState, useEffect } from 'react';
-import { LTecDecoAPI } from './api';
+import { EcommerceAPI } from './api';
 
 export const useCart = () => {
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const api = new LTecDecoAPI();
+  const api = new EcommerceAPI();
 
   const fetchCart = async () => {
     setLoading(true);

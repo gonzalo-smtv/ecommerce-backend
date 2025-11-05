@@ -1,6 +1,6 @@
-# LTecDeco Backend API
+# Ecommerce Backend API
 
-Backend API for LTecDeco application built with NestJS, TypeScript, and PostgreSQL.
+Backend API for Ecommerce application built with NestJS, TypeScript, and PostgreSQL.
 
 ## Features
 

@@ -33,8 +33,8 @@ async function bootstrap() {
 
   // Swagger configuration
   const config = new DocumentBuilder()
-    .setTitle('LTecDeco API')
-    .setDescription('API documentation for LTecDeco application')
+    .setTitle('Ecommerce API')
+    .setDescription('API documentation for Ecommerce application')
     .setVersion('1.0')
     .addApiKey(
       {
