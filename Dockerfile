@@ -1,5 +1,5 @@
 # Stage 1: Build
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -16,7 +16,7 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Production
-FROM node:20-alpine AS production
+FROM node:22-alpine AS production
 
 WORKDIR /app
 
@@ -38,6 +38,9 @@ RUN npm install --save-dev ts-node tsconfig-paths typescript dotenv
 
 # Exponer el puerto
 EXPOSE 3001
+
+# Resetear el entrypoint heredado de la imagen base
+ENTRYPOINT []
 
 # Script de inicio que ejecuta migraciones y luego inicia la app
 CMD ["sh", "-c", "npm run migration:run && npm run start:prod"]
