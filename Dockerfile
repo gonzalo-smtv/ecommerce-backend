@@ -28,11 +28,13 @@ RUN npm ci --only=production
 
 # Copiar los archivos compilados desde el stage de build
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/src/typeorm.config.ts ./src/typeorm.config.ts
+
+# Copiar todo el directorio src (necesario para migraciones y typeorm.config.ts)
+COPY --from=builder /app/src ./src
 COPY --from=builder /app/tsconfig.json ./tsconfig.json
 
-# Instalar ts-node y tsconfig-paths para ejecutar migraciones
-RUN npm install --save-dev ts-node tsconfig-paths typescript
+# Instalar dependencias necesarias para ejecutar migraciones
+RUN npm install --save-dev ts-node tsconfig-paths typescript dotenv
 
 # Exponer el puerto
 EXPOSE 3001
