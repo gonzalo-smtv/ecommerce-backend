@@ -26,6 +26,12 @@ export class CartService {
     private productVariationsService: ProductVariationsService,
   ) {}
 
+  async findAll(): Promise<Cart[]> {
+    return this.cartRepository.find({
+      relations: ['items', 'items.productVariation'],
+    });
+  }
+
   /**
    * Get or create a cart for a user or session
    * @param userId - Optional user ID for authenticated users
@@ -249,7 +255,11 @@ export class CartService {
     return this.cartRepository.save(cart);
   }
 
-  // Empty cart
+  async clearAll(): Promise<void> {
+    await this.cartItemRepository.createQueryBuilder().delete().execute();
+    await this.cartRepository.createQueryBuilder().delete().execute();
+  }
+
   async clearCart(cartId: string): Promise<Cart> {
     const cart = await this.cartRepository.findOne({
       where: { id: cartId },

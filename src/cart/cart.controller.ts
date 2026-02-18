@@ -33,6 +33,13 @@ export class CartController {
 
   // ===== GET METHODS (Read Operations) =====
 
+  @Get('all')
+  @ApiOperation({ summary: 'Get all carts' })
+  @ApiResponse({ status: 200, description: 'All carts', type: [Cart] })
+  async getAllCarts() {
+    return this.cartService.findAll();
+  }
+
   @Get()
   @ApiOperation({ summary: 'Get current cart' })
   @ApiResponse({ status: 200, description: 'Cart found', type: Cart })
@@ -94,6 +101,14 @@ export class CartController {
     const { userId, sessionId } = userInfo;
     const cart = await this.cartService.getOrCreateCart(userId, sessionId);
     return this.cartService.removeFromCart(cart.id, id);
+  }
+
+  @Delete('clear-all')
+  @ApiOperation({ summary: 'Delete all carts' })
+  @ApiResponse({ status: 200, description: 'All carts deleted' })
+  async clearAllCarts() {
+    await this.cartService.clearAll();
+    return { message: 'All carts deleted' };
   }
 
   @Delete('clear')
