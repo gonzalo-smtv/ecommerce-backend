@@ -2,8 +2,8 @@ import {
   IsString,
   IsNumber,
   IsOptional,
-  IsBoolean,
   IsUUID,
+  IsInt,
   Min,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
@@ -46,13 +46,15 @@ export class CreateProductDto {
   attributes?: Record<string, any>;
 
   @ApiPropertyOptional({
-    description: 'Whether product is in stock',
-    example: true,
-    default: true,
+    description: 'Available stock quantity',
+    example: 50,
+    default: 0,
+    minimum: 0,
   })
   @IsOptional()
-  @IsBoolean()
-  inStock?: boolean;
+  @IsInt()
+  @Min(0)
+  stock?: number;
 
   @ApiProperty({
     description: 'Product template ID to associate with this product',
@@ -100,13 +102,15 @@ export class CreateProductWithImagesDto {
   attributes?: Record<string, any>;
 
   @ApiPropertyOptional({
-    description: 'Whether product is in stock',
-    example: true,
-    default: true,
+    description: 'Available stock quantity',
+    example: 50,
+    default: 0,
+    minimum: 0,
   })
   @IsOptional()
-  @IsBoolean()
-  inStock?: boolean;
+  @IsInt()
+  @Min(0)
+  stock?: number;
 
   @ApiPropertyOptional({
     description: 'Product images to upload (multipart/form-data)',

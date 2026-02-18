@@ -22,7 +22,7 @@ export class ProductsController {
   constructor(
     private readonly productsService: ProductVariationsService,
     private readonly productImagesService: ProductImagesService,
-  ) {}
+  ) { }
 
   // ===== POST METHODS (Create Operations) =====
 
@@ -45,7 +45,11 @@ export class ProductsController {
           example: { color: 'red', size: 'M' },
           description: 'Product attributes as key-value pairs',
         },
-        inStock: { type: 'boolean', example: true },
+        stock: {
+          type: 'number',
+          example: 50,
+          description: 'Available stock quantity',
+        },
         template_id: {
           type: 'string',
           format: 'uuid',
@@ -74,7 +78,7 @@ export class ProductsController {
       attributes: request.body.attributes
         ? JSON.parse(request.body.attributes)
         : undefined,
-      inStock: request.body.inStock === 'true',
+      stock: request.body.stock ? parseInt(request.body.stock, 10) : 0,
       template_id: request.body.template_id,
     };
 
